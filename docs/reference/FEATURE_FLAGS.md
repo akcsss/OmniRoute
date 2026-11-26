@@ -46,7 +46,7 @@ A boolean flag is considered **enabled** when its effective value is `"true"`,
 
 ## Flag Catalog
 
-142 flags across 6 categories. **Default** is the definition default — the value
+143 flags across 6 categories. **Default** is the definition default — the value
 used when neither a DB override nor an environment variable is present.
 
 ### Security (16)
@@ -130,7 +130,7 @@ Invalid enum values and unreadable feature-flag storage fail closed. Neither opt
 priced spend or a failed pricing lookup. Enforcement and the administrator report resolve the
 same effective policy.
 
-### Runtime (68)
+### Runtime (69)
 
 | Key                                                    | Type    | Default | Restart | Description                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
 | ------------------------------------------------------ | ------- | ------- | ------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -204,6 +204,7 @@ same effective policy.
 | `NONSTREAM_UPSTREAM_FAILURE_BILLED_USAGE_ENABLED`      | boolean | `false` |         | Include provider-reported billed tokens in usage history for failed non-streaming upstream requests.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
 | `CLAUDE_NONSTREAM_EXTRA_USAGE_BACKGROUND_SYNC_ENABLED` | boolean | `false` |         | Sync Claude extra-usage state in the background for non-streaming replies.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
 | `NONSTREAM_USAGE_NULL_TTFT_ENABLED`                    | boolean | `false` |         | Store a null time to first token for successful non-streaming replies so they are excluded from TTFT averages.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `FAMILY_FALLBACK_BILL_SERVED_MODEL_ENABLED`            | boolean | `false` |         | Attribute usage, cost, quotas, call logs, and routing events to the model that served a request after a model-family fallback. Budget consumption may change because sibling models can have different prices.                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 
 ### CLI (8)
 

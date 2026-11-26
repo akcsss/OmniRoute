@@ -61,4 +61,15 @@ export const EXTRA_FEATURE_FLAG_DEFINITIONS: FeatureFlagDefinition[] = [
     category: "runtime",
     requiresRestart: false,
   },
+  {
+    key: "FAMILY_FALLBACK_BILL_SERVED_MODEL_ENABLED",
+    label: "Family Fallback Billing",
+    description:
+      "Attribute usage, cost, quotas, call logs, and routing events to the model that served a request after a model-family fallback. Budget consumption may change because sibling models can have different prices.",
+    descriptionI18nKey: "featureFlagFamilyFallbackBillServedModelEnabledDescription",
+    type: "boolean",
+    defaultValue: "false",
+    category: "runtime",
+    requiresRestart: false,
+  },
 ];
