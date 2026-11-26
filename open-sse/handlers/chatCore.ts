@@ -3420,6 +3420,8 @@ async function handleChatCoreInner({
       sessionAffinityKey,
       skillRequestId,
       sourceFormat,
+      startTime,
+      traceId,
       stream,
       streamController,
       syncExecuteTranslatedBody,

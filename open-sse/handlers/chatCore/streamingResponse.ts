@@ -112,7 +112,15 @@ import {
 } from "../../services/modelFamilyFallback.ts";
 
 import { isLocalStreamLifecycleError } from "@/shared/utils/circuitBreaker";
-import { createRequestFamilyFallback } from "../../services/modelFamilyFallbackPolicy.ts";
+import {
+  createRequestFamilyFallback,
+  modelAfterFamilyFallback,
+} from "../../services/modelFamilyFallbackPolicy.ts";
+import {
+  emitFamilyFallbackFailureEvent,
+  resolveFamilyFallbackBillingModel,
+} from "./familyFallbackBilling.ts";
+import type { PersistAttemptLogsArgs } from "./attemptLogging.ts";
 import { shouldIsolateProbeFailures } from "@/shared/utils/probeOrigin";
 import { writeTerminalStatus } from "@/shared/utils/terminalStatus";
 import {
@@ -158,7 +166,7 @@ export async function runStreamingResponse(deps: StreamingDeps) {
 async function runStreamingResponseInner(deps: StreamingDeps) {
   const {
     apiKeyInfo,
-    persistAttemptLogs,
+    persistAttemptLogs: persistAttemptLogsFor,
     buildUpstreamHeadersForExecute,
     resolveEffectiveServiceTier,
     clientResponseFormat,
@@ -192,7 +200,7 @@ async function runStreamingResponseInner(deps: StreamingDeps) {
     pendingConnId,
     pendingRequestId,
     pendingScope,
-    persistFailureUsage,
+    persistFailureUsage: persistFailureUsageFor,
     provider,
     providerRequestCapture,
     reqLogger,
@@ -200,6 +208,8 @@ async function runStreamingResponseInner(deps: StreamingDeps) {
     sessionAffinityKey,
     skillRequestId,
     sourceFormat,
+    startTime,
+    traceId,
     stream,
     streamController,
     syncExecuteTranslatedBody,
@@ -236,6 +246,32 @@ async function runStreamingResponseInner(deps: StreamingDeps) {
   providerResponse = deps.providerResponse;
   providerUrl = deps.providerUrl;
   translatedBody = deps.translatedBody;
+  const failureBillingModel = () =>
+    resolveFamilyFallbackBillingModel(
+      model,
+      modelAfterFamilyFallback(
+        model,
+        currentModel,
+        effectiveModel,
+        providerRequestCapture.latest()?.body ?? finalBody
+      )
+    );
+  const persistAttemptLogs = (args: PersistAttemptLogsArgs) =>
+    persistAttemptLogsFor({ ...args, servedModel: failureBillingModel() });
+  const persistFailureUsage = (status: number, errorCode: string) => {
+    const billingModel = failureBillingModel();
+    persistFailureUsageFor(status, errorCode, undefined, billingModel);
+    emitFamilyFallbackFailureEvent(model, {
+      requestId: traceId || pendingRequestId || "unknown",
+      provider,
+      model: billingModel,
+      strategy: isCombo ? (comboStrategy ?? "combo") : "direct",
+      latencyMs: Date.now() - startTime,
+      status,
+      connectionId: getCurrentConnectionId(),
+      apiKeyId: apiKeyInfo?.id,
+    });
+  };
   // #3229: diagnostic of the response `providerResponse` holds; replacing it must replace this.
   let upstreamHttpSelection: HttpAttemptSelection | null = null;
   let upstreamDiagnostic: Record<string, unknown> | undefined;
@@ -442,7 +478,7 @@ async function runStreamingResponseInner(deps: StreamingDeps) {
     if (isSemaphoreCapacityError(error)) {
       const semaphoreCode = errorMetadata.code as string;
       appendRequestLog({
-        model,
+        model: failureBillingModel(),
         provider,
         connectionId,
         status: `FAILED ${semaphoreCode}`,
@@ -568,7 +604,7 @@ async function runStreamingResponseInner(deps: StreamingDeps) {
             ? "authentication_error"
             : undefined;
     appendRequestLog({
-      model,
+      model: failureBillingModel(),
       provider,
       connectionId,
       status: `FAILED ${failureStatus}`,
@@ -1075,7 +1111,7 @@ async function runStreamingResponseInner(deps: StreamingDeps) {
     );
 
     appendRequestLog({
-      model,
+      model: failureBillingModel(),
       provider,
       connectionId: errorConnectionId,
       status: `FAILED ${statusCode}`,

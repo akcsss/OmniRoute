@@ -260,6 +260,8 @@ export function extractResponsesId(sourceFormat: unknown, clientResponse: unknow
 }
 
 export type PersistAttemptLogsArgs = {
+  /** Model attributed to the call log after a billed family fallback. */
+  servedModel?: string;
   buyerCostMicro?: number | null;
   upstreamHttpSelection?: HttpAttemptSelection | null;
   status: number;
@@ -672,7 +674,7 @@ export function persistAttemptLogs(args: PersistAttemptLogsArgs, ctx: PersistAtt
     method: "POST",
     path: clientRawRequest?.endpoint || "/v1/chat/completions",
     status,
-    model,
+    model: args.servedModel ?? model,
     requestedModel,
     provider,
     connectionId: finalConnectionId || undefined,
