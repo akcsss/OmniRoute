@@ -287,6 +287,7 @@
     "retentionOpt": "Faqat oxirgi N ta zaxira nusxasini saqlash",
     "passphrasePrompt": "Shifrlash maxfiy iborasi:",
     "noPassphrase": "Shifrlangan zaxira nusxasi uchun maxfiy ibora talab qilinadi.",
+    "restoreDecryptFailed": "Zaxira {name} shifrini hal qilib bo'lmadi (noto'g'ri parol yoki shikastlangan fayl); hech narsa o'zgarmadi.",
     "cloudFailed": "Ogohlantirish: bulutga yuklash amalga oshmadi. Mahalliy zaxira nusxasi saqlandi.",
     "cloudUploaded": "Bulutdagi zaxira nusxasi yuklandi: {url}",
     "auto": {
@@ -973,7 +974,8 @@
       "description": "Barqarorlik konfiguratsiyasini boshqarish",
       "threshold": "Nosozlik chegarasi",
       "resetTimeout": "Qayta tiklash kutish vaqti, ms",
-      "baseCooldown": "Asosiy sovish vaqti, ms"
+      "baseCooldown": "Asosiy sovish vaqti, ms",
+      "p2cLatencyWeight": "p2c kechikish og'irligi, 0 (o'chirilgan) dan 20 gacha"
     }
   },
   "nodes": {
@@ -1283,7 +1285,9 @@
     "description": "OmniRoute’ga yo‘naltirilgan Claude Code’ni ishga tushirish (mahalliy yoki masofaviy, --profile bilan)",
     "token": "Claude mijozi yuborishi kerak bo‘lgan token (ANTHROPIC_AUTH_TOKEN)",
     "notRunning": "OmniRoute’ga {port} portida ulanib bo‘lmadi. Uni 'omniroute serve' bilan ishga tushiring.",
-    "notFound": "'claude' CLI PATH ichidan topilmadi."
+    "notFound": "'claude' CLI PATH ichidan topilmadi.",
+    "toolsHelp": "Kodlash vositasini ishga tushiring (shlyuzni avtomatik ishga tushiradi, bog'langan provayderlaringizdan modellar ro'yxati):\n  omniroute launch <tool> [variantlar] [-- toolArgs...]\n  omniroute launch --list ro'yxati ishga tushiriladigan asboblar\n  asbobni ishga tushirish uchun omniroute launch <tool> --help opsiyalari (--model, --all-models, ...)\n\nAsbob nomisiz ishga tushirish yuqoridagi variantlar bilan Klod kodini ishga tushiradi (eskirgan).",
+    "gatewayDescription": "Omniroute ishga tushirilgan shlyuzni tekshiring yoki boshqaring"
   },
   "run": {
     "description": "OmniRoute orqali qoʻllab-quvvatlanadigan CLI nishonini ishga tushirish"
