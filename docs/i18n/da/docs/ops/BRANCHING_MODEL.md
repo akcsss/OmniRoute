@@ -39,7 +39,7 @@ skal normalt målrettes mod en anden gren før sammenfletning.
 
 ## Frigør fryse (parallelle cyklusser)
 
-Når en udgivelse bliver afstemt, åbnes et markørproblem mærket `release-freeze`. At** stopper ikke udviklingen** :
+Når en udgivelse er ved at blive afstemt, åbnes et markørproblem mærket `release-freeze`. At** stopper ikke udviklingen** :
 
 - Den frosne `release/vX.Y.Z` tilhører frigivelseskaptajnen for det skib.
 - Den næste cyklus `release/vX+1` skæres fra den frosne spids, så bidragyderne fortsætter med at lande.
@@ -48,7 +48,7 @@ Når en udgivelse bliver afstemt, åbnes et markørproblem mærket `release-free
 Tjek for en åben frysning, før du antager, at den gren, du ønsker, kan flettes:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 Merge mekanik (ejer `queue` label → Mergify) er dokumenteret i [MERGE_TRAIN.md](./MERGE_TRAIN.md).

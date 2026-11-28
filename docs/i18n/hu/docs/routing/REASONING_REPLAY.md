@@ -4,7 +4,7 @@
 
 ---
 
-> **Az igazság forrása:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`** Utolsó frissítés:** 2026-06-28 — v3.8.40
+> **Az igazság forrása:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`
 
 OmniRoute rögzíti a gondolkodásmódú modellek által előállított asszisztens `reasoning_content`, és transzparensen lejátssza azt többfordulós kérések esetén, amikor az upstream szolgáltató megköveteli. Ez kiküszöböli azokat a HTTP 400 hibákat, amelyeket a szigorú szolgáltatók vetnek fel, ha az ügyfél beszélgetési előzményeiből hiányzik az előző kör indoklása.
 

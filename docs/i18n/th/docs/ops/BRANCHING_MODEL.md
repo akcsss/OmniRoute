@@ -48,7 +48,7 @@ flowchart LR
 ตรวจสอบการค้างแบบเปิดก่อนที่จะสมมติว่าสาขาที่คุณต้องการสามารถรวมเข้าด้วยกันได้:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 กลไกการผสาน (เจ้าของ `queue` label → Mergify) ได้รับการบันทึกไว้ใน [MERGE_TRAIN.md](./MERGE_TRAIN.md)

@@ -13,11 +13,13 @@ Varsayılan çapraz sağlayıcı politikası, en fazla üç sağlayıcı girişi
 ## Nerede geçerlidir?
 
 - **Kombinasyonlar** kombonun kendi stratejisine ve ayarlarına göre hedefleri arasında yük devretme.
-- **Çıplak model kimliği** ( `provider/` öneki yok) birkaç aktif sağlayıcının tam olarak aynı ismin birleşimi olmadan hizmet verdiği, ilk olarak sağlayıcı çıkarım seçimlerine gönderilir. Bu girişim, politikanın yük devretmesi şeklinde başarısız olursa, aynı istek, kimliğe hizmet veren bir sonraki aktif sağlayıcıya gönderilir. Yanıt, yanıtlayandan önce denenen sağlayıcıların sayısını içeren `x-omniroute-fallback-attempts` taşır.
+- **Çıplak model kimliği** ( `provider/` öneki yok) birden fazla aktif sağlayıcının tam olarak aynı adın birleşimi olmadan hizmet verdiği, ilk olarak sağlayıcı çıkarım seçimlerine gönderilir. Bu girişim, politikanın yük devretmesi şeklinde başarısız olursa, aynı istek, kimliğe hizmet veren bir sonraki aktif sağlayıcıya gönderilir. Yanıt, yanıtlayandan önce denenen sağlayıcıların sayısını içeren `x-omniroute-fallback-attempts` taşır.
   - Her bir yedek, sanki çıkarım onu seçmiş gibi yetkilendirilmiştir. API anahtarının engellediği veya kabul etmediği bir hedef, yukarı akış çağrısı olmadan atlanır ve istemci, hiç adlandırmadığı bir hedef için politika reddi değil, gerçek yukarı akış hatasını alır.
-  - Yalnızca başarısız bir yanıt devam eder: aktarılan ilk bayttan sonra hiçbir şey devredilmez.
+  - Yalnızca başarısız bir yanıt devam eder: aktarılan ilk bayttan sonra hiçbir şey devretmez.
   - Acil durum geri dönüş modeli değişimi, yalnızca talep edilen modelin tüm sağlayıcılarının başarısız olması durumunda geçerlidir.
   - Bir bağlantıya sabitlenen istek (`x-omniroute-connection`) üzerinde kalır.
   - Ön ekli kimlik (`provider/model`) hiçbir zaman başka bir sağlayıcıya yönlendirilmez.
 
 Devre durumları `closed`, `open` ve `half_open`. Bir bekleme süresi sınırlı bir araştırmayı planlar; Başarılı bir prob devreyi kapatır ve başarısız bir prob onu yeniden açar.
+
+Sağlayıcı yük devretme ağ geçidinin içinde çalışır. Bkz. Ağ geçidi kesintisi sırasında istemci davranışı açısından [OmniRoute kendisine erişilemediğinde](architecture/RESILIENCE_GUIDE.md#when-omniroute-itself-is-unreachable).

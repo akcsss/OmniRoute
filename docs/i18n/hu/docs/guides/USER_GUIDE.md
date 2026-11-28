@@ -245,33 +245,41 @@ Modellek: kr/claude-sonnet-4.5, kr/claude-haiku-4.5
 
 ---
 
-## 🎨 Kombinációk
+## 🎨 Combos
 
-A kombinációs kártyákat közvetlenül az **Irányítópult → Kombinációk** oldalon rendezheted át az egyes kártyák fogantyújának húzásával. A sorrendet az SQLite tárolja, és újratöltéskor visszaállítja.
+Közvetlenül átrendelheti a kombinált kártyákat** Műszerfal → Combos** minden kártya fogantyújának húzásával. A sorrend SQLite -ben tárolódik, és újratöltéskor visszaáll.
 
-### 1. példa: Előfizetés maximalizálása → Olcsó tartalék
+### Keressen egy szolgáltatót, modellt vagy fiókot
+
+A Combo létrehozása vagy szerkesztése szakaszban a lépésenkénti szolgáltató, modell, fiók és kombinált hivatkozásválasztók tartalmaznak egy helyi keresőmezőt. Keressen egy megjelenített név, azonosító, szolgáltató álnév vagy modellforrás alapján, majd kattintson egy találatra, vagy használja a nyílbillentyűket és az Enter billentyűt. Több keresési kifejezésnek egyeznie kell. A keresés törlésével vagy az Escape billentyű lenyomásával a kiválasztott érték változatlan marad.
+
+Az automatikus fiókválasztás a keresés során látható marad. Az opcionális fiókkorlátozási listája külön szűrővel rendelkezik: a látható eredményeken kívüli kiválasztott fiókok továbbra is kijelölve maradnak, és a szám tartalmazza őket. A rejtett e-mail töredékek nem kereshetők, ha az e-mailek adatvédelme be van kapcsolva. Adja hozzá a lépést, és mentse a kombinációt a szokásos módon; a lekérdezés beírása nem ment el és nem tesztel semmit.
+
+Ugyanez a helyi keresés érhető el a kapcsolatteszt-modellek, az egyéni CLI alapértelmezett és alias modellek, valamint a mentett proxy-választások esetében. A meglévő mentési, alkalmazási és tesztelési műveletek különállóak maradnak.
+
+### 1. példa: Előfizetés maximalizálása → Olcsó biztonsági mentés
 
 ```
-Irányítópult → Kombinációk → Új létrehozása
+Dashboard → Combos → Create New
 
-Név: premium-coding
-Modellek:
-  1. cc/claude-opus-4-7 (Elsődleges előfizetés)
-  2. glm/glm-4.7 (Olcsó tartalék, $0.6/1M)
-  3. minimax/MiniMax-M2.7 (Legolcsóbb végső tartalék, $0.3/1M)
+Name: premium-coding
+Models:
+  1. cc/claude-opus-4-7 (Subscription primary)
+  2. glm/glm-4.7 (Cheap backup, $0.6/1M)
+  3. minimax/MiniMax-M2.7 (Cheapest fallback, $0.3/1M)
 
-Használat a CLI-ben: premium-coding
+Use in CLI: premium-coding
 ```
 
 ### 2. példa: Csak ingyenes (nulla költség)
 
 ```
-Név: free-combo
-Modellek:
-  1. if/kimi-k2.7-code (ingyenes hozzáférésűként feltüntetve; szolgáltatói korlátozások érvényesek lehetnek)
-  2. kr/qwen3-coder-next (Ingyenes Kiro-tartalék)
+Name: free-combo
+Models:
+  1. if/kimi-k2.7-code (listed free access; provider limits may apply)
+  2. kr/qwen3-coder-next (Kiro free fallback)
 
-Költség: jelenleg $0-ként van feltüntetve; a feltételek és az elérhetőség változhatnak
+Cost: currently listed as $0; terms and availability may change
 ```
 
 ---
@@ -431,7 +439,7 @@ Ha már nincs szüksége OmniRoute, két gyors szkriptet biztosítunk a tiszta e
 ### VPS telepítés
 
 ```bash
-git clone https://github.com/diegosouzapw/OmniRoute.git
+git clone https://github.com/cheaper-inference/OmniRoute.git
 cd OmniRoute && npm install && npm run build
 
 export JWT_SECRET="your-secure-secret-change-this"
@@ -513,8 +521,8 @@ depends="openssl"
 short_desc="Universal AI gateway with smart routing for multiple LLM providers"
 maintainer="zenobit <zenobit@disroot.org>"
 license="MIT"
-homepage="https://github.com/diegosouzapw/OmniRoute"
-distfiles="https://github.com/diegosouzapw/OmniRoute/archive/refs/tags/v${version}.tar.gz"
+homepage="https://github.com/cheaper-inference/OmniRoute"
+distfiles="https://github.com/cheaper-inference/OmniRoute/archive/refs/tags/v${version}.tar.gz"
 checksum=009400afee90a9f32599d8fe734145cfd84098140b7287990183dde45ae2245b
 system_accounts="_omniroute"
 omniroute_homedir="/var/lib/omniroute"
@@ -722,7 +730,7 @@ A csomópont `openai-compatible-<apiType>-<uuid>` alakú belső azonosítót kap
 
 #### Fenntartott előtagok
 
-Az előtag nem lehet beépített szolgáltató azonosítója vagy álneve (például `openai`, `cf`), sem pedig nyugdíjas szolgáltató azonosítója. A modellfeloldó az egyéni csomópontok előtt ellenőrzi a beépített azonosítókat és álneveket, így az ilyen előtagok valamelyikét használó csomópont soha nem kap forgalmat: `<prefix>/model` a beépített szolgáltatóhoz megy, vagy nem záródik be, ha a szolgáltató megszűnt. Az ilyen előtaggal rendelkező csomópont létrehozása vagy szerkesztése elutasításra kerül a következőkkel:
+Az előtag nem lehet beépített szolgáltató azonosítója vagy álneve (például `openai`, `cf`), sem pedig nyugdíjas szolgáltató azonosítója. A modellfeloldó az egyéni csomópontok előtt ellenőrzi a beépített azonosítókat és álneveket, így az ilyen előtagok valamelyikét használó csomópont soha nem kap forgalmat: `<prefix>/model` a beépített szolgáltatóhoz megy, vagy nem záródik be, ha a szolgáltató megszűnt. Az ilyen előtaggal rendelkező csomópontok létrehozása vagy szerkesztése elutasításra kerül a következőkkel:
 
 ```text
 prefix: "<prefix>" is a reserved provider prefix — choose a different prefix (reserved ids/aliases cannot be used for custom nodes because requests like <prefix>/model route to a built-in provider or fail closed when retired)
@@ -754,7 +762,7 @@ Ezek a billentyűk egy kapcsolat `providerSpecificData` jába kerülnek (példá
 
 Egy másik OmniRoute átjáró hozzáadható a** Egyedi OpenAI-kompatibilis** szolgáltató. Használja a társ `/v1` alap URL és az adott társ által kiadott dedikált, legkisebb jogosultságokkal rendelkező API kulcsot.
 
-Kölcsönös vagy többugrásos láncok esetén engedélyezze az opt-in hurokvédőt minden átjárón:
+Kölcsönös vagy többugrásos láncok esetén minden átjárón engedélyezze az opt-in hurokvédőt:
 
 ```bash
 # gateway-a
@@ -823,7 +831,7 @@ A modelleket szolgáltató szerint csoportosítva adja vissza típusokkal (`chat
 - Elérhető:** Irányítópult → végpontok** Docker hez és más saját üzemeltetésű telepítésekhez
 - Létrehoz egy ideiglenes `https://*.trycloudflare.com` URL, amely továbbítja az aktuális OpenAI-kompatibilis `/v1` végponthoz
 - Az első engedélyezés csak szükség esetén telepíti `cloudflared` ; a későbbi újraindítások újra felhasználják ugyanazt a felügyelt bináris fájlt
-- A gyors alagutak nem állnak vissza automatikusan a OmniRoute vagy a tároló újraindítása után; szükség esetén újra engedélyezze őket az irányítópulton
+- A gyors alagutak nem állnak vissza automatikusan a OmniRoute vagy a tároló újraindítása után; szükség esetén újra engedélyezze őket a műszerfalról
 - Az alagút URLs múlékony, és minden alkalommal változik, amikor az alagutat stop/start
 - A felügyelt gyorsalagutak alapértelmezés szerint HTTP/2 szállítást használják, hogy elkerüljék a zajos QUIC UDP puffer figyelmeztetéseket a korlátozott tárolókban
 - Állítsa be `CLOUDFLARED_PROTOCOL=quic` vagy `auto`, ha felül szeretné bírálni a felügyelt szállítási lehetőséget
@@ -872,18 +880,18 @@ Konfigurálás ezen keresztül** Irányítópult → Beállítások → Útvála
 | **Legkevésbé használt**       | Útvonalak a legrégebbi `lastUsedAt` időbélyeggel rendelkező fiókhoz, egyenletesen elosztva a forgalmat                          |
 | **Költségoptimalizált**       | A legalacsonyabb prioritású fiókhoz irányít, a legalacsonyabb költségű szolgáltatókra optimalizálva                             |
 
-**Speciális kombinált és automatikus stratégiák** (kombónként vagy `auto/*` előtagokkal konfigurálható — lásd [AUTO-COMBO.md](../routing/AUTO-COMBO.md) ):
+**Fejlett kombinált és automatikus stratégiák** (kombónként vagy `auto/*` előtagokon keresztül konfigurálható — lásd [AUTO-COMBO.md](../routing/AUTO-COMBO.md) ):
 
 - `priority` — szigorú rend, soha nem körmérkőzés
 - `weighted` — arányos forgalom modellenkénti súlyokkal felosztva
-- `fill-first` — lemeríti az első modellt, amíg el nem érik a határok
+- `fill-first` — lemeríti az első modellt, amíg a határok el nem érik
 - `round-robin` / `strict-random` / `random`
 - `p2c` (Két választás ereje)
 - `least-used` és `cost-optimized`
 - `auto` — pontszám vezérelte az összes jelöltet
 - `lkgp` (Last Known Good Provider) — az utolsó sikeres szolgáltatóhoz rögzíti, majd visszatér a szabályokhoz
-- `context-optimized` — kiválasztja a legnagyobb szabad kontextus ablakkal rendelkező modellt
-- `context-relay` — hosszú kontextusú modelleket láncol a fordulatok követéséhez
+- `context-optimized` — először a legnagyobb ismert környezeti ablakkal rendelkező modellt próbálja ki
+- `context-relay` — prioritási sorrend plusz egy átadás-összegzés, amikor a beszélgetés egy másik fiókba kerül
 
 #### Külső ragadós munkamenet fejléc
 
@@ -1073,12 +1081,12 @@ Az Általános többé nem duplikálja a csak olvasható naplózási és gyorsí
 
 ### Költségek és költségvetés kezelése
 
-Hozzáférés a következőn keresztül** Irányítópult → költségek** .
+Hozzáférés a következőn keresztül** Műszerfal → költségek** .
 
-| Tab              | Cél                                                                                                              |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------- |
-| **Költségvetés** | Állítson be költési határokat API kulcsonként daily/weekly/monthly költségvetéssel és valós idejű követéssel     |
-| **Árképzés**     | Tekintse meg és szerkessze a modell árazási bejegyzéseit: — költség 1K input/output tokenenként szolgáltatónként |
+| Tab              | Cél                                                                                                                |
+| ---------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Költségvetés** | Állítson be költési határokat API kulcsonként daily/weekly/monthly költségvetéssel és valós idejű követéssel       |
+| **Árképzés**     | Tekintse meg és szerkessze a modell árképzési bejegyzéseit: — költség 1K input/output tokenenként szolgáltatónként |
 
 ```bash
 # API: Set a budget
@@ -1156,11 +1164,11 @@ Konfigurálja a kombinált kiegyensúlyozást** Irányítópult → Combos → C
 | **Legkevésbé használt** | Útvonalak a legutóbbi legkevesebb kéréssel rendelkező modellhez (kombinált mérőszámokat használ) |
 | **Költségoptimalizált** | Útvonalak a legolcsóbb elérhető modellhez (árazási táblázatot használ)                           |
 
-A globális kombinált alapértelmezések beállíthatók** Irányítópult → beállítások → Útválasztás → kombinált alapértékek** . A kombinált célidőtúllépések alapértelmezés szerint öröklik az aktuális kérés időtúllépését. Használat** Cél időtúllépés (másodperc)** kombinált alapértelmezéseken vagy egyéni kombináción csak akkor, ha a célonkénti rövidebb korlát gyorsabb visszaesést vált ki.
+Globális kombinált alapértelmezések beállíthatók** Irányítópult → Beállítások → Útválasztás → Combo Alapértelmezések** . A kombinált célidőtúllépések alapértelmezés szerint öröklik az aktuális kérés időtúllépését. Használat** Cél időtúllépés (másodperc)** kombinált alapértelmezéseken vagy egyéni kombináción csak akkor, ha a célonkénti rövidebb korlát gyorsabb visszaesést vált ki.
 
 A nulla késleltetésű kombinált optimalizálások választhatók. Szabadság** Nulla késleltetésű optimalizálás** letiltva, hogy megakadályozzák, hogy ezek a késleltetési funkciók versenyezhessenek tartalékcélokkal, TTFT -előzmények alapján kihagyják a célokat, vagy ne tömörítsék a tartalékkérelmeket; Az engedélyezése lehetővé teszi a konfigurált fedezést, a prediktív TTFT kihagyásokat és a proaktív tartalék tömörítést, hogy routing/request hűségét alacsonyabb késleltetésre cserélje.
 
-Letiltás** Érvelési token puffer** amikor az upstream szolgáltatók szigorú `max_tokens` / `maxOutputTokens` korlátokat írnak elő. Ha engedélyezve van, a kombinált útválasztás csak az ismert kimeneti korláttal rendelkező modelleknél ad hozzá az okoskodási modell szabad mozgásterét, és változatlanul hagyja az ügyféljogkivonat-korlátot, ha a biztonságos pufferelt érték meghaladja ezt a felső határt. Ha a kliens határértéke már meghaladja az ismert felső határt, OmniRoute lefogja azt az adott korláthoz, mielőtt elküldi az upstream kérést.
+Letiltás** Érvelési token puffer** amikor az upstream szolgáltatók szigorú `max_tokens` / `maxOutputTokens` korlátokat írnak elő. Ha engedélyezve van, a kombinált útválasztás csak az ismert kimeneti korláttal rendelkező modelleknél ad hozzá az okoskodási modell szabad mozgásterét, és változatlanul hagyja az ügyféljogkivonat-korlátot, ha a biztonságos pufferelt érték meghaladja ezt a felső határt. Ha a kliens határértéke már meghaladja az ismert felső határt, OmniRoute az upstream kérés elküldése előtt ehhez a korláthoz rögzíti.
 
 ---
 
@@ -1332,32 +1340,34 @@ A végpontok teljes katalógusát és a kérés-/válaszsémákat lásd az [API_
 
 ## 💻 Belső CLI
 
-Az OmniRoute egy belső CLI-t (`omniroute …`) biztosít a beállításhoz, a diagnosztikához és a futásidejű vezérléshez. Ez **nem azonos az irányítópult „CLI-eszközök” oldalával**, amely külső fejlesztésű CLI-ket (Claude Code, Cursor, Codex, Cline, …) konfigurál, hogy kommunikálhassanak az OmniRoute-tal.
+OmniRoute belső CLI (`omniroute …`) szállít a beállításhoz, a diagnosztikához és a futásidejű vezérléshez. Ez van** külön a „CLI Tools” oldaltól az irányítópulton** , amely beállítja a harmadik féltől származó CLIs (Claude Code, Cursor, Codex, Cline, …), hogy beszélhessenek OmniRoute vel.
 
 ```bash
-omniroute setup                    # Interaktív varázsló (jelszó, szolgáltatók, kombinációk)
-omniroute setup --non-interactive  # CI-barát
-omniroute doctor                   # Állapotdiagnosztika (adatkönyvtár, adatbázis, szolgáltatók, portok)
-omniroute providers available      # Támogatott szolgáltatók listázása
-omniroute providers list           # Konfigurált kapcsolatok listázása
-omniroute providers test <id>      # Szolgáltatói kapcsolat élő tesztelése
-omniroute combos list              # Kombinációk listázása
-omniroute combos switch <name>     # Alapértelmezett kombináció beállítása
-omniroute models                   # Elérhető modellek listázása (--json, --search)
-omniroute keys add | list | remove # API-kulcsok kezelése a terminálból
-omniroute backup                   # Pillanatkép készítése a konfigurációról és az adatbázisról
-omniroute restore [<timestamp>]    # Visszaállítás pillanatképből
-omniroute health                   # Részletes állapot (megszakítók, gyorsítótár, memória)
-omniroute quota                    # Szolgáltatói kvóták felhasználása
-omniroute mcp status               # MCP-kiszolgáló állapota
-omniroute a2a status               # A2A-kiszolgáló állapota
-omniroute tunnel list|create|stop  # Cloudflare-/Tailscale-/ngrok-alagutak
-omniroute reset-password           # Rendszergazdai jelszó visszaállítása
-omniroute --mcp                    # MCP-kiszolgáló indítása szabványos I/O-n keresztül
-omniroute --port 3000              # Kiszolgáló indítása egyéni porton
+omniroute setup                    # Interactive wizard (password, providers, combos)
+omniroute setup --non-interactive  # CI-friendly
+omniroute doctor                   # Local diagnostics (config, DB, ports, Node runtime, native deps)
+omniroute chat "<prompt>"          # One-shot chat prompt (also --file / --stdin)
+omniroute repl                     # Interactive terminal chat (/model, /combo, /skill, /memory)
+omniroute providers available      # List supported providers
+omniroute providers list           # List configured connections
+omniroute providers test <id>      # Live test a provider connection
+omniroute combos list              # List combos
+omniroute combos switch <name>     # Set default combo
+omniroute models                   # List available models (--json, --search)
+omniroute keys add | list | remove # Manage API keys from the terminal
+omniroute backup                   # Snapshot config + DB
+omniroute restore [<timestamp>]    # Restore from a snapshot
+omniroute health                   # Detailed health (breakers, cache, memory)
+omniroute quota                    # Provider quota usage
+omniroute mcp status               # MCP server status
+omniroute a2a status               # A2A server status
+omniroute tunnel list|create|stop  # Cloudflare/Tailscale/ngrok tunnels
+omniroute reset-password           # Reset the admin password
+omniroute --mcp                    # Start MCP server over stdio
+omniroute --port 3000              # Start the server on a custom port
 ```
 
-Tipp: párosítsa az `omniroute doctor --json` parancsot a megfigyelőeszközével, hogy riasztást kapjon a nem megfelelő állapotú szolgáltatói kapcsolatokról.
+Tipp: párosítsa `omniroute doctor --json` a megfigyelő eszközzel, hogy figyelmeztesse a hibás helyi telepítést. `doctor` nem teszteli a szolgáltatói kapcsolatokat; erre használd `omniroute providers test <id>`.
 
 ---
 

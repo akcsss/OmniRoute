@@ -11,7 +11,7 @@ Objektív funkciók összehasonlítása a népszerű nyílt forráskódú AI út
 | Funkció                                                   |                OmniRoute 3.8                 |   LiteLLM 1.x   | OpenRouter (SaaS) |    Portkey     |
 | --------------------------------------------------------- | :------------------------------------------: | :-------------: | :---------------: | :------------: |
 | **Szolgáltatók**                                          |                   **329**                    |      ~100       |        ~50        |      ~30       |
-| **Free/no-auth katalógus bejegyzései**                    |                   **155**                    |       n/a       |     áthaladás     |      n/a       |
+| **Ingyenes hozzáféréssel rendelkező szolgáltatók**        |        **50 ingyenes hozzáféréssel**         |       n/a       |     áthaladás     |      n/a       |
 | **Önálló**                                                |                      ✅                      |       ✅        |        ❌         |   ⚠ fizetett   |
 | **OAuth katalógus bejegyzései**                           |                    **23**                    |    részleges    |        ❌         |       ❌       |
 | **Automatikus tartalék kombók**                           |               **22 stratégia**               | prioritás alapú |    szint alapú    |   súlyozott    |
@@ -23,7 +23,7 @@ Objektív funkciók összehasonlítása a népszerű nyílt forráskódú AI út
 | **A2A protokoll**                                         |               ✅ 6 képességek                |       ❌        |        ❌         |       ❌       |
 | **Memória (FTS5 + vektor)**                               |                      ✅                      |       ❌        |        ❌         |       ❌       |
 | **Védőkorlátok (PII, injekció, látás)**                   |                      ✅                      |    részleges    |        ❌         |  ✅ fizetett   |
-| **Cloud ügynök integrációk**                              |         Codex, Cursor, Devin, Jules          |       ❌        |        ❌         |       ❌       |
+| **Felhőügynök integrációk**                               |         Codex, Cursor, Devin, Jules          |       ❌        |        ❌         |       ❌       |
 | **Megszakító szolgáltatónként**                           |        ✅ 3 állapotú, lusta felépülés        |    alapvető     |        ❌         |       ✅       |
 | **TLS ujjlenyomat-lopás (JA3/JA4)**                       |                  ✅ wreq-js                  |       ❌        |        ❌         |       ❌       |
 | **Eval keret**                                            |                 ✅ beépített                 |       ❌        |        ❌         |   ⚠ fizetett   |
@@ -38,11 +38,11 @@ Objektív funkciók összehasonlítása a népszerű nyílt forráskódú AI út
 
 ## Mikor válasszuk OmniRoute
 
-- Ön házigazda és akar** maximális szolgáltatói lefedettség** (394 szolgáltató, 155 free/no-auth katalógusbejegyzés)
+- Ön házigazda és akar** maximális szolgáltatói lefedettség** (394 szolgáltató, 50 ingyenes hozzáféréssel)
 - Szükséged van a** beépített MCP szerver** (LLM eszközök, memória, eszközként feltárt készségek)
 - Neked kell**A2A protokoll** ügynök-ügynök munkafolyamatokhoz
 - Azt akarod** ujjlenyomat-lopás** (JA3/JA4), hogy elkerülje az upstream CAPTCHAs észlelését
-- Neked kell** vállalati funkciók** (védőkorlát, evals, audit trail) SaaS számla nélkül
+- Neked kell** vállalati funkciók** (védőkorlátok, evals, audit trail) SaaS számla nélkül
 
 ## Mikor válaszd a LiteLLM-et?
 
@@ -56,12 +56,12 @@ Objektív funkciók összehasonlítása a népszerű nyílt forráskódú AI út
 - Elfogadható számodra a tokenenkénti fizetés SaaS-felárral
 - **Egyetlen fizetési módot** szeretnél használni az összes szolgáltatónál
 
-## Mikor válaszd a Portkeyt?
+## Mikor válasszuk a Portkey-t?
 
-- Rendelkezésre állási garanciákat tartalmazó **kereskedelmi SLA-ra** van szükséged
-- **Menedzselt irányítópultot** részesítesz előnyben üzemeltetési többletteher nélkül
-- Azonnal használható **nagyvállalati megfelelőségi** funkciókra van szükséged
+- Szükséged van a** kereskedelmi SLA** üzemidő garanciával
+- Inkább a** kezelt irányítópult** fej feletti műveletek nélkül
+- Neked kell** vállalati megfelelés** funkciók a dobozból
 
 ---
 
-_Utoljára frissítve: 2026-08-02. Küldd be a javításokat PR formájában, hogy a táblázat pontos maradjon._
+_A táblázat pontosságának megőrzése érdekében nyújtson be javításokat PR keresztül._

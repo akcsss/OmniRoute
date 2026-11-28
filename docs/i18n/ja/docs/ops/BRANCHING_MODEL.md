@@ -53,7 +53,7 @@ flowchart LR
 必要なブランチがマージ可能であると仮定する前に、オープン フリーズがないか確認してください。
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 マージの仕組み (オーナー`queue`ラベル→ Mergify) は、 [MERGE_TRAIN.md](./MERGE_TRAIN.md)に文書化されています。

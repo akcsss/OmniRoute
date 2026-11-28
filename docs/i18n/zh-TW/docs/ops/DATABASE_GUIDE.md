@@ -217,7 +217,7 @@ OmniRoute使用**版本化、冪等遷移**在`src/lib/db/migrations/`.每個遷
 - **永遠不要重命名它。** `_omniroute_migrations`中的版本將不再與檔案匹配，因此每個已應用該版本的資料庫都將再次運行它。然後，非冪等SQL會複製資料或停止啟動。
 - **需要不同的架構嗎？**使用`npm run db:new-migration`建立新的遷移。
 
-重新命名僅對於尚未合併的檔案是安全的，這就是門的提示所指的情況。發布標籤在這裡不會改變任何內容：每次推送到`release/v*`分支都會發布Docker `:next`映像並在同源、 VPS安裝和企業同步上運行，因此在任何`vX.Y.Z`標籤存在之前，合併遷移已在真實資料庫上運行。每次刪除基本文件（無論是否已標記）都會失敗。
+重新命名僅對於尚未合併的檔案是安全的，這就是門的提示所指的情況。發布標籤在這裡不會改變任何內容：每次推送到`release/v*`分支都會發布Docker `:next`映像並在同源、 VPS安裝和企業同步上運行，因此在任何`vX.Y.Z`標籤存在之前，合併遷移已在真實資料庫上運行。每次刪除基本檔案（無論是否已標記）時，該門都會失敗。
 
 - **恢復合併的遷移。**刪除檔案的`git revert`會失敗。保留檔案並在新遷移中撤銷其架構： `npm run db:new-migration -- <description>`、 `DROP TABLE IF EXISTS`、 `DROP INDEX IF EXISTS`等。升級後的新資料庫將以相同的架構結束。
 - **接受的重命名是：相容性條目和相同的內容。**如果合併的檔案必須移動（例如，兩個合併的檔案共用時間戳記並且執行程式因版本衝突而停止），請重新命名後一個檔案而不觸及其SQL並將`{ fromVersion, fromName, toVersion, toName }`新增至`src/lib/db/migrationRunner/constants.ts`中的`RENAMED_MIGRATION_COMPATIBILITY` 。應用舊版的資料庫會移動其`_omniroute_migrations`行，而不是再次執行該檔案。無論新的時間戳記是什麼，門都會對此類重命名發出警告，並始終對其運行交換檢查：全新安裝將文件應用到新位置，升級的數據庫則不會，因此請選擇靠近舊時間戳的新時間戳。如果內容發生變更（新遷移中仍會發生架構變更），或者條目的目標檔案不在磁碟上，則門將導致重新命名失敗。
@@ -304,10 +304,10 @@ CREATE TABLE IF NOT EXISTS proxy_registry (
 
 ### 新增的遷移
 
-1. **使用生成器建立文件**: `npm run db:new-migration -- <description>` （例如`npm run db:new-migration -- add combo priority`）。它使用當前UTC時間和註解標頭寫入`src/lib/db/migrations/<YYYYMMDDHHMMSS>_<description>.sql` ，如果採用該時間戳記則向前移動一秒，並且永遠不會覆蓋檔案。不要手動選擇號碼。
+1. **使用生成器建立文件**: `npm run db:new-migration -- <description>` （例如`npm run db:new-migration -- add combo priority`）。它使用當前UTC時間和註解標頭寫入`src/lib/db/migrations/<YYYYMMDDHHMMSS>_<description>.sql` ，如果採用該時間戳記則向前移動一秒，並且從不覆蓋檔案。不要手動選擇號碼。
 2. **使用安全DDL** ： `CREATE TABLE IF NOT EXISTS`、 `CREATE INDEX IF NOT EXISTS`、 `ALTER TABLE ... ADD COLUMN`
 3. **仔細回填數據**：使用`UPDATE ... WHERE ...`處理現有行
-4. **檢查順序和命名**： `npm run test:migrations:fresh` （空資料庫上的所有遷移）和`npm run check:migration-numbering`
+4. **檢查順序和命名**： `npm run test:migrations:fresh` （空資料庫上的所有遷移）和`npm run check:migration-numbering`。當提交在`src/lib/db/migrations/`下暫存檔案時，husky 預先提交掛鉤會自行執行`check:migration-numbering` ，因此手動選擇或格式錯誤的名稱（例如`242_x.sql`）會導致本地提交失敗，並列印相同的訊息CI 。該鉤子僅檢查名稱、重複項和凍結的`001`–`241`系列；與PR基礎的比較（刪除、重新命名或亂序遷移）仍然在CI中運行
 5. **在副本上測試**：永遠不要在生產環境中執行未經測試的遷移
 6. **從程式碼建立的表也需要遷移**：如果模組也延遲建立表（`CREATE TABLE IF NOT EXISTS`，保留為自我修復路徑），則遷移必須使用相同的DDL來建立它。否則，全新安裝和升級安裝最終會產生不同的架構，這取決於該程式碼路徑是否運作。 `tests/unit/db/lazy-table-migration-guard.test.ts`掃描`src/`和`open-sse/`並在沒有遷移的惰性`CREATE`上失敗 (#20557)。範例： `src/lib/db/migrations/20261118120853_compression_run_telemetry.sql`。
 

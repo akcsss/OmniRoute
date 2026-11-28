@@ -52,7 +52,7 @@ flowchart LR
 તમને જોઈતી શાખા મર્જ કરી શકાય તેવી છે એમ માનતા પહેલા ઓપન ફ્રીઝ માટે તપાસો:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 મર્જ મિકેનિક્સ (માલિક `queue` લેબલ → Mergify) [MERGE_TRAIN.md](./MERGE_TRAIN.md) માં દસ્તાવેજીકૃત થયેલ છે.

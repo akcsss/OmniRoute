@@ -4,8 +4,6 @@
 
 ---
 
-Terakhir diperbarui: 23-08-2026
-
 OmniRoute terintegrasi dengan tiga kategori alat CLI yang tersebar di tiga halaman dasbor khusus:
 
 | Halaman      | Rute                    | Konsep                                                                              | Menghitung     |

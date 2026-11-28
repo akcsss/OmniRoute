@@ -4,7 +4,7 @@
 
 ---
 
-> **Različica:** v3.8.44** Zadnja posodobitev:** 2026-10-28** Občinstvo:** Inženirji dodajajo, vzdržujejo ali odpravljajo napake vgrajenih storitev (9Router, CLIProxyAPI, Mux, Bifrost, open-wa, LLMLingua, sing-box).
+> **Različica:** v3.8.44** Občinstvo:** Inženirji dodajajo, vzdržujejo ali odpravljajo napake vgrajenih storitev (9Router, CLIProxyAPI, Mux, Bifrost, open-wa, LLMLingua, sing-box).
 
 Vgrajene storitve so lokalno nameščena stranska orodja za proces, ki jih OmniRoute namesti, nadzoruje in izpostavi kot prvorazredne cilje usmerjanja. Za razliko od zunanjih ponudnikov (ki so dosegljivi prek interneta prek ključev API ) se vdelane storitve izvajajo na istem računalniku kot OmniRoute in komunicirajo prek povratne zanke.
 
@@ -45,13 +45,13 @@ Vseh osem sledi istemu modelu nadzora:
 - OmniRoute jih namesti pod `DATA_DIR/services/{name}/` (izolirano od OmniRoute-jevega lastnega `package.json`)
 - OmniRoute sproži in jih spremlja kot podrejene procese
 - OmniRoute vstavi efemerni ključ API v otrokovo okolje in ga zavrti brez izpadov (kjer je primerno)
-- Vse upravljavske poti (`/api/services/*`) so**LOCAL_ONLY** — dostopen samo iz povratne zanke (trdo pravilo št. 17)
+- Vse upravljavske poti (`/api/services/*`) so**LOCAL_ONLY** — dostopen le iz povratne zanke (trdo pravilo #17)
 
 ### Ključne odločitve (iz projektnega načrta)
 
 | Odločitev                                         | Vrednost                                                                         |
 | ------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Dostop do nadzorne plošče do izvornega UI 9Router | Povratni proxy pri `/dashboard/providers/services/9router/embed/*`               |
+| Dostop do nadzorne plošče do izvirnega UI 9Router | Povratni proxy pri `/dashboard/providers/services/9router/embed/*`               |
 | Namestitev mehanizma                              | `npm install {package}` preko `execFile` (brez lupinske interpolacije)           |
 | Način porabe                                      | Ponudnik registriran kot `9router/{sub}/{model}` v mehanizmu usmerjanja          |
 | upravljanje ključev API                           | OmniRoute generira, šifrira v stanju mirovanja (AES-256-GCM) in vbrizga prek env |
@@ -209,7 +209,7 @@ tekmovalne pogoje, ko se na primer samodejni zagon in gumb v uporabniškem vmesn
 
 ## 4. referenca API
 
-Vse poti pod `/api/services/` so**LOCAL_ONLY** (samo povratna zanka, trdo pravilo št. 17). Zahteve brez povratne zanke prejmejo `403 LOCAL_ONLY` ne glede na žeton za avtorizacijo.
+Vse poti pod `/api/services/` so**LOCAL_ONLY** (samo povratna zanka, trdo pravilo #17). Zahteve brez povratne zanke prejmejo `403 LOCAL_ONLY` ne glede na žeton za avtorizacijo.
 
 ### 4.1 9 končnih točk usmerjevalnika (11 poti)
 
@@ -236,7 +236,7 @@ Namestite 9Router iz npm. Ustvari `DATA_DIR/services/9router/` z lastnima `packa
 | `409`  | Že nameščam (zaklepanje zadržano)                                  |
 | `500`  | namestitev npm ni uspela — glejte `message` za prijateljsko napako |
 
-**Opombe:** Uporablja `execFile('npm', [...])` — brez lupine, brez interpolacije (trdo pravilo št. 13). napake EACCES se prikažejo kot prijazna sporočila.
+**Opombe:** Uporablja `execFile('npm', [...])` — brez lupine, brez interpolacije (trdo pravilo #13). napake EACCES so prikazane kot prijazna sporočila.
 
 ---
 
@@ -244,7 +244,7 @@ Namestite 9Router iz npm. Ustvari `DATA_DIR/services/9router/` z lastnima `packa
 
 Zaženite 9Router. Registrira nadzornika, če še ni registriran, nato pokliče `supervisor.start()`. Idempotenten, ko že teče.
 
-**Telo zahteve:** nič
+**Telo zahteve:** nobeden
 
 **Odzivi:**
 
@@ -274,7 +274,7 @@ Zaženite 9Router. Registrira nadzornika, če še ni registriran, nato pokliče 
 
 Elegantno zaustavite 9Router. Pošlje SIGTERM, počaka 15 s, nato SIGKILL če je še živ. Idempotenten, ko je že ustavljen.
 
-**Telo zahteve:** nič
+**Telo zahteve:** nobeden
 
 **Odzivi:**
 
@@ -289,7 +289,7 @@ Elegantno zaustavite 9Router. Pošlje SIGTERM, počaka 15 s, nato SIGKILL če je
 
 Enakovredno `stop()` in nato `start()` pod operacijskim ključavnico.
 
-**Telo zahteve:** nič
+**Telo zahteve:** nobeden
 
 **Odzivi:** enako kot `start` (vrne končno `ServiceStatus`).
 
@@ -319,7 +319,7 @@ Posodobi 9Router na novejšo različico npm. Če se storitev izvaja, se najprej 
 
 Generira nov ključ API za 9Router, ga šifrira v stanju mirovanja in znova zažene storitev (če se izvaja), tako da pobere nov ključ iz svojega okolja. Stari ključ je takoj razveljavljen.
 
-**Telo zahteve:** nič
+**Telo zahteve:** nobeden
 
 **Odzivi:**
 
@@ -393,7 +393,7 @@ SSE tok dnevnikov v živo iz obročnega medpomnilnika stdout/stderr 9Router.
 | Param    | Vrsta     | Privzeto | Opis                                                                                                  |
 | -------- | --------- | -------- | ----------------------------------------------------------------------------------------------------- |
 | `tail`   | `integer` | 200      | Koliko zgodovinskih vrstic poslati najprej (največ 1000)                                              |
-| `filter` | `string`  | nič      | Filter podniza, ki ne razlikuje med velikimi in malimi črkami (brez regularnega izraza — ReDoS varno) |
+| `filter` | `string`  | nobeden  | Filter podniza, ki ne razlikuje med velikimi in malimi črkami (brez regularnega izraza — ReDoS varno) |
 
 **dogodki SSE :**
 
@@ -528,14 +528,14 @@ sing-box ima enako obliko končne točke kot Mux — brez poti `rotate-key`, bre
 | `POST` | `/api/services/singbox/install`              | Prenesite + preverite pripeto izdajo sing-boxa                   |
 | `POST` | `/api/services/singbox/start`                | Začni pevsko polje (`sing-box run -c config.json`)               |
 | `POST` | `/api/services/singbox/stop`                 | Nehajte peti                                                     |
-| `POST` | `/api/services/singbox/restart`              | Znova zaženite sing-box                                          |
+| `POST` | `/api/services/singbox/restart`              | Ponovno zaženite sing-box                                        |
 | `POST` | `/api/services/singbox/update`               | Re-verify/reinstall pripeta izdaja                               |
 | `GET`  | `/api/services/singbox/status`               | Status + DB v živo                                               |
 | `POST` | `/api/services/singbox/auto-start`           | Preklopi samodejni zagon                                         |
 | `POST` | `/api/services/singbox/auto-restart-adopted` | Preklopi samodejni ponovni zagon za sprejet (že obstoječ) proces |
 | `GET`  | `/api/services/singbox/logs`                 | SSE log tail (prek skupne dinamične poti `[name]/logs` )         |
 
-**ožičenje TPROXY :** `ensureSingboxTproxy()` (`src/mitm/tproxy/setup.ts`) zapiše `config.json` in zažene nadzornika, preden `applyTproxy()` namesti pravila požarnega zidu TPROXY. Če nadzornik manjka ali ne uspe doseči `running`, se zdaj prijavi na ravni napake (namesto da tiho pogoltne napako), tako da lahko operater pove, da so bila pravila TPROXY uporabljena brez delujočega poslušalca za njimi.
+**ožičenje TPROXY :** `ensureSingboxTproxy()` (`src/mitm/tproxy/setup.ts`) zapiše `config.json` in zažene nadzornika, preden `applyTproxy()` namesti pravila požarnega zidu TPROXY. Če nadzornik manjka ali ne doseže `running`, se zdaj prijavi na ravni napake (namesto da bi tiho pogoltnil napako), tako da lahko operater pove, da so bila pravila TPROXY uporabljena brez delujočega poslušalca za njimi.
 
 ---
 
@@ -555,9 +555,7 @@ Ta proxy:
 - Odstrani `set-cookie`, `content-security-policy`, `x-frame-options`, `cross-origin-*` iz odgovora
 - Prepiše odgovore HTML za vbrizgavanje `<base href>` in normalizacijo absolutnih poti (`/foo` → `/dashboard/.../embed/foo`)
 
-nadgradnje WebSocket za vdelano nadzorno ploščo upravlja spremljevalni strežnik na namenskih vratih (glejte `src/lib/services/embedWsProxy.ts`).
-
-Vsaka nadgradnja je avtorizirana, preden se predor odpre, z enakimi pravili kot za vdelano pot HTTP : vrstnik mora imeti povratno zanko brez glave za posredovanje povratnega proxyja, `Origin` brskalnika mora biti izvor nadzorne plošče (`LIVE_WS_ALLOWED_ORIGINS` / `LIVE_WS_ALLOWED_HOSTS` razširita privzete nastavitve povratne zanke) in klicatelj potrebuje sejo nadzorne plošče ali ključ API za področje upravljanja, razen če je prijava na nadzorno ploščo onemogočena.
+nadgradnje WebSocket za vdelano nadzorno ploščo upravlja spremljevalni strežnik na namenskih vratih (glejte `src/lib/services/embedWsProxy.ts`). Vsaka nadgradnja je avtorizirana, preden se predor odpre, z enakimi pravili kot pot za vdelavo HTTP : vrstnik mora imeti povratno zanko brez glave za posredovanje povratnega proxyja, `Origin` brskalnika mora biti izvor nadzorne plošče (`LIVE_WS_ALLOWED_ORIGINS` / `LIVE_WS_ALLOWED_HOSTS` razširita privzete nastavitve povratne zanke) in klicatelj potrebuje sejo nadzorne plošče ali ključ API za področje upravljanja, razen če je prijava na nadzorno ploščo onemogočena.
 
 **Varnost:** Vdelane proxy poti so razvrščene pod `LOCAL_ONLY_API_PREFIXES` in jih je mogoče doseči samo s povratno zanko. Napadalec, ki pridobi JWT prek tunela Cloudflare/Ngrok ne more posredovati v vgrajene storitve.
 
@@ -855,67 +853,44 @@ privzetimi vrati 20128 storitve OmniRoute.
 
 ---
 
-## 8. Pogosta vprašanja
+## 8. FAQ
 
-**V: Ali lahko končne točke vdelanih storitev izpostavim odjemalcem, ki niso na povratni zanki?**
+**V: Ali lahko končne točke vdelanih storitev izpostavim odjemalcem brez povratne zanke?**
 
-Ne. Raven LOCAL_ONLY je namerna (strogo pravilo št. 17). Poti, ki lahko izvedejo
-`npm install` ali zaženejo procese `node`, ne smejo biti dosegljive prometu, ki ne
-prihaja s povratne zanke, saj bi sicer razkriti JWT prek tunela (Cloudflare, Ngrok,
-Tailscale) omogočil poljubno zaganjanje procesov. Za `/api/services/` ni izjeme za
-onemogočanje te omejitve — za razliko od `/api/mcp/` je ta pot izključena s seznama
-obhodov obsega za upravljanje. Glejte `docs/security/ROUTE_GUARD_TIERS.md`.
+Ne. Stopnja LOCAL_ONLY je namerna (trdo pravilo #17). Poti, ki lahko prikličejo `npm install` ali sprožijo procese `node` ne smejo biti dosegljive iz prometa brez povratne zanke, ker bi razkriti JWT prek tunela (Cloudflare, Ngrok, Tailscale) sicer omogočil samovoljno ustvarjanje procesov. Za razliko `/api/mcp/` ni izločitve za `/api/services/`, — je izključen s seznama obhoda upravljanja obsega. Glej `docs/security/ROUTE_GUARD_TIERS.md`.
 
 ---
 
-**V: Ali bosta 9Router in CLIProxyAPI na voljo v produkcijskih/oblačnih uvedbah?**
+**V: Ali bosta 9Router in CLIProxyAPI na voljo v uvedbah production/cloud ?**
 
-Da. Obe storitvi uporabljata isti model s prednostjo lokalnega izvajanja kot sam
-OmniRoute. Izvajata se na istem računalniku in komunicirata prek povratne zanke.
-»Produkcija« tukaj pomeni VPS ali lokalni strežnik, na katerem je uveden OmniRoute,
-in ne oddaljenega ponudnika oblaka.
+ja Obe storitvi sledita istemu modelu najprej lokalno kot OmniRoute. Delujejo na istem računalniku in komunicirajo prek povratne zanke. »Proizvodnja« tukaj pomeni VPS ali lokalni strežnik, kjer je nameščen OmniRoute, ne oddaljenega ponudnika oblaka.
 
 ---
 
-**V: Kako razhroščujem nadzornika?**
+**V: Kako odpravim napake v nadzorniku?**
 
-1. Spremljajte tok dnevniških zapisov SSE: `curl -N http://localhost:20128/api/services/9router/logs`.
-2. Preverite strukturirane dnevniške zapise v izhodu pino aplikacije OmniRoute,
-   filtrirane po imenskem prostoru `service:supervisor`.
-3. Preglejte vrstico zbirke podatkov: `sqlite3 ~/.omniroute/omniroute.db "SELECT * FROM version_manager WHERE tool='9router'"`.
-4. Uporabite `GET /api/services/9router/status`, da v enem klicu vidite trenutno stanje
-   v živo, PID, stanje delovanja in `lastError`.
+1. Sledi toku dnevnika SSE : `curl -N http://localhost:20128/api/services/9router/logs`.
+2. Preverite strukturirane dnevnike v izhodu pino OmniRoute, filtriranem z imenskim prostorom `service:supervisor`.
+3. Preglejte vrstico DB : `sqlite3 ~/.omniroute/omniroute.db "SELECT * FROM version_manager WHERE tool='9router'"`.
+4. Uporabite `GET /api/services/9router/status` za ogled trenutnega stanja v živo, PID, zdravje in `lastError` v enem klicu.
 
 ---
 
-**V: Nadzornik prikazuje `health: "degraded"` ali `health: "unknown"`, stanje pa je `"running"`. Ali je to težava?**
+**V: Nadzornik prikazuje `health: "degraded"` ali `health: "unknown"`, stanje pa je `"running"`. Je to problem?**
 
-`"degraded"` pomeni, da je preverjanje stanja delovanja vrnilo odgovor, ki ni 200.
-`"unknown"` pomeni, da se ni zaključilo še nobeno preverjanje (časovno prekrivanje s
-prvim preverjanjem). Obe stanji sta med zagonom prehodni. Če stanje delovanja ostane
-`"degraded"` več kot `healthIntervalMs * 3` ms po stanju `"running"`, vdelana storitev
-deluje, vendar se njen HTTP API ne odziva. Preverite, ali so vrata v odgovoru o stanju
-pravilna in ali storitev dejansko posluša na teh vratih.
+`"degraded"` pomeni, da je zdravstvena sonda vrnila odgovor non-200. `"unknown"` pomeni, da še nobena sonda ni zaključena (dirka s prvo anketo). Oboje je med zagonom prehodno. Če zdravje ostane `"degraded"` več kot `healthIntervalMs * 3` ms po `"running"`, se vdelana storitev izvaja, vendar se njen HTTP API ne odziva. Preverite, ali so vrata v odgovoru o stanju pravilna in ali storitev dejansko posluša ta vrata.
 
 ---
 
-**V: Ali lahko ključ API za 9Router spremenim brez popolnega ponovnega zagona?**
+**V: Ali lahko spremenim ključ API 9Router brez popolnega ponovnega zagona?**
 
-Ne. Ključ API se ob zagonu procesa posreduje storitvi 9Router prek okoljske
-spremenljivke. Okoljskih spremenljivk ni mogoče spreminjati v delujočem procesu.
-`POST .../rotate-key` samodejno ustavi in znova zažene storitev, da uveljavi novi
-ključ. Zamenjava ključa začne veljati v času `stopTimeoutMs` storitve (privzeto
-15 s), povečanem za čas njenega zagona.
+Ne. Ključ API se posreduje 9Routerju prek spremenljivke okolja v času ustvarjanja. Spremenljivk okolja ni mogoče spremeniti v procesu, ki se izvaja. `POST .../rotate-key` samodejno ustavi in znova zažene storitev, da uporabi nov ključ. Rotacija ključa začne veljati znotraj storitve `stopTimeoutMs` (privzeto 15 s) in njen zagonski čas.
 
 ---
 
-**V: Kakšna je omejitev krožnega medpomnilnika in kaj se zgodi, ko se ta napolni?**
+**V: Kakšna je omejitev medpomnilnika zvonjenja in kaj se zgodi, ko se napolni?**
 
-Vsaka storitev ima namenski krožni medpomnilnik velikosti 5 MB. Ko je medpomnilnik
-poln, se najstarejše vrstice dnevnika odstranijo, da se sprosti prostor za nove.
-Dogodek SSE `snapshot` vrne najnovejše vrstice znotraj omejitve `tail`. Dnevniški
-zapisi se ne shranjujejo na disk, razen če je v vrstici zbirke podatkov nastavljena
-vrednost `logsBufferPath`.
+Vsaka storitev ima namenski medpomnilnik zvonjenja 5 MB. Ko je medpomnilnik poln, so najstarejše vrstice dnevnika izločene, da se naredi prostor za nove. Dogodek SSE `snapshot` vrne najnovejše vrstice znotraj omejitve `tail`. Dnevniki niso shranjeni na disku, razen če je `logsBufferPath` nastavljen v vrstici DB.
 
 ---
 

@@ -4,8 +4,6 @@
 
 ---
 
-Aġġornata l-aħħar: 2026-08-23
-
 OmniRoute jintegra ma' tliet kategoriji ta' għodod CLI mifruxa fuq tliet paġni tad-dashboard iddedikati:
 
 | Paġna          | Rotta                   | Kunċett                                                                                     | Għadd        |

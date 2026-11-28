@@ -244,33 +244,41 @@ Mudelid: kr/claude-sonnet-4.5, kr/claude-haiku-4.5
 
 ---
 
-## 🎨 Kombinatsioonid
+## 🎨 kombinatsioonid
 
-Kombinatsioonikaarte saab järjekorda muuta otse **Dashboard → Combos** vaates, lohistades käepidet igal kaardil. Järjekord salvestatakse SQLite-is ja taastatakse lehe laadimisel.
+Kombokaarte saate otse ümber tellida** Armatuurlaud → Combos** lohistades iga kaardi käepidet. Tellimus salvestatakse SQLite -sse ja taastatakse uuesti laadimisel.
 
-### Näide 1: Tellimuse maksimeerimine → Odav varulahendus
+### Leidke teenusepakkuja, mudel või konto
+
+Kombinatsiooni loomise või muutmise korral sisaldavad samm-sammulised pakkuja, mudeli, konto ja kombineeritud viitevalijad kohalikku otsinguvälja. Otsige kuvatava nime, identifikaatori, pakkuja pseudonüümi või mudeliallika järgi, seejärel klõpsake tulemust või kasutage nooleklahve ja sisestusklahvi. Mitu otsinguterminit peavad kõik ühtima. Otsingu tühjendamine või paoklahvi vajutamine jätab valitud väärtuse muutmata.
+
+Automaatne kontovalik jääb otsimise ajal nähtavaks. Selle valikulisel kontopiirangute loendil on eraldi filter: valitud kontod väljaspool nähtavaid tulemusi jäävad valituks ja loend sisaldab neid. Kui meilide privaatsus on sisse lülitatud, ei saa peidetud meilifragmente otsida. Lisage samm ja salvestage kombinatsioon nagu tavaliselt; päringu tippimine ei salvesta ega testi midagi.
+
+Sama kohalik otsing on saadaval ühenduse testimise mudelite, kohandatud CLI vaike- ja pseudonüümimudelite ning salvestatud puhverserveri valikute jaoks. Olemasolevad salvestamise, rakendamise ja testimise toimingud jäävad eraldi.
+
+### Näide 1: Tellimuse maksimeerimine → odav varukoopia
 
 ```
 Dashboard → Combos → Create New
 
 Name: premium-coding
 Models:
-  1. cc/claude-opus-4-7 (Tellimuspõhine peamine)
-  2. glm/glm-4.7 (Odav varulahendus, $0.6/1M)
-  3. minimax/MiniMax-M2.7 (Kõige odavam varulahendus, $0.3/1M)
+  1. cc/claude-opus-4-7 (Subscription primary)
+  2. glm/glm-4.7 (Cheap backup, $0.6/1M)
+  3. minimax/MiniMax-M2.7 (Cheapest fallback, $0.3/1M)
 
 Use in CLI: premium-coding
 ```
 
-### Näide 2: Ainult tasuta (nullkuluga)
+### Näide 2: ainult tasuta (nullkulu)
 
 ```
 Name: free-combo
 Models:
-  1. if/kimi-k2.7-code (loetletud tasuta juurdepääsuga; teenusepakkuja piirangud võivad kehtida)
-  2. kr/qwen3-coder-next (Kiro tasuta varulahendus)
+  1. if/kimi-k2.7-code (listed free access; provider limits may apply)
+  2. kr/qwen3-coder-next (Kiro free fallback)
 
-Cost: praegu näidatud kui $0; tingimused ja saadavus võivad muutuda
+Cost: currently listed as $0; terms and availability may change
 ```
 
 ---
@@ -430,7 +438,7 @@ Kui te OmniRoute enam ei vaja, pakume puhtaks eemaldamiseks kahte kiiret skripti
 ### VPS juurutamine
 
 ```bash
-git clone https://github.com/diegosouzapw/OmniRoute.git
+git clone https://github.com/cheaper-inference/OmniRoute.git
 cd OmniRoute && npm install && npm run build
 
 export JWT_SECRET="your-secure-secret-change-this"
@@ -512,8 +520,8 @@ depends="openssl"
 short_desc="Universal AI gateway with smart routing for multiple LLM providers"
 maintainer="zenobit <zenobit@disroot.org>"
 license="MIT"
-homepage="https://github.com/diegosouzapw/OmniRoute"
-distfiles="https://github.com/diegosouzapw/OmniRoute/archive/refs/tags/v${version}.tar.gz"
+homepage="https://github.com/cheaper-inference/OmniRoute"
+distfiles="https://github.com/cheaper-inference/OmniRoute/archive/refs/tags/v${version}.tar.gz"
 checksum=009400afee90a9f32599d8fe734145cfd84098140b7287990183dde45ae2245b
 system_accounts="_omniroute"
 omniroute_homedir="/var/lib/omniroute"
@@ -609,13 +617,13 @@ post_install() {
 | `NEXT_PUBLIC_CLOUD_URL`                 | `https://omniroute.dev`       | Pilvesünkroonimise lõpp-punkti baas URL (asendab pärand `CLOUD_URL`)                                                                                                   |
 | `API_KEY_SECRET`                        | _(automaatselt genereeritud)_ | HMAC saladus loodud API võtmete jaoks — genereeriti automaatselt esimesel käivitamisel ja säilis `server.env`-s                                                        |
 | `REQUIRE_API_KEY`                       | `false`                       | Jõusta kandja API klahv `/v1/*`                                                                                                                                        |
-| `ALLOW_API_KEY_REVEAL`                  | `false`                       | Lubage autentitud armatuurlaua kasutajatel nõudmisel avaldada täielikud salvestatud API võtmeväärtused                                                                 |
+| `ALLOW_API_KEY_REVEAL`                  | `false`                       | Lubage autentitud armatuurlaua kasutajatel nõudmisel avaldada kõik salvestatud API võtmeväärtused                                                                      |
 | `PROVIDER_LIMITS_SYNC_INTERVAL_MINUTES` | `70`                          | Serveripoolne värskendussagedus vahemällu salvestatud teenusepakkuja piirangute andmete jaoks; UI värskendusnupud käivitavad endiselt käsitsi sünkroonimise            |
 | `DISABLE_SQLITE_AUTO_BACKUP`            | `false`                       | Keela automaatsed SQLite hetktõmmised enne writes/import/restore; käsitsi varukoopiad töötavad endiselt                                                                |
 | `APP_LOG_TO_FILE`                       | `true`                        | Lubab rakenduse ja auditi logi väljundi kettale                                                                                                                        |
 | `AUTH_COOKIE_SECURE`                    | `false`                       | Sundima `Secure` autentimise küpsisefail ( HTTPS vastupidise puhverserveri taga)                                                                                       |
 | `CLOUDFLARED_BIN`                       | määramata                     | Kasutage hallatud allalaadimise asemel olemasolevat `cloudflared` binaarfaili                                                                                          |
-| `CLOUDFLARED_PROTOCOL`                  | `http2`                       | Hallatud kiirtunnelite transport (`http2`, `quic` või `auto`)                                                                                                          |
+| `CLOUDFLARED_PROTOCOL`                  | `http2`                       | Transport hallatavate kiirtunnelite jaoks (`http2`, `quic` või `auto`)                                                                                                 |
 | `OMNIROUTE_MEMORY_MB`                   | `512`                         | Node.js hunniku limiit MB                                                                                                                                              |
 | `PROMPT_CACHE_MAX_SIZE`                 | `50`                          | Maksimaalsed viipade vahemälu kirjed                                                                                                                                   |
 | `SEMANTIC_CACHE_MAX_SIZE`               | `100`                         | Maksimaalne semantilise vahemälu kirje                                                                                                                                 |
@@ -721,7 +729,7 @@ Sõlm saab sisemise ID kujul `openai-compatible-<apiType>-<uuid>`; te ei pea sed
 
 #### Reserveeritud eesliited
 
-Eesliide ei saa olla sisseehitatud teenusepakkuja ID ega pseudonüüm (nt `openai`, `cf`) ega ka pensionile jäänud teenusepakkuja ID. Mudeli lahendaja kontrollib sisseehitatud ID-sid ja varjunimesid enne kohandatud sõlme, nii et sõlm, mis kasutab üht neist eesliidetest, ei saaks kunagi liiklust: `<prefix>/model` läheks selle asemel sisseehitatud pakkuja juurde või suletakse ebaõnnestunult, kui see teenusepakkuja lõpetatakse. Sellise eesliitega sõlme loomine või redigeerimine lükatakse tagasi järgmisega:
+Eesliide ei tohi olla sisseehitatud teenusepakkuja ID ega pseudonüüm (nt `openai`, `cf`) ega ka pensionile jäänud teenusepakkuja ID. Mudeli lahendaja kontrollib sisseehitatud ID-sid ja varjunimesid enne kohandatud sõlme, nii et sõlm, mis kasutab üht neist eesliidetest, ei saaks kunagi liiklust: `<prefix>/model` läheks selle asemel sisseehitatud pakkuja juurde või suletakse ebaõnnestunult, kui see teenusepakkuja lõpetatakse. Sellise eesliitega sõlme loomine või redigeerimine lükatakse tagasi järgmisega:
 
 ```text
 prefix: "<prefix>" is a reserved provider prefix — choose a different prefix (reserved ids/aliases cannot be used for custom nodes because requests like <prefix>/model route to a built-in provider or fail closed when retired)
@@ -733,7 +741,7 @@ Valige erinev eesliide (`mygw`, `acme-proxy`). Kui kohandatud sõlme päringud n
 
 Need klahvid lähevad ühenduse `providerSpecificData` (näiteks `PUT /api/providers/{id}` kaudu):
 
-- `toolNameMaxLength` (täisarv, 1–1024) — OpenAI vestlusvorminguga ühilduvate ühenduste jaoks, mille lüüs lükkab tagasi pikad tööriistanimed. Pikemad nimed saadetakse lühikeste varjunimedena ja taastatakse vastuses. OpenAI, Azure OpenAI, Azure AI Foundry, Mistral, NVIDIA, OpenCode Zen/Go ja Muse Code on juba üle 64 tähemärgi aliasnimed ilma seadistusteta. Ühenduse väärtus asendab Azure OpenAI / Azure AI Foundry vaikeväärtuse (rangema lüüsi taga asuv Azure'i ühendus) ja määrab kohandatud ühilduva sõlme piirangu; OpenAI, Mistral, NVIDIA, OpenCode Zen/Go ja Muse Code säilitavad oma registripiirangu ja eiravad seda.
+- `toolNameMaxLength` (täisarv, 1–1024) — OpenAI vestlusvorminguga ühilduvate ühenduste jaoks, mille lüüs lükkab tagasi pikad tööriistanimed. Pikemad nimed saadetakse lühikeste varjunimedena ja taastatakse vastuses. OpenAI, Azure OpenAI, Azure AI Foundry, Mistral, NVIDIA, OpenCode Zen/Go ja Muse Code on juba üle 64 tähemärgi aliasnimed ilma seadistusteta. Ühenduse väärtus asendab Azure OpenAI / Azure AI Foundry vaikeseadet (Azure'i ühendus rangema lüüsi taga) ja määrab kohandatud ühilduva sõlme piirangu; OpenAI, Mistral, NVIDIA, OpenCode Zen/Go ja Muse Code säilitavad oma registripiirangu ja eiravad seda.
 - `quotaEndpoint` — lüüsi quota/credits lõpp-punkt, lugege armatuurlaua kvoodiriba ja kvooditeadlikku marsruutimist. Töötab nii OpenAI- kui ka Anthropic-ühilduvate ühendustega; täiskuju on dokumenteeritud `open-sse/services/usage/openaiCompatible.ts`.
 
 ```json
@@ -771,7 +779,7 @@ OMNIROUTE_PEER_MAX_HOPS=4
 
 `X-OmniRoute-Peer-Trace` päise saavad ainult need päringud, mis on saadetud selgesõnaliselt lubatud loendis olevale sarnasele URL -le. Lüüs lükkab tagasi korduva eksemplari ID või ammendatud hüppeeelarve koos HTTP `508 Loop Detected`; tavalised ülesvoolu pakkujad ei saa kaaslaste metaandmeid.
 
-Peer-aheldamine ei ole andmebaasi replikatsioon ega hosti tõrkesiirde. Iga lüüs hoiab sõltumatut SQLite olekut, vahemälu, kiirusloendureid ja seansse. Kasutage active/passive või active/active saadavuse jaoks kontrollitud pöördpuhverserveri või kliendi tõrkesiiret ja ärge kunagi ühendage ühte SQLite andmebaasi mitmesse töötavasse OmniRoute eksemplari.
+Peer-aheldamine ei ole andmebaasi replikatsioon ega hosti tõrkevahetus. Iga lüüs hoiab sõltumatut SQLite olekut, vahemälu, kiirusloendureid ja seansse. Kasutage active/passive või active/active saadavuse jaoks kontrollitud pöördpuhverserveri või kliendi tõrkesiiret ja ärge kunagi ühendage ühte SQLite andmebaasi mitmesse töötavasse OmniRoute eksemplari.
 
 ### Pühendatud teenusepakkuja marsruudid
 
@@ -881,8 +889,8 @@ Seadistamine kaudu** Armatuurlaud → Seaded → Marsruutimine** . Armatuurlaual
 - `least-used` `cost-optimized`
 - `auto` — kõigi kandidaatide tulemustest sõltuv
 - `lkgp` (viimane tuntud hea pakkuja) — viivad viimase eduka pakkuja juurde, seejärel naaseb reeglite juurde
-- `context-optimized` — valib suurima vaba konteksti aknaga mudeli
-- `context-relay` — kettide pika kontekstiga mudelid järelpöörete jaoks
+- `context-optimized` — proovib esmalt suurima teadaoleva kontekstiaknaga mudelit
+- `context-relay` — prioriteedi järjekord pluss üleandmise kokkuvõte, kui vestlus liigub teisele kontole
 
 #### Väline kleepuva seansi päis
 
@@ -1056,15 +1064,15 @@ curl -X POST http://localhost:20128/api/db-backups/import \
 
 Seadete leht on korraldatud järgmiselt** 7 vahekaarti** lihtsaks navigeerimiseks:
 
-| Tab               | Sisu                                                                                                                                                                                      |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Kindral**       | Süsteemi salvestustööriistad, vaikekäitumine, lõpp-punkti tunneli nähtavus                                                                                                                |
-| **Välimus**       | Teema juhtnupud (light/dark/system), külgriba nähtavus, paneeli lülitid Cloudflare/Tailscale/ngrok tunnelikaartide jaoks                                                                  |
-| **AI**            | Eelarve läbimõtlemine (läbilaskmine / automaatne riba / kohandatud / adaptiivne — vt [THINKING_BUDGET.md](./THINKING_BUDGET.md) ), globaalne süsteemiviip, kiire vahemälu statistika      |
-| **Turvalisus**    | Login/Password seaded, IP juurdepääsukontroll, API autentimine `/models` jaoks, teenusepakkuja blokeerimine, kiire süstimise kaitse                                                       |
-| **Marsruutimine** | Globaalne marsruutimisstrateegia (Fill First / Round Robin / P2C / Juhuslik / Vähim kasutatud / Kulude optimeerimine), metamärgimudelite varjunimed, varuketid, kombineeritud vaikeseaded |
-| **Vastupidavus**  | Järjekorra taotlemine, ühenduse jahtumine, teenusepakkuja kaitselüliti konfiguratsioon ja jahtumise ootamise käitumine                                                                    |
-| **Täiustatud**    | Ülemaailmne puhverserveri konfiguratsioon (HTTP/SOCKS5), teenusepakkuja puhverserveri alistamine                                                                                          |
+| Tab               | Sisu                                                                                                                                                                                  |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Kindral**       | Süsteemi salvestustööriistad, vaikekäitumine, lõpp-punkti tunneli nähtavus                                                                                                            |
+| **Välimus**       | Teema juhtnupud (light/dark/system), külgriba nähtavus, paneeli lülitid Cloudflare/Tailscale/ngrok tunnelikaartide jaoks                                                              |
+| **AI**            | Eelarve läbimõtlemine (läbilaskmine / automaatne riba / kohandatud / adaptiivne — vt [THINKING_BUDGET.md](./THINKING_BUDGET.md) ), globaalne süsteemiviip, kiire vahemälu statistika  |
+| **Turvalisus**    | Login/Password seaded, IP juurdepääsukontroll, API autentimine `/models` jaoks, teenusepakkuja blokeerimine, kiire süstimise kaitse                                                   |
+| **Marsruutimine** | Globaalne marsruutimisstrateegia (Fill First / Round Robin / P2C / Juhuslik / Vähim kasutatud / Kulude optimeerimine), metamärgi mudeli aliased, varuketid, kombineeritud vaikeseaded |
+| **Vastupidavus**  | Järjekorra taotlemine, ühenduse jahtumine, teenusepakkuja kaitselüliti konfiguratsioon ja jahtumise ootamise käitumine                                                                |
+| **Täpsemalt**     | Ülemaailmne puhverserveri konfiguratsioon (HTTP/SOCKS5), teenusepakkuja puhverserveri alistamine                                                                                      |
 
 Üldine ei dubleeri enam kirjutuskaitstud logimise ja vahemälu märkmeid. Andmebaasi säilitamise ja optimeerimise sätted säilitatakse `/api/settings/database` kaudu; käsitsi vahemälu tühjendamine kasutab `DELETE /api/cache`. Päringu ja puhverserveri logiridade ülemmäärasid juhivad `CALL_LOGS_TABLE_MAX_ROWS` ja `PROXY_LOGS_TABLE_MAX_ROWS`.
 
@@ -1331,32 +1339,34 @@ Vaata [API_REFERENCE.md](../reference/API_REFERENCE.md), kus on toodud täielik 
 
 ## 💻 Sisemine CLI
 
-OmniRoute pakub sisemist CLI-d (`omniroute …`) seadistamiseks, diagnostikaks ja käitusaegseks juhtimiseks. See on **eraldiseisev töölaual olevast "CLI Tools" lehest**, mis konfigureerib kolmandate osapoolte CLI-sid (Claude Code, Cursor, Codex, Cline, …), et need saaksid OmniRoute'iga suhelda.
+OmniRoute tarnib sisemist CLI (`omniroute …`) seadistamiseks, diagnostikaks ja käitusaja juhtimiseks. See on** eraldi armatuurlaua lehelt "CLI Tools".** , mis konfigureerib kolmanda osapoole CLIs (Claude Code, Cursor, Codex, Cline, …), et nad saaksid OmniRoute-ga rääkida.
 
 ```bash
-omniroute setup                    # Interaktiivne juhendaja (parool, teenusepakkujad, kombinatsioonid)
-omniroute setup --non-interactive  # CI-sõbralik
-omniroute doctor                   # Terviseseisundi diagnostika (andmekataloog, andmebaas, teenusepakkujad, pordid)
-omniroute providers available      # Toetatud teenusepakkujate loend
-omniroute providers list           # Konfigureeritud ühenduste loend
-omniroute providers test <id>      # Teenusepakkuja ühenduse elutestimine
-omniroute combos list              # Kombinatsioonide loend
-omniroute combos switch <name>     # Vaikimisi kombinatsiooni määramine
-omniroute models                   # Saadaolevate mudelite loend (--json, --search)
-omniroute keys add | list | remove # API võtmete haldamine terminalist
-omniroute backup                   # Konfiguratsiooni + andmebaasi hetktõmmis
-omniroute restore [<timestamp>]    # Taastamine hetktõmmisest
-omniroute health                   # Detailne terviseseisund (katkestid, vahemälu, mälu)
-omniroute quota                    # Teenusepakkuja kvoodi kasutus
-omniroute mcp status               # MCP serveri olek
-omniroute a2a status               # A2A serveri olek
-omniroute tunnel list|create|stop  # Cloudflare/Tailscale/ngrok tunnelid
-omniroute reset-password           # Administraatori parooli lähtestamine
-omniroute --mcp                    # Käivita MCP server stdio kaudu
-omniroute --port 3000              # Käivita server kohandatud pordil
+omniroute setup                    # Interactive wizard (password, providers, combos)
+omniroute setup --non-interactive  # CI-friendly
+omniroute doctor                   # Local diagnostics (config, DB, ports, Node runtime, native deps)
+omniroute chat "<prompt>"          # One-shot chat prompt (also --file / --stdin)
+omniroute repl                     # Interactive terminal chat (/model, /combo, /skill, /memory)
+omniroute providers available      # List supported providers
+omniroute providers list           # List configured connections
+omniroute providers test <id>      # Live test a provider connection
+omniroute combos list              # List combos
+omniroute combos switch <name>     # Set default combo
+omniroute models                   # List available models (--json, --search)
+omniroute keys add | list | remove # Manage API keys from the terminal
+omniroute backup                   # Snapshot config + DB
+omniroute restore [<timestamp>]    # Restore from a snapshot
+omniroute health                   # Detailed health (breakers, cache, memory)
+omniroute quota                    # Provider quota usage
+omniroute mcp status               # MCP server status
+omniroute a2a status               # A2A server status
+omniroute tunnel list|create|stop  # Cloudflare/Tailscale/ngrok tunnels
+omniroute reset-password           # Reset the admin password
+omniroute --mcp                    # Start MCP server over stdio
+omniroute --port 3000              # Start the server on a custom port
 ```
 
-Näpunäide: kombineeri `omniroute doctor --json` oma seireriistaga, et saada teavitusi ebatervete teenusepakkuja ühenduste korral.
+Nõuanne: siduge `omniroute doctor --json` oma jälgimistööriistaga, et teavitada katkisest kohalikust installist. `doctor` ei testi teenusepakkuja ühendusi; kasutage selleks `omniroute providers test <id>`.
 
 ---
 

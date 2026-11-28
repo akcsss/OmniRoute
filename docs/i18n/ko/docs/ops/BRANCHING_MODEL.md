@@ -42,7 +42,7 @@ flowchart LR
 `main`은 일상적인 통합 브랜치가 아닙니다. `main`을 대상으로 열린 PR은
 일반적으로 병합 전에 대상 브랜치를 변경해야 합니다.
 
-## 릴리스 동결(병렬 주기)
+## 릴리스 동결(병렬 사이클)
 
 릴리스가 조정되면 `release-freeze` 라는 마커 문제가 열립니다. 저것** 개발을 멈추지 않는다** :
 
@@ -53,7 +53,7 @@ flowchart LR
 원하는 분기가 병합 가능하다고 가정하기 전에 공개 동결을 확인하세요.
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 병합 메커니즘(소유자 `queue` 레이블 → Mergify)은 [MERGE_TRAIN.md](./MERGE_TRAIN.md) 에 문서화되어 있습니다.

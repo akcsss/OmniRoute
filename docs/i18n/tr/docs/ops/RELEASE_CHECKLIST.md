@@ -4,12 +4,9 @@
 
 ---
 
-> **Son güncelleme:** 2026-08-28 — v3.8.51
-> Otomasyon için Claude Code becerilerinden yararlanan, sadeleştirilmiş sürüm akışı.
+> Otomasyon için Claude Code becerilerinden yararlanan kolaylaştırılmış sürüm akışı.
 >
-> **Sürümler arasında kuyruğu/dalı sorunsuz tutun:** bkz. [RELEASE_GREEN.md](./RELEASE_GREEN.md)
-> (`/green-prs` ailesi + `npm run check:release-green` + `/babysit` + gecelik çalışma). Bunu düzenli olarak
-> ve özellikle bu kontrol listesinden **önce** çalıştırmak, sürüm PR'ının sorunsuz başlamasını sağlar.
+> **Sürümler arasında queue/branch yeşil tutun:** bkz [RELEASE_GREEN.md](./RELEASE_GREEN.md) (`/green-prs` ailesi + `npm run check:release-green` + `/babysit` + her gece). Bunu periyodik olarak çalıştırmak — ve özellikle** önce** bu kontrol listesi — PR sürümünün yeşil renkte başlamasını sağlar.
 
 ## Kısaca
 
@@ -60,7 +57,9 @@ Npm-publish iş akışı artık doğrudan yayınlamıyor: paketlenmiş tarball'�
 
 **Docker Hub `latest` (her kararlı SemVer yayını için gereklidir):** `docker-publish` iş akışı etiketlemelidir** ikisi birden** `X.Y.Z` ve `should-promote-latest.sh` bunun en yüksek kararlı SemVer olduğunu kabul ettiğinde, `:latest` ile** aynı özet** . İşten sonra: Hub `latest` özeti yeni SemVer özetine eşittir ve `last_updated` taşınır. Sürüm notları yalnızca git'te bulunan düzeltmelerden bahsederken `:latest` eski bir yapıda bırakmayın. Hızlı başlangıçlar oluşturmak için `:latest` kullanın; GitOps `X.Y.Z` sabitlemeye devam etmelidir. [Docker sürüm kanallarına](../guides/DOCKER_GUIDE.md#release-channels) ve #10317 bakın.
 
-**Docker Hub organizasyon deposu (`cheaperinference/omniroute`):** Docker Hub, bir depoyu ad alanları arasında taşıyamaz; dolayısıyla `diegosouzapw/omniroute` çekme geçmişini ve her sürümü saklar ve `docker-publish` `mirror-org-dockerhub` işi, yayımlanan her sürümü (ve yükseltildiğinde `:latest` ) `ghcr.io/cheaper-inference/omniroute` kuruluş deposuna kopyalar. `DOCKERHUB_ORG_USERNAME` / `DOCKERHUB_ORG_TOKEN` sırlarına ihtiyacı var; onlar olmadan iş "Docker Hub org aynası atlandı" uyarısıyla yeşil kalır ve diğer kayıtlar normal şekilde yayınlanır. Yayımlanmış bir sürümü daha sonra orada yayınlamak için şunu çalıştırın:** Eylemler → Docker görüntüsünü Docker Hub org → Run iş akışına yansıtın** `version=X.Y.Z` ile (ve en yüksek kararlı sürüm için `promote_latest` ): mevcut görüntüleri kopyalar, yeniden oluşturma gerekmez.
+**Docker Hub organizasyon deposu (`cheaperinference/omniroute`):** Docker Hub, bir depoyu ad alanları arasında taşıyamaz; dolayısıyla `diegosouzapw/omniroute` çekme geçmişini ve her sürümü saklar ve `docker-publish` `mirror-org-dockerhub` işi, yayımlanan her sürümü (ve yükseltildiğinde `:latest` ) `ghcr.io/cheaper-inference/omniroute` kuruluş deposuna kopyalar. `DOCKERHUB_ORG_USERNAME` / `DOCKERHUB_ORG_TOKEN` sırlarına ihtiyacı var; onlar olmadan iş "Docker Hub org aynası atlandı" uyarısıyla yeşil kalır ve diğer kayıtlar normal şekilde yayınlanır. Yayımlanmış bir sürümü daha sonra orada yayınlamak için şunu çalıştırın:** Eylemler → Docker görüntüsünü Docker Hub org → Run iş akışına yansıtın** `version=X.Y.Z` ile (ve en yüksek kararlı sürüm için `promote_latest` ): mevcut görüntüleri kopyalar, yeniden oluşturma gerekmez. Bu havuzun Docker Hub'a genel bakışı elle ayarlanır: onu düzenleyen API, Organizasyon Erişim Belirteçlerini reddeder.
+
+Aynı iş akışı, 30.06.2027 tarihine kadar her sürümü eski GHCR paketi `ghcr.io/diegosouzapw/omniroute` kopyalar, böylece buna sabitlenmiş yüklemeler güncellenmeye devam eder; dizini " `ghcr.io/cheaper-inference/omniroute` taşındı" açıklamasını taşır. `GHCR_LEGACY_TOKEN` sırrına ( `diegosouzapw` `write:packages` ile klasik bir kişisel erişim belirteci) ihtiyacı vardır; o olmadan bu iş "Eski GHCR aynası atlandı" uyarısıyla atlanır.
 
 ## Hotfix Hızlı Hattı (`hotfix` etiketi)
 
@@ -151,7 +150,7 @@ Son değişiklikler: kapsamdan sonra `BREAKING CHANGE:` altbilgisini veya `!` ek
 ### Dokümantasyon
 
 - [ ] `npm run check:docs-sync` geçişleri (ön işleme göre otomatik çalıştırma)
-- [ ] `npm run check:docs-all` geçişleri (şemsiye: docs-sync + docs-counts + env-doc-sync + kullanımdan kaldırılmış sürümler + doc-links)
+- [ ] `npm run check:docs-all` geçer. Tavsiye niteliğindeki `check:deprecated-versions` açıkça OmniRoute (3.6.x ve öncesi) atfedilen sürümleri işaretler ve tarihleri göz ardı eder.
 - [ ] `npm run check:env-doc-sync` 0'dan çıkar — kodu ↔ `.env.example` ↔ `docs/reference/ENVIRONMENT.md` env sözleşmesi sağlam
 - [ ] `npm run check:doc-links` 0'dan çıkıyor — yeniden yapılanma sonrasında bozuk dahili işaretleme referansı yok
 - [ ] `docs/architecture/ARCHITECTURE.md` storage/runtime drift için incelendi
@@ -168,7 +167,7 @@ Son değişiklikler: kapsamdan sonra `BREAKING CHANGE:` altbilgisini veya `!` ek
 - [ ] `npm run i18n:check-ui-coverage` %80 kapsama tabanında veya üzerindeki her UI yerel ayarından 0 — çıkar
 - [ ] `npm run i18n:sync-ui:dry` 66 hedef yerel ayarın tamamında ( `en` kaynağı dışındaki her yerel ayar) 0 eksik anahtar bildirdi
 - [ ] Kaynak İngilizce dokümanlar değiştiyse etiketlemeden önce `npm run i18n:run` çalıştırın ( `.env` `OMNIROUTE_TRANSLATION_API_KEY` gerekir)
-- [ ] Çeviri katkıları, küçük olması durumunda bir sonraki sürüme ertelenebilir ( CHANGELOG takip edin)
+- [ ] Çeviri katkıları, küçük olması durumunda bir sonraki sürüme ertelenebilir ( CHANGELOG parça)
 
 ### Veritabanı Geçişleri
 
@@ -366,7 +365,7 @@ npm run release:dry-run-lts-cut                       # the real cut: 3.9.0 from
 npm run release:dry-run-lts-cut -- --from <3.9.0-tip> # pin the source commit
 ```
 
-`scripts/release/dry-run-lts-cut.mjs` hiçbir şey yürütmez: git ve `gh` okur ve — önkoşullarının tamamını yazdırır (kaynak çözümlenir, kaynak deposunun tam geçmişi vardır — sığ bir klon `stable/v3` itemez, alıcı taraf ilk aşılanmış ebeveyndeki paketi reddeder, dolayısıyla tam klondan kesilir veya `git fetch --unshallow origin` ilk önce — önceki etiketi vardır, `package.json` hedef sürümdür, bir `release-freeze` sorunu açıktır, mevcut bir yayın dalında açık `Release branch not green` sorunu yoktur — bir dal mevcut olmayan raporlar `?` bilinmiyor, asla yeşil — omni-queue PRs sürümünü indirir (G11: `config/merge-queue/config.json` geçerli, `bases` sürüm dalını yönetir, `mode` `live`, etiketi mevcut), `release/*` kural seti hala silmeyi ve zorla göndermeyi engelliyor ve `stable/v3` ve `develop` henüz mevcut değil), hareketsiz iş akışını tetikleyen ve `if:` koşullarını doğrulayan (ve bir depo tarafından kontrol edilen) iki dal adımı değişken veya standart depoya sabitlenmiş), beklenen dağıtım etiketleri (`latest` → 3.9.0, `next` ve `nightly` boş) ve geri alma. `0` = `RESULT: READY` çıkın, `1` = engelleme önkoşulu başarısız oldu (`✗`), `2` = kullanım hatası. `--advisory <id,...>` bir kontrolü gizlemeden uyarıya (`!`) düşürür.
+`scripts/release/dry-run-lts-cut.mjs` hiçbir şey yürütmez: git ve `gh` okur ve — önkoşullarının tamamını yazdırır (kaynak çözümlenir, kaynak deposunun tam geçmişi vardır — sığ bir klon `stable/v3` itemez, alıcı taraf ilk aşılanmış ebeveyndeki paketi reddeder, dolayısıyla tam klondan kesilir veya `git fetch --unshallow origin` ilk önce — önceki etiketi vardır, `package.json` hedef sürümdür, bir `release-freeze` sorunu açıktır, mevcut bir yayın dalında açık `Release branch not green` sorunu yoktur — bir dal mevcut olmayan raporlar `?` bilinmiyor, asla yeşil — omni-queue PRs sürümünü indirir (G11: `config/merge-queue/config.json` geçerli, `bases` sürüm dalını yönetir, `mode` `live`, etiketi mevcut), `release/*` kural seti hala silmeyi ve zorla göndermeyi engelliyor ve `stable/v3` ve `develop` henüz mevcut değil), hareketsiz iş akışını tetikleyen ve `if:` koşullarını doğrulayan (ve bir depo tarafından denetlenen) iki dal adımı değişken veya standart depoya sabitlenmiş), beklenen dağıtım etiketleri (`latest` → 3.9.0, `next` ve `nightly` boş) ve geri alma. `0` = `RESULT: READY` çıkın, `1` = engelleme önkoşulu başarısız oldu (`✗`), `2` = kullanım hatası. `--advisory <id,...>` bir kontrolü gizlemeden uyarıya (`!`) düşürür.
 
 3.9.0 sürüm dondurması hala açıkken gerçek kesimin provasını çalıştırın — dallar etiketten sonra ve Aşama 12c dondurmayı kaldırmadan önce oluşturulur.
 
@@ -389,7 +388,7 @@ node scripts/release/dry-run-lts-cut.mjs --execute --rollback --remote rehearsal
   --target-version 3.8.58 --previous-tag v3.8.57 --advisory freeze,base-green
 ```
 
-Geliştirme yükseltme taahhüdü git plumbing ile oluşturulmuştur (hiçbir çalışma ağacına dokunulmaz) ve döngüsel açma taahhüdüyle aynı beş dosyayı çarpar: `package.json`, `open-sse/package.json`, `electron/package.json`, `package-lock.json` ve `docs/openapi.yaml`. `[4.0.0]` CHANGELOG bölümü ve onun i18n aynaları `develop` daha sonra, ilk PR önce açılır. Betik, npm dist-tags — hiçbir zaman değiştirmez, bunları bir karalama paketi üzerinde prova eder.
+Geliştirme yükseltme taahhüdü git plumbing ile oluşturulmuştur (hiçbir çalışma ağacına dokunulmaz) ve döngüsel açma taahhüdüyle aynı beş dosyayı çarpar: `package.json`, `open-sse/package.json`, `electron/package.json`, `package-lock.json` ve `docs/openapi.yaml`. `[4.0.0]` CHANGELOG bölümü ve onun i18n aynaları `develop` daha sonra, ilk PR önce açılır. Betik hiçbir zaman npm dist-tags — değiştirmez ve bunları bir karalama paketi üzerinde prova eder.
 
 ### PR önizleme yapıtı (bir kez derleyin, aynı baytları yükseltin)
 
@@ -399,7 +398,7 @@ Geliştirme yükseltme taahhüdü git plumbing ile oluşturulmuştur (hiçbir ç
 gh workflow run preview-artifact.yml -f pr_number=<N>   # or add the `preview-artifact` label
 gh run download <run-id> --name preview-artifact-pr<N>-<sha7> --dir preview
 cd preview && sha256sum -c SHA256SUMS
-gh attestation verify omniroute-*.tgz --repo diegosouzapw/OmniRoute
+gh attestation verify omniroute-*.tgz --repo cheaper-inference/OmniRoute
 npm install -g ./omniroute-*.tgz                          # preview install
 ```
 

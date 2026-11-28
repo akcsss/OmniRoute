@@ -45,10 +45,10 @@ Quando una versione viene riconciliata, viene aperta una questione marcatore den
 - La `release/vX+1` del ciclo successivo viene tagliata dalla punta congelata in modo che i contributori continuino a sbarcare il lavoro.
 - Dovrebbe essere aperto PRs che prende di mira ancora il ramo congelato** ritargetizzato** al ramo `release/v*` attivo (più alto).
 
-Verificare la presenza di un blocco aperto prima di presumere che il ramo desiderato sia unificabile:
+Verifica la presenza di un blocco aperto prima di presumere che il ramo desiderato sia unificabile:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 I meccanismi di unione (proprietario `queue` etichetta → Mergify) sono documentati in [MERGE_TRAIN.md](./MERGE_TRAIN.md).

@@ -4,8 +4,6 @@
 
 ---
 
-ለመጨረሻ ጊዜ የዘመነው፡ 2026-08-23
-
 OmniRoute በሶስት የልዩ ዳሽቦርድ ገፆች ላይ ከተሰራጩ የሶስት ምድቦች CLI መሳሪያዎች ጋር ያዋህዳል
 
 | ገጽ           | መንገድ                    | ጽንሰ-ሐሳብ                                                               | መቁጠር       |
@@ -228,7 +226,7 @@ interface ToolBatchStatus {
 | `POST /api/cli-tools/grok-build-settings`   | Grok ገንባ (~/.grok/config.toml, `[model.omniroute]`)               |
 | `POST /api/cli-tools/qwen-settings`         | Qwen ኮድ (`~/.qwen/settings.json` + የተወሰነ `.env` ቁልፍ)              |
 
-ሁሉም መንገዶች `sanitizeErrorMessage()` ለስህተት ምላሾች ይጠቀማሉ (ሃርድ ህግ ቁጥር 12)።
+ሁሉም መንገዶች `sanitizeErrorMessage()` ለስህተት ምላሾች (Hard Rule #12) ይጠቀማሉ።
 
 ---
 

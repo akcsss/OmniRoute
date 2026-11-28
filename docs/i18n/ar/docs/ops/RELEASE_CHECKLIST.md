@@ -4,12 +4,9 @@
 
 ---
 
-> **آخر تحديث:** 2026-08-28 — v3.8.51
-> مسار إصدار مبسّط يستفيد من مهارات Claude Code للأتمتة.
+> تدفق إصدار مبسط يعزز مهارات Claude Code للأتمتة.
 >
-> **حافظ على سلامة قائمة الانتظار/الفرع بين الإصدارات:** راجع [RELEASE_GREEN.md](./RELEASE_GREEN.md)
-> (عائلة `/green-prs` +‏ `npm run check:release-green` +‏ `/babysit` + التشغيل الليلي). يساعد تشغيل
-> هذا دوريًا — وخصوصًا **قبل** قائمة التحقق هذه — على بدء طلب سحب الإصدار بحالة سليمة.
+> **حافظ على queue/branch الأخضر بين الإصدارات:** انظر [RELEASE_GREEN.md](./RELEASE_GREEN.md) (عائلة `/green-prs` + `npm run check:release-green` + `/babysit` + ليلاً). تشغيل هذا — بشكل دوري وخاصة** قبل** قائمة التحقق هذه — تجعل إصدار PR يبدأ باللون الأخضر.
 
 ## الخلاصة
 
@@ -58,9 +55,11 @@ npm run test:e2e           # اختياري، لكنه موصى به
 
 **قواعد اللعب الخاصة بالقطعة الأثرية المكسورة (بدون تغيير):** `npm deprecate omniroute@<bad> "<reason> — use <fixed>"` باعتباره المنعكس الافتراضي (الدقائق، قابلة للعكس)؛ `npm unpublish` فقط داخل نافذة 72h/no-dependents وليس كخطوة أولى أبدًا. Docker: لا تقم أبدًا بإعادة كتابة علامة الإصدار، حيث يقوم التراجع عن — بإعادة تعيين `latest` إلى آخر ملخص جيد.
 
-**Docker Hub `latest` (مطلوب في كل نشرة SemVer مستقرة):** يجب وضع علامة على سير عمل `docker-publish`** كلاهما** `X.Y.Z` ، وعندما يوافق `should-promote-latest.sh` يكون هذا هو أعلى مستوى مستقر SemVer، `:latest` مع** نفس الملخص** . بعد المهمة: Hub `latest` Digest يساوي ملخص SemVer الجديد ويتم نقل `last_updated`. لا تترك `:latest` على إصدار أقدم بينما تتحدث ملاحظات الإصدار عن الإصلاحات الموجودة فقط على git. إنشاء بدايات سريعة باستخدام `:latest`؛ يجب أن يستمر GitOps في تثبيت `X.Y.Z`. راجع [قنوات إصدار Docker](../guides/DOCKER_GUIDE.md#release-channels) و #10317.
+**Docker Hub `latest` (مطلوب في كل نشرة SemVer مستقرة):** يجب وضع علامة على سير عمل `docker-publish`** كلاهما** `X.Y.Z` ، وعندما يوافق `should-promote-latest.sh` على أن هذا هو أعلى SemVer مستقر، `:latest` مع** نفس الملخص** . بعد المهمة: Hub `latest` Digest يساوي ملخص SemVer الجديد ويتم نقل `last_updated`. لا تترك `:latest` على إصدار أقدم بينما تتحدث ملاحظات الإصدار عن الإصلاحات الموجودة فقط على git. إنشاء بدايات سريعة باستخدام `:latest`؛ يجب أن يستمر GitOps في تثبيت `X.Y.Z`. راجع [قنوات إصدار Docker](../guides/DOCKER_GUIDE.md#release-channels) و #10317.
 
-**مستودع منظمة Docker Hub (`cheaperinference/omniroute`):** لا يستطيع Docker Hub نقل مستودع بين مساحات الأسماء، لذلك يحتفظ `diegosouzapw/omniroute` بسجل السحب الخاص به وكل إصدار، وتقوم مهمة `mirror-org-dockerhub` لـ `docker-publish` بنسخ كل إصدار تم إصداره (و `:latest` عند ترقيته) من `ghcr.io/cheaper-inference/omniroute` إلى مستودع المؤسسة. يحتاج إلى أسرار `DOCKERHUB_ORG_USERNAME` / `DOCKERHUB_ORG_TOKEN` ؛ بدونها، تظل الوظيفة خضراء مع تحذير "تم تخطي مرآة Docker Hub org" وتنشر السجلات الأخرى بشكل طبيعي. لنشر نسخة تم إصدارها هناك لاحقًا، قم بتشغيل** الإجراءات → قم بعكس صورة Docker على Docker Hub org → Run سير العمل** باستخدام `version=X.Y.Z` (و `promote_latest` لأعلى إصدار مستقر): يقوم بنسخ الصور الموجودة، دون إعادة البناء.
+**مستودع منظمة Docker Hub (`cheaperinference/omniroute`):** لا يستطيع Docker Hub نقل مستودع بين مساحات الأسماء، لذلك يحتفظ `diegosouzapw/omniroute` بسجل السحب الخاص به وكل إصدار، وتقوم مهمة `mirror-org-dockerhub` لـ `docker-publish` بنسخ كل إصدار تم إصداره (و `:latest` عند ترقيته) من `ghcr.io/cheaper-inference/omniroute` إلى مستودع المؤسسة. يحتاج إلى أسرار `DOCKERHUB_ORG_USERNAME` / `DOCKERHUB_ORG_TOKEN` ؛ بدونها، تظل الوظيفة خضراء مع تحذير "تم تخطي مرآة Docker Hub org" وتنشر السجلات الأخرى بشكل طبيعي. لنشر نسخة تم إصدارها هناك لاحقًا، قم بتشغيل** الإجراءات → قم بعكس صورة Docker على Docker Hub org → Run سير العمل** باستخدام `version=X.Y.Z` (و `promote_latest` لأعلى إصدار مستقر): يقوم بنسخ الصور الموجودة، بدون إعادة البناء. يتم تعيين النظرة العامة على Docker Hub لهذا المستودع يدويًا: حيث ترفض API التي تقوم بتحريرها رموز الوصول إلى المؤسسة.
+
+ينسخ سير العمل نفسه أيضًا كل إصدار لحزمة GHCR القديمة `ghcr.io/diegosouzapw/omniroute` حتى 30/06/2027، لذلك تستمر عمليات التثبيت المثبتة به في التحديث؛ يحمل فهرسه وصفًا "تم النقل إلى `ghcr.io/cheaper-inference/omniroute`". إنه يحتاج إلى سر `GHCR_LEGACY_TOKEN` (رمز وصول شخصي كلاسيكي لـ `diegosouzapw` مع `write:packages`) ؛ بدونها، يتم تخطي هذه المهمة مع ظهور تحذير "تم تخطي مرآة GHCR القديمة".
 
 ## المسار السريع للإصلاحات العاجلة (التسمية `hotfix`)
 
@@ -151,7 +150,7 @@ npm run test:e2e           # اختياري، لكنه موصى به
 ### التوثيق
 
 - [ ] تمريرات `npm run check:docs-sync` (التشغيل التلقائي عن طريق الالتزام المسبق)
-- [ ] تمريرات `npm run check:docs-all` (المظلة: docs-sync + docs-counts + env-doc-sync + deprecated-versions + doc-links)
+- [ ] يمر `npm run check:docs-all`. تُنسب إصدارات إشارات `check:deprecated-versions` الاستشارية صراحةً إلى OmniRoute (3.6.x والإصدارات الأقدم) وتتجاهل التواريخ.
 - [ ] مخارج `npm run check:env-doc-sync` 0 رمز — ↔ `.env.example` ↔ `docs/reference/ENVIRONMENT.md` env العقد سليم
 - [ ] `npm run check:doc-links` يخرج 0 — لا توجد مراجع تخفيض أسعار داخلية مكسورة بعد إعادة الهيكلة
 - [ ] تمت مراجعة `docs/architecture/ARCHITECTURE.md` لـ storage/runtime Drift
@@ -178,7 +177,7 @@ npm run test:e2e           # اختياري، لكنه موصى به
   - [ ] مرقمة بشكل صحيح (بدون فجوات في التسلسل)
 - [ ] اختبار التثبيت الجديد: احذف `~/.omniroute/omniroute.db` وقم بتشغيل `npm run dev`
 - [ ] اختبار التثبيت الحالي: النسخ الاحتياطي DB، تشغيل الترحيل، التحقق من المخطط
-- [ ] يتم التعامل مع ملفات WAL (`-wal`، `-shm`) بشكل صحيح إذا كان الترحيل يعيد كتابة الجداول
+- [ ] يتم التعامل مع ملفات WAL (`-wal`، `-shm`) بشكل صحيح إذا أعاد الترحيل كتابة الجداول
 
 ### كتالوج الموفر (تم التحقق من صحته بواسطة Zod)
 
@@ -280,7 +279,7 @@ npm run build:release
 - [ ] قم بتدخين `GET /planos` و `/termos` و `/privacidade` و `/reembolso` على مضيف الرادار المسمى
 - [ ] سجل المشغل identity/contact/address والمراجعة القانونية المعتمدة من المالك في الخدمة الخاصة
 - [ ] قم بتمرين Stripe Checkout وخطاف الويب الموقع في وضع الاختبار فقط
-- [ ] قم بتسليم بريد إلكتروني مشفر للمعاملات مرة واحدة باستخدام sender/domain المعتمد
+- [ ] قم بتسليم بريد إلكتروني مشفر واحد للمعاملات باستخدام sender/domain المعتمد
 - [ ] إثبات استعادة النسخة الاحتياطية وإجراء بحث واحد خاضع للإشراف ومحدد بالميزانية
 - [ ] الموافقة على سياسة مراجعة BRL/PIX قبل قبول أدلة التبرع
 - [ ] تمكين الخروج العام فقط بعد البوابات السابقة، ثم تفعيل `news.json` ID الجديد
@@ -357,7 +356,7 @@ npm run build:release
 
 ## 3.9.0 قطع LTS (تم التدرب عليه في 3.8.58)
 
-بعد v3.8.59، الإصدار التالي هو 3.9.0، ويصبح طرفه فرعين طويلي العمر: `stable/v3` (خط v3 LTS ، npm `latest`) و `develop` (v4، تم رفعه إلى 4.0.0، npm `nightly`). نموذج branch/channel والمنفذ الأمامي والتسميات موجودة بصيغة [RELEASE_STRATEGY.md](./RELEASE_STRATEGY.md) ؛ الخطة في [ROADMAP](../../ROADMAP.md) (المرحلة 3). يتم القطع مرة واحدة؛ 3.8.58 يتدرب على ذلك من طرف إلى طرف على شوكة، ويغلق 3.8.59 [بقائمة التحقق GO/NO-GO](./LTS_GO_NO_GO.md).
+بعد v3.8.59، الإصدار التالي هو 3.9.0، ويصبح طرفه فرعين طويلي العمر: `stable/v3` (خط v3 LTS ، npm `latest`) و `develop` (v4، تم رفعه إلى 4.0.0، npm `nightly`). نموذج branch/channel والمنفذ الأمامي والتسميات موجودة بصيغة [RELEASE_STRATEGY.md](./RELEASE_STRATEGY.md) ؛ الخطة في [ROADMAP](../../ROADMAP.md) (المرحلة 3). يتم القطع مرة واحدة؛ 3.8.58 يتدرب على ذلك من طرف إلى طرف على شوكة، ويغلق 3.8.59 بقائمة [مراجعة GO/NO-GO](./LTS_GO_NO_GO.md).
 
 ### التشغيل الجاف (للقراءة فقط، آمن في أي وقت)
 
@@ -399,7 +398,7 @@ node scripts/release/dry-run-lts-cut.mjs --execute --rollback --remote rehearsal
 gh workflow run preview-artifact.yml -f pr_number=<N>   # or add the `preview-artifact` label
 gh run download <run-id> --name preview-artifact-pr<N>-<sha7> --dir preview
 cd preview && sha256sum -c SHA256SUMS
-gh attestation verify omniroute-*.tgz --repo diegosouzapw/OmniRoute
+gh attestation verify omniroute-*.tgz --repo cheaper-inference/OmniRoute
 npm install -g ./omniroute-*.tgz                          # preview install
 ```
 
@@ -409,7 +408,7 @@ npm install -g ./omniroute-*.tgz                          # preview install
 
 1. GO المسجلة في [LTS_GO_NO_GO.md](./LTS_GO_NO_GO.md).
 2. `npm run release:dry-run-lts-cut -- --from v3.9.0` يطبع `RESULT: READY`.
-3. قم بإنشاء الفروع على `origin` يدويًا باستخدام الأوامر التي يطبعها التشغيل الجاف — يرفض البرنامج النصي دفعه إلى `origin`. لإعادة استخدام التزام التطوير الذي تمت مراجعته، قم بإجراء بروفة `--execute` على الطرف 3.9.0 مقابل شوكتك أولاً؛ يطبع كلاً من SHAs، ويمكن دفع نفس الالتزامات:
+3. أنشئ الفروع على `origin` يدويًا باستخدام الأوامر التي يطبعها التشغيل الجاف — الذي يرفض البرنامج النصي دفعه إلى `origin`. لإعادة استخدام التزام التطوير الذي تمت مراجعته، قم بإجراء بروفة `--execute` على الطرف 3.9.0 مقابل شوكتك أولاً؛ يطبع كلاً من SHAs، ويمكن دفع نفس الالتزامات:
 
    ```bash
    git push origin <stable-sha>:refs/heads/stable/v3 <develop-sha>:refs/heads/develop

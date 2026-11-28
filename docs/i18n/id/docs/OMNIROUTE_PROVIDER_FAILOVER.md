@@ -21,3 +21,5 @@ Kebijakan lintas penyedia default mengizinkan hingga tiga upaya penyedia, mencob
   - Id awalan (`provider/model`) tidak pernah dialihkan ke penyedia lain.
 
 Status sirkuit adalah `closed`, `open`, dan `half_open`. Cooldown menjadwalkan penyelidikan terbatas; probe yang berhasil menutup sirkuit dan probe yang gagal membukanya kembali.
+
+Failover penyedia berjalan di dalam gateway. Lihat [Ketika OmniRoute sendiri tidak dapat dijangkau](architecture/RESILIENCE_GUIDE.md#when-omniroute-itself-is-unreachable) untuk mengetahui perilaku klien selama pemadaman gateway.

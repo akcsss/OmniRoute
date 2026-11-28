@@ -21,3 +21,5 @@ Politica implicită între furnizori permite până la trei încercări ale furn
   - Un id cu prefix (`provider/model`) nu este niciodată redirecționat către alt furnizor.
 
 Stările circuitului sunt `closed`, `open` și `half_open`. Un cooldown programează o sondă delimitată; o sondă reușită închide circuitul și o sondă eșuată îl redeschide.
+
+Efectuarea erorii furnizorului rulează în interiorul gateway-ului. Vedeți [Când OmniRoute în sine este inaccesibil](architecture/RESILIENCE_GUIDE.md#when-omniroute-itself-is-unreachable) pentru comportamentul clientului în timpul unei întreruperi de gateway.

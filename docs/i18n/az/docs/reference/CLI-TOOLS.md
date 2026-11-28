@@ -4,8 +4,6 @@
 
 ---
 
-Son yeniləmə: 23-08-2026
-
 OmniRoute üç xüsusi tablosunun səhifəsində yayılmış üç kateqoriyalı CLI alətləri ilə inteqrasiya edir:
 
 | Səhifə            | Marşrut                 | Konsepsiya                                                                                | saymaq           |

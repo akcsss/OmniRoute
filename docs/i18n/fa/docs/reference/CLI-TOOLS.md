@@ -4,13 +4,11 @@
 
 ---
 
-آخرین به روز رسانی: 2026-08-23
-
-OmniRoute با سه دسته از ابزارهای CLI که در سه صفحه داشبورد اختصاصی پخش شده اند ادغام می شود:
+OmniRoute با سه دسته از ابزارهای CLI که در سه صفحه اختصاصی داشبورد پخش شده اند ادغام می شود:
 
 | صفحه              | مسیر                    | مفهوم                                                                                 | بشمار             |
 | ----------------- | ----------------------- | ------------------------------------------------------------------------------------- | ----------------- |
-| **کد CLI**        | `/dashboard/cli-code`   | ابزارهای کدگذاری که به OmniRoute اشاره میکنید (ارائهدهنده مشتری → CLI → OmniRoute → ) | 26                |
+| **کد CLI**        | `/dashboard/cli-code`   | ابزارهای کدنویسی که به OmniRoute اشاره میکنید (ارائهدهنده مشتری → CLI → OmniRoute → ) | 26                |
 | **نمایندگان CLI** | `/dashboard/cli-agents` | عوامل مستقلی که به OmniRoute اشاره میکنید (جریان یکسان، دامنه وسیعتر)                 | 11                |
 | **نمایندگان ACP** | `/dashboard/acp-agents` | CLIs که OmniRoute به عنوان backend از طریق stdio/ACP (جریان معکوس) تولید می شود       | رجیستری را ببینید |
 
@@ -235,7 +233,7 @@ interface ToolBatchStatus {
 | `POST /api/cli-tools/grok-build-settings`   | Grok Build (~/.grok/config.toml, `[model.omniroute]`)               |
 | `POST /api/cli-tools/qwen-settings`         | کد Qwen (کلید `.env` اختصاصی + `~/.qwen/settings.json` )            |
 
-همه مسیرها `sanitizeErrorMessage()` برای پاسخ به خطا استفاده می کنند (قانون سخت شماره 12).
+همه مسیرها `sanitizeErrorMessage()` برای پاسخ به خطا استفاده می کنند (قانون سخت #12).
 
 ---
 

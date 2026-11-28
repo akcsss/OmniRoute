@@ -4,15 +4,13 @@
 
 ---
 
-Son güncelleme: 2026-08-23
+OmniRoute üç özel kontrol paneli sayfasına yayılmış üç CLI aracı kategorisiyle bütünleşir:
 
-OmniRoute üç özel kontrol paneli sayfasına yayılmış üç CLI aracı kategorisiyle entegre olur:
-
-| Sayfa                | Rota                    | Konsept                                                                               | Saymak                |
-| -------------------- | ----------------------- | ------------------------------------------------------------------------------------- | --------------------- |
-| **CLI Kodu**         | `/dashboard/cli-code`   | OmniRoute işaret ettiğiniz kodlama araçları (İstemci → CLI → OmniRoute → Sağlayıcısı) | 26                    |
-| **CLI Temsilcileri** | `/dashboard/cli-agents` | OmniRoute işaret ettiğiniz otonom aracılar (aynı akış, daha geniş kapsam)             | 11                    |
-| **ACP Temsilcileri** | `/dashboard/acp-agents` | OmniRoute stdio/ACP aracılığıyla arka uç olarak ortaya çıktığı CLIs (ters akış)       | kayıt defterine bakın |
+| Sayfa                | Rota                    | Konsept                                                                             | Saymak                |
+| -------------------- | ----------------------- | ----------------------------------------------------------------------------------- | --------------------- |
+| **CLI Kodu**         | `/dashboard/cli-code`   | OmniRoute işaret ettiğiniz kodlama araçları (İstemci → CLI → OmniRoute → Sağlayıcı) | 26                    |
+| **CLI Temsilcileri** | `/dashboard/cli-agents` | OmniRoute işaret ettiğiniz otonom aracılar (aynı akış, daha geniş kapsam)           | 11                    |
+| **ACP Temsilcileri** | `/dashboard/acp-agents` | OmniRoute stdio/ACP aracılığıyla arka uç olarak ortaya çıktığı CLIs (ters akış)     | kayıt defterine bakın |
 
 Eski rotalar 308 aracılığıyla yeniden yönlendirilir: `/dashboard/cli-tools` → `/dashboard/cli-code`, `/dashboard/agents` → `/dashboard/acp-agents`.
 

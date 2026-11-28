@@ -4,9 +4,9 @@
 
 ---
 
-> **Izvor istine:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`** Zadnje ažuriranje:** 2026-06-28 — v3.8.40
+> **Izvor istine:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`
 
-OmniRoute snima asistenta `reasoning_content` koji proizvode modeli načina razmišljanja i reproducira ga transparentno na višestrukim zahtjevima kada uzlazni pružatelj to zahtijeva. Ovo eliminira pogreške HTTP 400 koje postavljaju strogi pružatelji usluga kada u povijesti razgovora klijenta nedostaje obrazloženje prethodnog poteza.
+OmniRoute snima asistenta `reasoning_content` koji proizvode modeli načina razmišljanja i reproducira ga transparentno na višestrukim zahtjevima kada to zahtijeva uzlazni pružatelj. Ovo eliminira pogreške HTTP 400 koje postavljaju strogi pružatelji usluga kada u povijesti razgovora klijenta nedostaje obrazloženje prethodnog poteza.
 
 ## Zašto ovo postoji
 

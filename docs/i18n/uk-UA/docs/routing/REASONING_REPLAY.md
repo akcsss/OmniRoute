@@ -4,7 +4,7 @@
 
 ---
 
-> **Джерело правди:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`** Останнє оновлення:** 2026-06-28 — v3.8.40
+> **Джерело правди:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`
 
 OmniRoute фіксує допоміжний `reasoning_content` створений моделями мисленнєвого режиму, і прозоро відтворює його на багаточергові запити, коли цього вимагає постачальник вищестоящого потоку. Це усуває помилки HTTP 400, які викликають суворі постачальники, коли в історії розмов клієнта відсутні міркування попереднього ходу.
 
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS reasoning_cache (
 );
 ```
 
-Індекси: `expires_at`, `provider`, `model`, `created_at`. `expires_at` зберігається як секунди епохи Unix; рівень SELECT нормалізує застарілі текстові значення через `EXPIRES_AT_EPOCH_SQL`.
+Indexes: `expires_at`, `provider`, `model`, `created_at`. `expires_at` is stored as Unix epoch seconds; рівень SELECT нормалізує застарілі текстові значення через `EXPIRES_AT_EPOCH_SQL`.
 
 ## Виявлення постачальника/моделі
 

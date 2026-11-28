@@ -4,7 +4,7 @@
 
 ---
 
-> **Siga:** v3.8.44** An sabunta ta ƙarshe:** 2026-10-28** Masu sauraro:** Injiniyoyi suna ƙara, kiyayewa, ko gyara ayyukan da aka haɗa (9Router, CLIProxyAPI, Mux, Bifrost, open-wa, LLMLingua, akwatin waƙa).
+> **Siga:** v3.8.44** Masu sauraro:** Injiniyoyi suna ƙara, kiyayewa, ko gyara ayyukan da aka haɗa (9Router, CLIProxyAPI, Mux, Bifrost, open-wa, LLMLingua, akwatin waƙa).
 
 Sabis ɗin da aka haɗa su ne kayan aikin gefen mota da aka shigar a cikin gida waɗanda OmniRoute ke girkawa, kulawa, da fallasa azaman maƙasudin tuƙi na matakin farko. Ba kamar masu samar da waje (waɗanda ake isa kan intanit ta maɓallan API ), ayyukan da aka haɗa suna gudana akan na'ura ɗaya kamar OmniRoute kuma suna sadarwa ta hanyar dawo da baya.
 

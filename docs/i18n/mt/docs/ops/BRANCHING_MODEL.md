@@ -53,10 +53,10 @@ Meta rilaxx ikun qed jiġi rikonċiljat, tinfetaħ kwistjoni ta' markar bit-tikk
 Iċċekkja għal iffriżar miftuħ qabel ma tassumi li l-fergħa li trid hija magħquda:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
-Merge mechanics (sid `queue` label → Mergify) huma dokumentati [MERGE_TRAIN.md](./MERGE_TRAIN.md).
+Merge mechanics (proprjetarju `queue` label → Mergify) huma dokumentati [MERGE_TRAIN.md](./MERGE_TRAIN.md).
 
 > **2026-11-19: il-kju ta' amalgamazzjoni Mergify huwa rtirat** (deċiżjoni tas-sid). `.mergify.yml` m'għadux jiddefinixxi kju u jirrifjuta l-kmandi Mergify li jingħaqdu jew jiktbu mill-ġdid pull request. Ir-rilaxx PRs huma magħquda bl-idejn taħt ir-regoli tar-repożitorju "Jeħtieġu gradi ħodor fuq ir-rilaxx attiv" (`Gate / CI` + `Gate / Quality`) sakemm omni-queue jaħdem fil-modalità ħaj, u permezz ta 'omni-queue wara dak ( [OMNI_QUEUE.md](./OMNI_QUEUE.md) ). It-tikketta `queue` m'għadhiex tgħaqqad xejn.
 

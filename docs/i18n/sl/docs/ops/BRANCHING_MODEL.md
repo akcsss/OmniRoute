@@ -48,7 +48,7 @@ Ko se izdaja usklajuje, se odpre težava označevalca z oznako `release-freeze`.
 Preden domnevate, da je veja, ki jo želite, združljiva, preverite odprto zamrznitev:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 Mehanika spajanja (lastnik `queue` oznaka → Mergify) je dokumentirana v [MERGE_TRAIN.md](./MERGE_TRAIN.md).

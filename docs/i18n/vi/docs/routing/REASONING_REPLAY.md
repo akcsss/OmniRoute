@@ -4,7 +4,7 @@
 
 ---
 
-> **Nguồn của sự thật:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`** Cập nhật lần cuối:** 28-06-2028 — v3.8.40
+> **Nguồn của sự thật:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`
 
 OmniRoute nắm bắt trợ lý `reasoning_content` được tạo bởi các mô hình chế độ tư duy và phát lại nó một cách minh bạch theo các yêu cầu nhiều lượt khi nhà cung cấp ngược dòng yêu cầu. Điều này giúp loại bỏ các lỗi HTTP 400 mà các nhà cung cấp nghiêm ngặt gặp phải khi lịch sử hội thoại của khách hàng thiếu lý do của lượt trước.
 

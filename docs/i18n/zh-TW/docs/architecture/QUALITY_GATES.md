@@ -29,13 +29,22 @@ CI和 Quality Gates 工作流程各自發出穩定的結論： `Gate / CI`和`Ga
 
 ### 合併隊列
 
-> **2026-11-19: Mergify 合併佇列已停用**（所有者的決定）。 `.mergify.yml`不再定義佇列並拒絕合併或重寫拉取請求的Mergify指令。向發布分支發出的拉取請求會在儲存庫規則集「Require green gates on the active release」 (`Gate / CI` + `Gate / Quality`) 下手動合併，直到omni-queue 在 live 模式下運行，然後透過omni-queue ([OMNI_QUEUE.md](../ops/OMNI_QUEUE.md)) 進行合併。以下所描述的Mergify草稿的工作流程仍在`ci.yml`和`quality.yml`中，但不再開啟Mergify草稿。
+> **2026-11-19：Mergify 合併隊列退役**（所有者的決定）。 `.mergify.yml`不再定義佇列並拒絕合併或重寫拉取請求的 Mergify 指令。版本PRs在儲存庫規則集「活動版本上需要綠色閘門」(`Gate / CI` + `Gate / Quality`) 下手動合併，直到全佇列在即時模式下運行，然後透過全佇列 ( [OMNI_QUEUE.md](../ops/OMNI_QUEUE.md) ) 進行合併。以下所述的 Mergify 草稿的工作流程處理仍在`ci.yml`和`quality.yml`中，但不再開啟 Mergify 草稿。
 
 `queue`標籤將PR傳送到 Mergify 佇列 (`.mergify.yml`)。 Mergify 在`mergify/merge-queue/`分支上開啟草稿PR ， CI在那裡運行完整選擇，並且當`Gate / CI`、 `Gate / Quality`和`Merge integrity (changelog + generated skills)`通過時原始PR合併。
 
-Mergify 將其佇列摘要寫入草稿的描述中，其他應用程式也可以對其進行編輯。此類草稿上的`pull_request` `edited`事件採用自己的並發組 (`-queue-edit-<run_id>`)，因此它無法取消草稿的實際運行，並且它會跳過門和矩陣。只有`Merge integrity`還在運作。跳過的門作業帶有不同的檢查名稱，因為 Mergify 將跳過的`Gate / CI`讀取為失敗的檢查並使PR出列。
-
 出隊後，推播並不總是將PR重新排隊。評論`@mergifyio queue`吧。
+
+### PR title/body編輯與重定向
+
+`ci.yml`、 `quality.yml`和`api-route-typecheck.yml`監聽`pull_request` `edited`事件， GitHub傳送此事件有兩個不同的目的：
+
+- **基礎變化**（重新定位，就像每次發布凍結時一樣）。活動攜帶`changes.base`.該運行在新基礎上驗證頭部，就像在共享並發組中的`synchronize`一樣，因此它取消了舊基礎上的陳舊運行。
+- **標題或正文編輯**（`changes.title`或`changes.body`，無`changes.base`）。機器人針對每個拉取請求發出多個請求：Mergify 將其隊列摘要寫入其草稿， CodeRabbit其摘要寫入，Blacksmith 應用程式將其頁腳寫入。這樣的運行有自己的並發組（`-metadata-edit-<run_id>`），因此它無法取消同一頭上的實際運行，並且會跳過每個作業，包括`Merge integrity` 。運行結束`skipped`。
+
+一個沒有命名任何更改的`edited`事件將運行所有內容。
+
+跳過的作業由其未計算的`name:`表達式命名，因此使用者按名稱（`Gate / CI`、 `Gate / Quality`、 `Merge integrity (changelog + generated skills)`、 `API Route Typecheck`）讀取其檢查的每個作業都有一個表達式名稱。編輯執行的跳過作業永遠不會採用所需的名稱，並且實際執行的檢查保留分支規則、合併和全佇列的最新名稱。跳過的具有所需名稱的檢查將被讀取為已傳遞給分支規則，並且無法合併，從而使#18961在其中之一 (2026-11-04) 上出列。 omni-queue 不會讓結束`skipped`運行取代該頭上的實際運行 ( [`docs/ops/OMNI_QUEUE.md`](../ops/OMNI_QUEUE.md#the-prs-own-gates-prchecksrequired) )。該合約由`tests/unit/ci-mergify-candidate.test.mjs`和`tests/unit/merge-queue/workflows.test.mjs`固定。
 
 ### 在接受減速器中保留證據
 
@@ -49,13 +58,13 @@ CLI要求`--evidence-root`驗證保留的證據。檔案解析為`<evidence-root
 
 使用`npm run quality:scan -- --list`或`npm run quality:scan:fast -- --list`檢查選定的別名而不執行它們。運行程序呼叫 npm 入口點，因此其運行時（包括配置的Bun ）被保留。清單將這些設定檔之外的別名記錄為單獨呼叫的，並且在唯讀掃描設定檔中禁止維護命令。
 
-These profiles cover the static scan only. They do not certify product tests, coverage, packaging, external checks or a candidate's full release acceptance. Workflow admission uses the linked `config/quality/admission-policy.json` and `scripts/quality/admission-verdict.mjs`. Release-observer profiles remain separate; inspect their applicable checks and receipts independently. The full observer's static commands are declared in `config/quality/release-green-static-profile.json`, including `audit:deps`, mutation-test selection and translation checks. The loader validates npm commands against package.json and modeled CI/Quality declarations; it rejects drift instead of executing shell tokens as arguments. Required scanner SKIP/INCOMPLETE output cannot establish PASS. The profile records its external exclusions and does not replace hosted coverage, test matrices, package or deployment evidence. The prose inventory below is a reference, not proof that a gate actually ran.
+這些設定檔僅涵蓋靜態掃描。他們不證明產品測試、覆蓋範圍、包裝、外部檢查或候選者的完全發布驗收。工作流程准入使用連結的`config/quality/admission-policy.json`和`scripts/quality/admission-verdict.mjs`。發布觀察者資料保持獨立；獨立檢查其適用的支票和收據。完整觀察者的靜態命令在`config/quality/release-green-static-profile.json`中聲明，包括`audit:deps`、突變測試選擇和翻譯檢查。載入程式根據package.json和建模CI/Quality聲明驗證 npm 命令；它拒絕漂移，而不是將 shell 標記作為參數執行。所需的掃描器SKIP/INCOMPLETE輸出無法建立PASS。此設定檔記錄其外部排除，並且不會取代託管覆蓋範圍、測試矩陣、套件或部署證據。以下的散文清單僅供參考，並不是門實際運作的證據。
 
 腳本位於`scripts/check/` （策略門）和`scripts/quality/` （棘輪引擎）下。 CI的事實來源是`.github/workflows/ci.yml`。
 
 ### 發布PR快速路徑 (`quality.yml`)
 
-`.github/workflows/quality.yml`補充了main/release PRs上的CI ，推送到`main`、調度和合併組。 PRs使用路徑過濾的快速檢查。永久禁用的重複建置已被刪除； the real build/package/boot checks remain in CI.單元套件和 vitest 僅在CI （`Unit Tests (N/8)`和`Vitest`）中運行。
+`.github/workflows/quality.yml`補充了main/release PRs上的CI ，推送到`main`、調度和合併組。 PRs使用路徑過濾的快速檢查。永久禁用的重複建置已被刪除；真正的build/package/boot檢查保留在CI中。單元套件和 vitest 僅在CI （`Unit Tests (N/8)`和`Vitest`）中運行。
 
 | 工作                                             | 範圍                                                                                      | 阻塞           |
 | ------------------------------------------------ | ----------------------------------------------------------------------------------------- | -------------- |
@@ -68,7 +77,7 @@ These profiles cover the static scan only. They do not certify product tests, co
 
 `npm run check:forgotten-sibling-tests`作為`Fast Quality Gates`的諮詢步驟運行，並重複使用測試影響圖背後的導入解析器。對於每個變更的生產模組，當拉取請求差異中缺少候選測試時，它會報告確定性`changed module/symbol -> static consumer -> candidate sibling test`鏈。 Markdown 摘要和JSON結果將保留為`forgotten-sibling-tests`工作流程工件，以便在任何阻止推出之前進行校準。
 
-桶再匯出和動態匯入僅用於解析度診斷； they never create a blocking finding. 在`config/quality/forgotten-sibling-allowlist.json`中查看異常。每個條目必須命名消費者和候選測試，給出具體的理由，並連結GitHub問題或拉取請求。格式錯誤的條目無法關閉。異常無法抑制已刪除的候選測試或添加`.skip`/`.todo`的差異；斷言弱化和其他屏蔽仍然由獨立阻塞的`check:test-masking`門擁有。
+桶再導出和動態導入僅用於分辨率診斷；他們絕不會造成阻礙性的發現。在`config/quality/forgotten-sibling-allowlist.json`中查看異常。每個條目必須命名消費者和候選測試，給出具體的理由，並連結GitHub問題或拉取請求。格式錯誤的條目無法關閉。異常無法抑制已刪除的候選測試或添加`.skip`/`.todo`的差異；斷言弱化和其他屏蔽仍然由獨立阻塞的`check:test-masking`門擁有。
 
 ### 職位： `lint`
 
@@ -82,7 +91,7 @@ These profiles cover the static scan only. They do not certify product tests, co
 | `check:route-validation:t06`      | 所有路由上都存在Zod架構（第 6 層策略）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | 是的                                |
 | `check:any-budget:t11`            | `@ts-expect-error // any`數量不超過預算（Tier 11 catraca）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 是的                                |
 | `check:provider-consistency`      | `providers.ts`中的每個提供者在`providerRegistry.ts`中都有一個匹配的條目（反之亦然，在允許清單中）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 是的                                |
-| `check:model-lifecycle`           | 三個手動維護的路由表與簽入的生命週期快照（#11503）保持一致： `FITNESS_TABLE` （`taskFitness.ts`）沒有獲得`REGISTRY`可以路由的退休ID；每個`BUILT_IN_ALIASES`目標都存在於`REGISTRY`中，但不存在於退休 ID 快照中； `REGISTRY`中的每個已退休 ID 都會轉送或列在`allowedRetiredInCatalog`中出現在`DEFAULT_DEGRADATION_MAP` IDiq這並不能證明模型目前由即時上游提供服務。離線—與`config/quality/model-lifecycle.json`進行比較，使用`npm run quality:refresh-model-lifecycle`手動刷新（網路；未連接到CI）。 `allowedRetiredInCatalog`是燃盡棘輪：僅添加具有追蹤問題的條目。                                                                                                                           | 是的                                |
+| `check:model-lifecycle`           | 三個手動維護的路由表與簽入的生命週期快照（#11503）保持一致： `FITNESS_TABLE` （`taskFitness.ts`）沒有獲得`REGISTRY`可以路由的退休ID；每個`BUILT_IN_ALIASES`目標都存在於`REGISTRY`中，但不存在於退休 ID 快照中； `REGISTRY`中的每個已退休ID 都會轉送或列在`allowedRetiredInCatalog`中出現在`DEFAULT_DEGRADATION_MAP` IDiq這並不能證明模型目前由即時上游提供服務。離線—與`config/quality/model-lifecycle.json`進行比較，使用`npm run quality:refresh-model-lifecycle`手動刷新（網路；未連接到CI）。 `allowedRetiredInCatalog`是燃盡棘輪：僅添加具有追蹤問題的條目。                                                                                                                            | 是的                                |
 | `check:fetch-targets`             | 客戶端`src/`中的每個`fetch("/api/...")`都會解析為真正的`route.ts`                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | 是的                                |
 | `check:deps`                      | 儲存庫中每個`package.json`的所有`npm install` -able依賴項都在`dependency-allowlist.json`中；新的未固定或已標記的包裹                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | 是的                                |
 | `audit:deps`                      | 對所有五個獨立鎖定檔案（root、 Electron、 OpenCode插件v1/v2和提供者）進行 npm 審核。關鍵建議塊；高度警告仍然是明顯的警告。 Missing/failed審計有INCOMPLETE和block；保留每個範圍的鎖雜湊和報告。                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 是的                                |
@@ -93,7 +102,7 @@ These profiles cover the static scan only. They do not certify product tests, co
 | `check:vitest-exclusions`         | 每個Vitest排除都會命名一個追蹤問題並出現在`config/quality/vitest-exclusions.json` (#13204) 中                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | 是的                                |
 | `check:file-size`                 | 來源檔案（ `src/`、 `open-sse/`、 `electron/`、 `bin/`中的`.ts`/`.tsx` ）保留在`cap`中，測試檔案（`*.test.ts(x)`）保留在`testCap`中；凍結在`file-size-baseline.json` (`frozen` / `testFrozen`) 中的檔案不得超過其記錄的大小                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | 是的                                |
 | `check:error-helper`              | executors/handlers中的錯誤回應使用`buildErrorBody()` / `sanitizeErrorMessage()` （硬規則#12）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | 是的                                |
-| `check:migration-numbering`       | 移轉檔名：舊的`001`–`241`系列被凍結，新檔為`YYYYMMDDHHMMSS_<description>.sql`。針對PR基礎，它拒絕已刪除的遷移、沒有相容性條目的重命名遷移，以及最終架構無法交換的無序或編輯的遷移                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| `check:migration-numbering`       | 移轉檔名：舊的`001`–`241`系列被凍結，新檔為`YYYYMMDDHHMMSS_<description>.sql`。針對PR基礎，它拒絕已刪除的遷移、沒有相容性條目的重新命名遷移，以及最終架構無法交換的無序或已編輯的遷移。當提交在`src/lib/db/migrations/`下暫存檔案時，也會在 husky 預提交掛鉤中運行（僅限名稱、重複項和凍結系列；與基礎的比較保留在CI — #20578中）                                                                                                                                                                                                                                                                                                                                                            |
 | `check:public-creds`              | `publicCreds.ts`之外沒有文字OAuth `client_id`/`client_secret`或 Firebase Web 金鑰（硬規則#11）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | 是的                                |
 | `check:db-rules`                  | `src/lib/db/`模組之外沒有原始SQL ；沒有從`localDb.ts`進口桶（硬規則#2/#5）                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | 是的                                |
 | `check:known-symbols`             | 在其調度表中註冊的提供者執行程式、路由策略和轉換器與磁碟上的檔案—沒有孤立或未聲明的符號                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | 是的                                |
@@ -156,7 +165,7 @@ These profiles cover the static scan only. They do not certify product tests, co
 | ↳ `check:docs-sync`            | CHANGELOG / OpenAPI版本一致性；發布模式還有 66 個`llm.txt`鏡像和翻譯的CHANGELOG部分（PR模式：鏡像同意）          | 是的                        |
 | ↳ `check:docs-counts`          | 散文中的計數（提供者計數、遷移計數等）。兩種模式： `pr`功能PRs， `release`其他地方—請參閱下面的“派生值”          | 是的                        |
 | ↳ `check:env-doc-sync`         | `.env.example`中的每個環境變數都會記錄在文件表中，反之亦然                                                       | 是的                        |
-| ↳ `check:deprecated-versions`  | 文件中沒有已棄用的版本字串                                                                                       | 是的                        |
+| ↳ `check:deprecated-versions`  | 标记明确归属于OmniRoute版本（3.6.x 及更早版本）。忽略日期。                                                      | 僅限`--strict`              |
 | ↳ `check:doc-links`            | 文件中的內部降價連結解析為真實文件（`[text]`/`(path)`形式）                                                      | 是的                        |
 | ↳ `check:fabricated-docs`      | 文件中引用的路由、環境變數、 CLI命令、掛鉤名稱和檔案路徑存在於程式碼庫中。通過`--strict`硬門；沒有標誌的軟故障。 | 是（透過CI中的`--strict` ） |
 | `check:cli-i18n`               | CLI `t()`密鑰存在於`bin/cli/locales/en.json` （兩種模式）；pt-BR / zh-CN / zh-TW 僅在發布模式下與`en.json`同等   | 是的                        |
@@ -170,18 +179,18 @@ These profiles cover the static scan only. They do not certify product tests, co
 
 PR功能僅編輯英文來源。 `docs/i18n/<locale>/**`鏡像（包括 66 個`llm.txt`副本和翻譯後的`CHANGELOG.md`檔）和`.i18n-state.json`由翻譯波（`docs/i18n-*` / `chore/i18n-*`分支，預定的`i18n-mirror-refresh.yml`）和發布（`npm run release:sync-changelog-i18n`）一步重寫。因此，鏡像閘門以兩種模式運行，由`scripts/check/lib/gateMode.mjs`解析（`--mode=pr|release`，然後`OMNIROUTE_GATE_MODE`，然後 Actions 事件；本地運行是`release`）：
 
-- `check:docs-sync` —發布模式運行每次檢查。 PR模式保留package.json/OpenAPI版本、根CHANGELOG标题和取代的文档防护，并为`llm.txt`镜像副本和翻译的CHANGELOG部分—打印`SKIP reason=pr-mode` ，除非PR写入镜像：在`config/quality/derived-paths/*.json`中声明为`docs/i18n/**`系列编写器的头分支严格运行这两项检查，并且当 diff 基解析时，其自己的 diff 编辑`docs/i18n/<locale>/llm.txt`或`CHANGELOG.md`更改会严格运行该检查。 diff 基础不会在depth-1签出（ `docs-sync-strict`作业）中解析，因此PR模式还运行一项不需要基础的检查：每个`llm.txt`镜像都必须存在，保留其`---`分隔符并携带根主体或大多数镜像共享的主体。移動的底座會使所有鏡子同樣陳舊和失效；對一個鏡像的手動編輯失敗。翻譯後的`CHANGELOG.md`檔案在depth-1 PR簽出中沒有此類檢查。
-- 預提交掛鉤運行`check-docs-sync.mjs --mode=pr`：根據提交的作用來判斷提交。如果沒有該標誌，本地運行就是發布模式，並且編輯根`llm.txt`的合併PR將阻止該基礎上的每個後續提交，直到 Wave 運行。同样的规则适用于 Husky 钩子运行的任何模式感知门：钩子传递`--mode=pr`，并且严格的判决保留在发布模式运行中（发布PR，推送到`main`，一个普通的本地运行）。
+- `check:docs-sync` —發布模式運行每次檢查。 PR模式保留package.json/OpenAPI版本、根CHANGELOG標題和取代的文件防護，並為`llm.txt`鏡像副本和翻譯的CHANGELOG部分—打印`SKIP reason=pr-mode` ，除非PR寫入鏡像：在`config/quality/derived-paths/*.json`中聲明為`docs/i18n/**`系列編寫器的頭分支嚴格運行這兩項檢查，並且當 diffn 基解析時，其自己的`CHANGELOG.md` `docs/i18n/<locale>/llm.txt`編輯diff 基礎不會在depth-1簽出（ `docs-sync-strict`作業）中解析，因此PR模式也執行一項不需要基礎的檢查：每個`llm.txt`鏡像都必須存在，保留其`---`分隔符號並攜帶根主體或大多數鏡像共享的主體。移動的底座會使所有鏡子同樣陳舊和失效；對一個鏡像的手動編輯失敗。翻譯後的`CHANGELOG.md`檔案在depth-1 PR簽出中沒有此類檢查。
+- 預提交掛鉤運行`check-docs-sync.mjs --mode=pr`：根據提交的作用來判斷提交。如果沒有該標誌，本地運行就是發布模式，並且編輯根`llm.txt`的合併PR將阻止該基礎上的每個後續提交，直到 Wave 運行。同樣的規則適用於 Husky 鉤子運行的任何模式感知門：鉤子傳遞`--mode=pr`，並且嚴格的判決保留在發布模式運行中（發布PR，推送到`main`，一個普通的本地運行）。
 - 鏡像內容單元測試（`tests/_helpers/mirrorFreshness.ts`： `cycle-docs-mirror-contract`、 `resilience-pre-dispatch-docs-mirrors`、 `cli-env-quality-docs-mirrors`、 `docs/*-locales`） —發布模式斷言每個區域設定。 PR模式根據`.i18n-state.json` （整個文件哈希，或測試引腳的部分記錄的部分哈希）僅斷言英文源當前的鏡像，並有理由跳過過時的鏡像。 `target_hash`來源檢查在兩種模式下針對每個區域設定運作。新鮮度是每個`## `部分，單位`run-translation.mjs`哈希值；較長的部分（該文件的門庫存大約是其中的一半）意味著其中的任何編輯都會使這些鏡像變得陳舊，並且它們的 PR 模式斷言會跳過，直到下一波。英文來源不再包含的錨點會退回到整個文件比較。
 - `i18n translation drift` —關於PRs諮詢，嚴格推送、夜間和發布削減，因此過時的鏡像無法在發布中發布。
 
-`scripts/i18n/sync-llm-mirrors.mjs` (also exported as `syncLlmMirrors()`, with `--dry-run`) rewrites the `llm.txt` mirrors; the release refresh, the translation wave and the scheduled `i18n-mirror-refresh.yml` run it (the refresh detects stale `llm.txt` mirrors with a dry run, since the drift report does not list them, and syncs them before `check:docs-all`).
+`scripts/i18n/sync-llm-mirrors.mjs` （也導出為`syncLlmMirrors()`，帶有`--dry-run`）重寫`llm.txt`鏡像；發布刷新、翻譯波和計劃的`i18n-mirror-refresh.yml`運行它（刷新通過空運行檢測陳舊的`llm.txt`鏡像，因為漂移報告沒有列出它們，並在`check:docs-all`之前同步它們）。
 
 `docs/diagrams/`下的 12 個README SVGs已產生（`scripts/docs/gen-readme-<name>.mjs`； `npm run docs:readme-diagrams`重新產生所有這些）。每個都有一個位元組比較單元測試（`tests/unit/docs/readme-*-svg.test.ts`、 job `test-unit`），當提交的文件在發布模式下過時時，該測試會失敗；在PR中， `check:generated-artifacts`判斷PR編輯的SVG ，並且基礎的漂移留給發布刷新（請[參閱生成的文件和派生基線](#generated-files-and-derived-baselines-written-at-release)`<text>` — — `check:docs-counts` `<text>` SVG規範數字檢查讀取`SVG_DIAGRAM_FILES` (`scripts/check/check-docs-counts-sync.mjs`) 中列出的檔案： `docs/diagrams/readme-hero.svg`、 `free-tier-budget.svg`、 `promise-pillars.svg`、 `comparison-table.svg`、 `cli-terminal.svg`、 `tier-cascade.svg`，以及`public/images/tier-flow-dark.svg`和`tier-flow-light.svg`；永久免費、目錄條目、循環池和評分因素聲明也為`promise-pillars.svg`、 `free-tier-budget.svg`和`strategies-grid.svg`。這些生成器繪製的計數（提供程式總數、 MCP工具、路由策略、永久免費提供者等）來自`docs/reference/derived-facts.json`到`scripts/docs/readmeFacts.mjs`的事實快照，而不是來自文字，因此在任何分支上重新產生圖表都會重現提交的檔案。 `free-tier-budget.svg`從同一快照（`code.freeTierBudget`，事實探測記錄的目錄摘要）中提取行，因此對`FREE_MODEL_BUDGETS`的更改會在下次刷新時到達卡，而不是將CI變成紅色。
 
 ### 派生值： `pr`和`release`閘模式
 
-功能PR永遠不會寫入取決於其基礎狀態的值：提供者、遷移、MCP 工具和策略計數、 README SVG數字、事實快照。一步重新計算所有`npm run release:refresh-derived`，由發布版本和每晚派生刷新PR運行。所以**在版本之間，基礎設計位於即時程式碼後面**，並且在兄弟添加了提供者之後，將樹與實時代碼進行比較的門或測試將在每個PR上顯示為紅色。因此，判斷派生值的閘門以兩種模式之一運行，由`scripts/check/lib/gateMode.mjs`解析（第一個匹配獲勝）：
+功能PR永遠不會寫入取決於其基礎狀態的值：提供者、遷移、MCP 工具和策略計數、 README SVG數字、事實快照。一步重新計算所有`npm run release:refresh-derived`，由發布版本和每晚派生刷新PR運行。所以**在版本之間，基礎設計位於即時程式碼後面**，並且在同級添加提供者後，將樹與實時代碼進行比較的門或測試將在每個PR上顯示為紅色。因此，判斷派生值的閘門以兩種模式之一運行，由`scripts/check/lib/gateMode.mjs`解析（第一個匹配獲勝）：
 
 1. `--mode=pr|release`在命令列上；
 2. `OMNIROUTE_GATE_MODE`環境變數（`pr`或`release`）；
@@ -214,7 +223,7 @@ PR功能僅編輯英文來源。 `docs/i18n/<locale>/**`鏡像（包括 66 個`l
 背後的命令：
 
 - `npm run facts`每個派生數字列印為JSON (`scripts/release/facts.mjs`)。 `--key=code.mcpTools`列印一個值， `--snapshot`讀取已提交的快照而不是即時樹。當無法收集到事實時，退出2。
-- `npm run release:refresh-derived` (`scripts/release/refresh-derived.mjs`) 一次重新計算派生文件，按以下順序（ `--only=`的步驟 ID）： `provider-reference` (`docs/reference/PROVIDER_REFERENCE.md`)、 `facts` (快照)、 `numbers` (計數門的重寫計劃應用於文件，然後傳送到它們的`docs/i18n/`鏡像)、 `readme-diagrams`、 `skills` ( `SKILL.md`)、 `--rewritten-since=<ref>` `e2e-timings` `syncE2eTimings` `ui-keys` — `en.json` `origin/main`自上次發布以來重寫的英文值；這些值由環境中配置的後端— `.env` （`OMNIROUTE_TRANSLATION_*`，僅讀取這些鍵）或Google引擎在同一運行中進行轉換。如果沒有後端`check:agent-skills-sync` `verify-generated` `check:generated-artifacts` `__MISSING__` `--allow-untranslated` `llm-mirrors` `--check`跳過，當`--only`將其排除時；失敗為退出 2）。 `changelog`步驟是選擇加入的（`--with-changelog`，僅發布設定檔）。 `--profile=nightly`從不觸及版本聲明。使用`-- --check` ，當任何文件發生變更或託管值需要手動編輯（列出兩者）時，它不會寫入任何內容並退出 1；基礎設施故障時退出 2。 `--json`將結果印為JSON。
+- `npm run release:refresh-derived` (`scripts/release/refresh-derived.mjs`) 一次重新計算派生文件，按以下順序（ `--only=`的步驟 ID）： `provider-reference` (`docs/reference/PROVIDER_REFERENCE.md`)、 `facts` （快照）、 `docker-pulls`、 `numbers` （應用於文件的計數門重寫計劃，然後傳送到它們的`docs/i18n/`鏡像）、 `readme-diagrams` `skills`應用於文件`SKILL.md`計數門重寫計劃，然後傳送到它們的zqi `syncE2eTimings`）、 `e2e-timings` `ui-keys` （修剪`en.json`刪除的鍵，並且使用`--rewritten-since=<ref>` —預設`origin/main` —重新排隊自上次發布以來重寫的英文值；這些值由環境中或`.env` （`OMNIROUTE_TRANSLATION_*`，僅讀取這些鍵）或Google引擎中配置的`check:agent-skills-sync` `__MISSING__` `llm-mirrors` `--allow-untranslated` `check:generated-artifacts` `verify-generated` `--check`跳過，當`--only`忽略它時；失敗是退出 2）。 `changelog`步驟是選擇加入的（`--with-changelog`，僅發布設定檔）。 `--profile=nightly`從不觸及版本聲明。使用`-- --check` ，當任何文件發生變更或託管值需要手動編輯（列出兩者）時，它不會寫入任何內容並退出 1；基礎設施故障時退出 2。 `--json`將結果印為JSON。 `docker-pulls`步驟將Docker Hub 上的`diegosouzapw/omniroute`和`cheaperinference/omniroute`的拉取計數相加，並將格式化的徽章寫入`docs/badges/docker-pulls.json`。在`--check`中會跳過該步驟，如果Docker Hub 請求失敗，則刷新將繼續，並且任何現有徽章檔案保持不變。
 - `docs/reference/derived-facts.json`是上次刷新所使用的事實的快照。只有刷新才會寫它。 README SVG產生器讀取它，PR-time 單元測試將提交的文件和生成的文件與它進行比較— never 與實時代碼。此套件的單一即時比較是`tests/unit/check-docs-counts-sync.test.ts`中的「發布刷新關閉循環」：根據即時事實，應用於記憶體中的刷新重寫計畫不會留下任何未報告的STRICT漂移，並且重新規劃不會改變任何內容。
 
 要在本地重現（本地運行預設為`release`）：
@@ -241,17 +250,17 @@ npm run release:refresh-derived -- --check                       # what the rele
 
 需要`fetch-depth: 0` —值漂移閘門將`en.json`與合併基礎進行比較。
 
-**兩種模式（自2026年11月13日起）。**功能PR新增或重寫`en.json` （和`bin/cli/locales/en.json`）中的鍵，且不涉及其他語言環境； `check:pr-derived-paths` （工作`pr-test-policy`、家庭`config/quality/derived-paths/translation.json`）無法滿足PR的功能。其他語言環境在每個版本中由`release:refresh-derived`完成一次，它在`scripts/i18n/sync-ui-keys.mjs`中呼叫`syncUiKeys()` （添加缺少的鍵、修剪掉的鍵、用`rewrittenSinceRef`標記重寫的英語的翻譯、翻譯），或通過翻譯 Wave 完成一次。門從`scripts/check/lib/gateMode.mjs`讀取模式：在`pr`模式（功能PRs、 `merge_group`、 `omni-queue/**`）中，上面的釋放模式門打印`SKIP reason=pr-mode`並退出 0；在`release`模式下（發布PR，推送到`main`， `workflow_dispatch`，本地運行），它們像以前一樣嚴格，並且在`BASE_REF=origin/main` PR在發布者身上，因此使用`--mode=pr`在本地預覽功能 PR 判決。
+**兩種模式（自2026年11月13日起）。**功能PR新增或重寫`en.json` （和`bin/cli/locales/en.json`）中的鍵，且不涉及其他語言環境； `check:pr-derived-paths` （工作`pr-test-policy`、家庭`config/quality/derived-paths/translation.json`）無法滿足PR的功能。其他語言環境在每個版本中由`release:refresh-derived`完成一次，它在`scripts/i18n/sync-ui-keys.mjs`中呼叫`syncUiKeys()` （添加缺少的鍵、修剪掉的鍵、用`rewrittenSinceRef`標記重寫的英語的翻譯、翻譯），或通過翻譯 Wave 完成一次。門從`scripts/check/lib/gateMode.mjs`讀取模式：在`pr`模式（功能PRs、 `merge_group`、 `omni-queue/**`）中，上面的釋放模式門打印`SKIP reason=pr-mode`並退出 0；在`release`模式下（發布PR，推送到`main`， `workflow_dispatch`，本地運行），它們像以前一樣嚴格，並且在發佈PR在`BASE_REF=origin/main`者身上，因此使用`--mode=pr`在本地預覽功能 PR 判決。
 
 不會跳過在`pr`模式下仍然更改語言環境目錄的PR （翻譯波、發布刷新、僅翻譯修復PR ： `check-key-completeness`會根據合併基礎 (`scripts/i18n/lib/touched-catalogs.mjs`) 上的同一目錄來判斷它更改的每個目錄，並在目錄丟失的鍵、 `en.json`缺少的鍵、真正的翻譯變成`__MISSING__:`標記或英文文本、或者不再觸及字串placeholders/tags PR中新的目錄必須攜帶整個`en.json`密鑰集。對於PR涉及的目錄，這涵蓋了比率和 CLI 奇偶校驗門將看到的內容。
 
-語言環境奇偶校驗單元測試（`cli-i18n-catalog`、 `i18n-pt-br`、 `i18n-vi-completeness`、 `i18n-placeholder-parity`）透過`tests/_helpers/localeParityMode.ts`遵循相同的模式：在`pr`模式下，它們跳過鍵奇偶校驗斷言，並讓發布刷新其英語自合併基礎以來發生變化的鍵的佔位符奇偶校驗（單元測試作業作業的簽出無法讀取時的每個鍵奇偶校驗（單元測試作業的簽出無法讀取時的每個鍵奇偶校驗（單元測試作業的簽出無法讀取時的每個鍵奇偶校驗）。 That helper is the**僅有的**已批准的模式條件跳過： `check:test-masking`計算`.skip(`和`{ skip: true }` ，但不計算它返回的計算`{ skip: "<reason>" }` ，因此`tests/unit/locale-parity-mode.test.ts`固定允許使用它的測試列表—添加一個是對該列表的審查編輯。
+語言環境奇偶校驗單元測試（`cli-i18n-catalog`、 `i18n-pt-br`、 `i18n-vi-completeness`、 `i18n-placeholder-parity`）透過`tests/_helpers/localeParityMode.ts`遵循相同的模式：在`pr`模式下，它們跳過鍵奇偶校驗斷言，並讓發布刷新其英語自合併基礎以來發生變化的鍵的佔位符奇偶校驗（單元測試作業作業的簽出無法讀取時的每個鍵奇偶校驗（單元測試作業的簽出無法讀取時的每個鍵奇偶校驗（單元測試作業的簽出無法讀取時的每個鍵奇偶校驗）。那個幫手就是**僅有的**已批准的模式條件跳過： `check:test-masking`計算`.skip(`和`{ skip: true }` ，但不計算它返回的計算`{ skip: "<reason>" }` ，因此`tests/unit/locale-parity-mode.test.ts`固定允許使用它的測試列表—添加一個是對該列表的審查編輯。
 
 #### `check-ui-value-drift` —陳舊翻譯門
 
 捕獲其他門在結構上看不到的國際化回歸：英語值被重寫，並且從_先前_英語派生的翻譯保留下來，因此非英語用戶繼續閱讀措辭自信、現在錯誤的副本。
 
-這是真的出貨了。當反重力登入助理登陸時， `oauthModal.googleOAuthWarning`被重寫（#5203）；** 43 語言環境中的 39 個**保留文字告訴操作員「複製完整的URL並將其貼到下面」 —該提供者無法完成的流程。直到#8463才注意到它，因為：
+這是真的出貨了。當Antigravity登入助手登陸（#5203）時， `oauthModal.googleOAuthWarning`被重寫；** 43 語言環境中的 39 個**保留文字告訴操作員「複製完整的URL並將其貼到下面」 —是該提供者無法完成的流程。直到#8463才注意到它，因為：
 
 - `sync-ui-keys`僅回填以下鍵**缺席的**，從來沒有那些**陳舊**;
 - `check-ui-keys-coverage`計算密鑰_存在_，因此過時的翻譯分數被覆蓋；
@@ -383,60 +392,38 @@ BASE_REF=origin/release/vX.Y.Z npm run i18n:check-value-drift
 3. 在模組化帶來改善的部分，進一步收緊至低於測量值的門檻：檔案大小的 `cap` 恢復為 1000
    （或 800）、覆蓋率下限提高 5，以及模組化套件的 dead exports 設為 0。
 
-## Ratchet 基準線 (`quality-baseline.json`)
+## 棘輪基線 (`quality-baseline.json`)
 
-Ratchet 引擎 (`scripts/quality/check-quality-ratchet.mjs`) 會讀取 `quality-baseline.json`
-並將其與新收集的 `quality-metrics.json` 進行比較。任何超出其 epsilon 而發生退化的指標都會使建置失敗。
+棘輪引擎 (`scripts/quality/check-quality-ratchet.mjs`) 讀取`quality-baseline.json`並將其與新收集的`quality-metrics.json`進行比較。任何回歸超出其 epsilon 的指標都會導致建置失敗。
 
-目前追蹤的指標：
+目前追蹤指標：
 
-| 指標                  | 方向   | 意義                    |
-| --------------------- | ------ | ----------------------- |
-| `eslintWarnings`      | `down` | ESLint 警告數量不得增加 |
-| `coverage.statements` | `up`   | 陳述式涵蓋率不得下降    |
-| `coverage.lines`      | `up`   | 行涵蓋率不得下降        |
-| `coverage.functions`  | `up`   | 函式涵蓋率不得下降      |
-| `coverage.branches`   | `up`   | 分支涵蓋率不得下降      |
+| 公制                  | 方向   | 意義                   |
+| --------------------- | ------ | ---------------------- |
+| `eslintWarnings`      | `down` | ESLint警告計數不得增加 |
+| `coverage.statements` | `up`   | 報表覆蓋範圍不得下降   |
+| `coverage.lines`      | `up`   | 線路覆蓋範圍不得下降   |
+| `coverage.functions`  | `up`   | 功能覆蓋率不能下降     |
+| `coverage.branches`   | `up`   | 分公司覆蓋率不得下降   |
 
-若要在確實改善後更新基準線：
+要在真正改進後更新基線：
 
 ```bash
 npm run quality:ratchet -- --update
 git add quality-baseline.json
 ```
 
-`--update` 旗標會將目前測量的值寫入 `quality-baseline.json`。
-將改善納入基準線是發行／夜間工作，而不是功能 PR 的工作：`--require-tighten`
-（Fase 6A.5）只會在發行模式（推送、排程、發行 PR、本機執行）中，針對尚未納入基準線的改善使檢查失敗。
-在功能 PR（`pr` gate mode）中，它會將改善列為資訊並通過；在兩種模式中，退化都會導致失敗。
-在速度階段，所有地方都僅提供建議（`_policy.requireTighten: false`）。請參閱
-[發行時寫入的產生檔案與衍生基準線](#generated-files-and-derived-baselines-written-at-release)。
+`--update`標誌將目前測量值寫入`quality-baseline.json`。儲存改進是release/nightly工作，而不是PR的功能： `--require-tighten` (Fase 6A.5) 僅在發布模式（推送、規劃、發布PR、本地運行）中失敗。在特徵PR （`pr`門模式）中，它將改進列印為資訊並通過；兩種模式下的回歸都會失敗。在速度階段，它在任何地方都是建議性的（`_policy.requireTighten: false`）。請參閱[產生的文件和派生基線](#generated-files-and-derived-baselines-written-at-release)。
 
-### CodeQL ratchet：重新整理週期與手動觸發
+### CodeQL棘輪：刷新節奏與手動觸發
 
-`check:codeql-ratchet` 讀取的是**按排程重新整理的儲存庫狀態，而不是每個 PR 的狀態。**
-`gh api repos/diegosouzapw/OmniRoute/code-scanning/default-setup` 回報
-`state: configured`、`schedule: weekly`：這是 GitHub 的預設設定掃描，而不是每次推送時的分析。
-結果是：修正警示的 PR 合併後，ratchet 會持續讀取舊的、較高的數量，直到下一次排程掃描執行為止——因此在掃描追上之前，
-它會在每個開啟的 PR（包括修正 PR 自身的後續 PR）中回報退化。
+`check:codeql-ratchet`讀**儲存庫狀態，按計畫—刷新，而不是按PR刷新。** `gh api repos/cheaper-inference/OmniRoute/code-scanning/default-setup`報告`state: configured`、 `schedule: weekly`： GitHub的預設設定掃描，而不是每次推送分析。結果：在FIXES警報的PR合併之後，棘輪會繼續讀取舊的、更高的計數，直到下一個計劃掃描運行—因此它會報告每個打開的PR的回歸，包括修復PR自己的後續操作，直到掃描趕上。
 
-**手動重新整理**：`gh workflow run codeql.yml --ref release/vX.Y.Z` 會重新執行
-分析，並在數分鐘內重新發布警示。先閱讀 `.github/workflows/codeql.yml` ——
-其標頭說明它僅支援 `workflow_dispatch`，**因為這會與 GitHub 的「預設設定」衝突**
-（`CodeQL analyses from advanced configurations cannot be processed when the default setup is enabled`）。恢復 `push`/`pull_request`/
-`schedule` 觸發程序需要先由**擁有者執行操作**：Settings → Code security →
-CodeQL: Default → Advanced。未進行該切換前，請勿新增 `schedule:` 觸發程序 ——
-它只會產生失敗的執行結果。
+**手動刷新**： `gh workflow run codeql.yml --ref release/vX.Y.Z`會在幾分鐘內重新執行分析並重新發布警報。先讀`.github/workflows/codeql.yml` —它的頭解釋它是`workflow_dispatch` -only**因為它與GitHub的“預設值”衝突**（`CodeQL analyses from advanced configurations cannot be processed when the default setup is enabled`）。恢復`push`/`pull_request`/ `schedule`觸發器需要**業主先行動**：設定→代碼安全→ CodeQL：預設→進階。如果沒有該開關—請勿新增`schedule:`觸發器，它只會產生失敗的運作。
 
-**數量下降後收緊基準線** — `node scripts/check/check-codeql-ratchet.mjs
---update` 會將新的測量數量寫入 `quality-baseline.json` →
-`metrics.codeqlAlerts.value`，使 ratchet 不會悄悄允許數量回升至舊的上限。工作範例（2026-09-02/03）：
-PR #12502 修正了 7 個實際警示（測量到的開啟警示數量由 13 → 6）；PR #12530 將凍結的基準線從 11 → 6 收緊以符合現況；
-接著其餘 6 個警示透過逐項提供理由予以駁回，使開啟數量降至 0。
+**計數下降後收緊基線**— `node scripts/check/check-codeql-ratchet.mjs --update`將新的測量計數寫入`quality-baseline.json` → `metrics.codeqlAlerts.value`中，因此棘輪不會默默地允許回歸到舊的上限。工作範例（2026-09-02/03）： PR #12502修復了 7 個真實警報（13 → 6 個測量開啟）； PR #12530收緊凍結基線11 → 6以匹配；其餘 6 個隨後被駁回，每個警報的理由降至 0 個開放。
 
-**是否駁回警示由操作人員決定（硬性規則 #14）** — 絕不在駁回 CodeQL 警示時不記錄技術理由於駁回留言中：
-對於上游協定要求，使用 `won't fix`；對於測試裝置，使用 `used in tests`；對於 CodeQL 無法辨識的清理器，使用 `false positive`
-（先例：`docs/security/ERROR_SANITIZATION.md`）。
+**解僱由操作員決定（硬規則#14）** —永遠不會在沒有在駁回評論中記錄技術理由的情況下駁回CodeQL警報： `won't fix`表示上游協議要求， `used in tests`表示測試夾具， `false positive`表示消毒劑CodeQL無法看到（先例： `docs/security/ERROR_SANITIZATION.md`）。
 
 ---
 

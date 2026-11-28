@@ -4,8 +4,6 @@
 
 ---
 
-Posledná aktualizácia: 23.08.2026
-
 OmniRoute sa integruje s tromi kategóriami nástrojov CLI rozloženými na troch vyhradených stránkach dashboardu:
 
 | Stránka        | Trasa                   | koncepcia                                                                            | počítať        |
@@ -233,9 +231,9 @@ Nové nástroje so `configType: "custom"` majú vyhradené nastavenia trás API 
 | `POST /api/cli-tools/smelt-settings`        | Roztopiť                                                             |
 | `POST /api/cli-tools/pi-settings`           | Pi kódovací agent (`~/.pi/agent/models.json`, `providers.omniroute`) |
 | `POST /api/cli-tools/grok-build-settings`   | zostava Grok (~/.grok/config.toml, `[model.omniroute]`)              |
-| `POST /api/cli-tools/qwen-settings`         | kód Qwen (vyhradený kľúč `.env` + `~/.qwen/settings.json`            |
+| `POST /api/cli-tools/qwen-settings`         | Qwen kód (vyhradený kľúč `.env` `~/.qwen/settings.json` + )          |
 
-Všetky cesty používajú `sanitizeErrorMessage()` na chybové reakcie (tvrdé pravidlo č. 12).
+Všetky cesty používajú `sanitizeErrorMessage()` na chybové reakcie (Hard Rule #12).
 
 ---
 

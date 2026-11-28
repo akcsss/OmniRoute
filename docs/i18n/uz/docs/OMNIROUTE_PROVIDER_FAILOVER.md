@@ -14,10 +14,12 @@ Standart provayderlar o‘rtasidagi siyosat provayderning uchtagacha urinishlari
 
 - **Kombolar** Komboning o'z strategiyasi va sozlamalariga ko'ra maqsadlari o'rtasida o'tish.
 - **Yalang'och model identifikatori** ( `provider/` prefiksi yo'q) bir nechta faol provayderlar xizmat ko'rsatadigan, aniq nomning kombinatsiyasi bo'lmagan holda, birinchi navbatda provayder xulosasiga yuboriladi. Agar bu urinish siyosatning uzilishi bilan muvaffaqiyatsiz bo'lsa, xuddi shu so'rov identifikatorga xizmat ko'rsatadigan keyingi faol provayderga yuboriladi. Javob `x-omniroute-fallback-attempts` ko'rinishida javob bergandan oldin sinab ko'rilgan provayderlar soniga ega.
-  - Har bir muqobil xuddi xulosa uni tanlagandek vakolatga ega. API tugmachasi blokirovka qilgan yoki tan olmagan maqsad yuqori oqim qo'ng'irog'isiz o'tkazib yuboriladi va mijoz hech qachon nomlanmagan maqsad uchun siyosat rad etilishini emas, balki haqiqiy yuqori oqim xatosini oladi.
+  - Har bir muqobil xuddi xulosa uni tanlagandek vakolatga ega. API kaliti bloklaydi yoki tan olmagan maqsad yuqori oqim qo'ng'irog'isiz o'tkazib yuboriladi va mijoz hech qachon nomlanmagan maqsad uchun siyosat rad etilishini emas, balki haqiqiy yuqori oqim xatosini oladi.
   - Faqat muvaffaqiyatsiz javob davom etadi: birinchi oqim baytidan keyin hech narsa bajarilmaydi.
   - Favqulodda zaxira modelini almashtirish faqat so'ralgan modelning har bir provayderi muvaffaqiyatsizlikka uchraganidan keyin qo'llaniladi.
   - Ulanishga (`x-omniroute-connection`) mahkamlangan so'rov unda qoladi.
   - Prefiksli identifikator (`provider/model`) hech qachon boshqa provayderga yo'naltirilmaydi.
 
 O'chirish holatlari `closed`, `open` va `half_open` dir. Sovutish vaqti chegaralangan zondni rejalashtiradi; muvaffaqiyatli zond zanjirni yopadi va muvaffaqiyatsiz zond uni qayta ochadi.
+
+Provayderning uzilishi shlyuz ichida ishlaydi. Qarang: [Qachon OmniRoute o‘zi shlyuz uzilishi paytida mijoz xatti-harakati uchun ulanib bo‘lmaydi](architecture/RESILIENCE_GUIDE.md#when-omniroute-itself-is-unreachable).

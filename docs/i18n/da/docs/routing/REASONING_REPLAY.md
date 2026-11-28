@@ -4,7 +4,7 @@
 
 ---
 
-> **Sandhedens kilde:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`** Sidst opdateret:** 2026-06-28 — v3.8.40
+> **Sandhedens kilde:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`
 
 OmniRoute fanger assistent `reasoning_content` produceret af tænkende modeller og afspiller det gennemsigtigt på multi-turn anmodninger, når upstream udbyderen kræver det. Dette eliminerer de HTTP 400-fejl, som strenge udbydere rejser, når en klients samtalehistorik mangler den forudgående turs begrundelse.
 
@@ -38,7 +38,7 @@ Turn N+1 (client sends follow-up):
 
 Capture sker i `open-sse/handlers/chatCore.ts` (to steder, på de to `cacheReasoningFromAssistantMessage` -opkaldssteder). Genafspilning sker i `open-sse/translator/index.ts` efter skematvang, men før afsendelse.
 
-Værktøjsopkaldsposter gemmes under `buildToolCallCacheKey()`, et sammendrag af anmodningsomfanget og værktøjskalds-id'et, så det samme id, der bruges af en anden API nøgle eller session, vælger ikke posten. Omfanget kommer fra `buildReasoningCacheScope()`: API nøgle-id'et plus sessionsnøglen, når anmodningen har en. `tool_call_id` kolonnen og dashboardet viser derfor dette sammendrag for disse poster.
+Værktøjsopkaldsposter gemmes under `buildToolCallCacheKey()`, et sammendrag af anmodningsomfanget og værktøjskalds-id'et, så det samme id, der bruges af en anden API nøgle eller session, vælger ikke posten. Omfanget kommer fra `buildReasoningCacheScope()`: API nøgle-id'et plus sessionsnøglen, når anmodningen har en. `tool_call_id` kolonnen og dashboardet viser derfor denne sammenfatning for disse poster.
 
 Almindelige (ikke-værktøj-opkald) assistent-vendinger er indtastet anderledes: `buildAssistantMessageCacheKey()` fordøjer sessionsomfanget plus det normaliserede OpenAI-format transskription op til den tur, fordi DeepSeek kræver ræsonnementet fra _hver_ foregående tur, når `tools` er til stede. For Responses-API-mål (f.eks. `opencode-go/deepseek-v4-flash`, dirigeret til `/responses`) bærer opstrømslegemet `input`, ikke `messages`, så `translateRequest()` (`open-sse/translator/index.ts`) rapporterer pivot-transkriptet, det fordøjede gennem en tilbagekaldsmulighed, og opsamlingsstederne fordøjer det samme transkript. Responses replay pass kører på OpenAI pivot for hvert kildeformat, så Anthropic Messages-klienter (Claude → OpenAI → Responses) afspilles også.
 
@@ -75,7 +75,7 @@ CREATE TABLE IF NOT EXISTS reasoning_cache (
 );
 ```
 
-Indekser: `expires_at`, `provider`, `model`, `created_at`. `expires_at` er gemt som Unix epoke sekunder; SELECT laget normaliserer ældre tekstværdier via `EXPIRES_AT_EPOCH_SQL`.
+Indekser: `expires_at`, `provider`, `model`, `created_at`. `expires_at` er gemt som Unix-epokesekunder; SELECT laget normaliserer ældre tekstværdier via `EXPIRES_AT_EPOCH_SQL`.
 
 ## Udbyder / Model Detektion
 

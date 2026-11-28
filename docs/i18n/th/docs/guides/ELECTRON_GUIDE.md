@@ -4,9 +4,9 @@
 
 ---
 
-> **ที่มาของความจริง:** พื้นที่ทำงาน `electron/`** อัปเดตล่าสุด:** 28-06-2569 — v3.8.40
+> **ที่มาของความจริง:** พื้นที่ทำงาน `electron/`
 
-OmniRoute จัดส่งแอปเดสก์ท็อปข้ามแพลตฟอร์ม (Windows / macOS / Linux) ที่สร้างขึ้น**Electron 41** +** ผู้สร้างอิเล็กตรอน 26.10** . แอปเดสก์ท็อปสร้างเซิร์ฟเวอร์ Next.js แบบสแตนด์อโลนเป็นกระบวนการย่อย ชี้ `BrowserWindow` ไปที่เซิร์ฟเวอร์ และเพิ่มถาดระบบ ตัวอัปเดตอัตโนมัติ บริดจ์ IPC และบูตสแตรปลับแบบกำหนดค่าเป็นศูนย์
+OmniRoute จัดส่งแอปเดสก์ท็อปข้ามแพลตฟอร์ม (Windows / macOS / Linux) ที่สร้างขึ้น**Electron 41** +** ผู้สร้างอิเล็กตรอน 26.10** . แอปเดสก์ท็อปสร้างเซิร์ฟเวอร์ Next.js แบบสแตนด์อโลนเป็นกระบวนการลูก ชี้ `BrowserWindow` ไปที่เซิร์ฟเวอร์ และเพิ่มถาดระบบ ตัวอัปเดตอัตโนมัติ บริดจ์ IPC และบูตสแตรปลับแบบกำหนดค่าเป็นศูนย์
 
 ## สถาปัตยกรรม
 
@@ -198,7 +198,7 @@ spawn(process.execPath, [serverScript], {
 
 ## อัปเดตอัตโนมัติ
 
-ใช้ `electron-updater` กับผู้ให้บริการ GitHub (`diegosouzapw/OmniRoute`)
+ใช้ `electron-updater` กับผู้ให้บริการ GitHub (`cheaper-inference/OmniRoute`)
 
 - `autoDownload = false`, `autoInstallOnAppQuit = true`
 - เหตุการณ์ที่ส่งต่อไปยัง renderer ผ่าน `update-status` IPC: `checking`, `available`, `not-available`, `downloading` (กับ `percent`), `downloaded`, `error`
@@ -273,7 +273,7 @@ npm run electron:build:win
 - `OmniRoute-X.Y.Z-mac.dmg`, `OmniRoute-X.Y.Z-arm64-mac.dmg` (macOS)
 - `OmniRoute-X.Y.Z.AppImage`, `omniroute-desktop_X.Y.Z_amd64.deb` (Linux)
 
-มีการเผยแพร่การเผยแพร่ไปยัง GitHub Releases (`diegosouzapw/OmniRoute`) ซึ่งเป็นที่ที่ `electron-updater` ตรวจสอบเวอร์ชันใหม่ด้วย
+มีการเผยแพร่การเผยแพร่ไปยัง GitHub Releases (`cheaper-inference/OmniRoute`) ซึ่งเป็นที่ที่ `electron-updater` ตรวจสอบเวอร์ชันใหม่
 
 ## การแก้ไขปัญหา
 

@@ -4,9 +4,9 @@
 
 ---
 
-> **Versio:** v3.8.44** Viimeksi päivitetty:** 28.10.2026** Yleisö:** Insinöörit, jotka lisäävät, ylläpitävät tai korjaavat sulautettuja palveluita (9Router, CLIProxyAPI, Mux, Bifrost, open-wa, LLMLingua, sing-box).
+> **Versio:** v3.8.44** Yleisö:** Insinöörit, jotka lisäävät, ylläpitävät tai korjaavat sulautettuja palveluita (9Router, CLIProxyAPI, Mux, Bifrost, open-wa, LLMLingua, sing-box).
 
-Sulautetut palvelut ovat paikallisesti asennettuja prosessin sivuvaunutyökaluja, jotka OmniRoute asentaa, valvoo ja paljastaa ensiluokkaisina reitityskohteina. Toisin kuin ulkoiset palveluntarjoajat (joihin päästään Internetin kautta API -näppäimien kautta), sulautetut palvelut toimivat samassa koneessa kuin OmniRoute ja kommunikoivat silmukan kautta.
+Sulautetut palvelut ovat paikallisesti asennettuja prosessin sivuvaunutyökaluja, jotka OmniRoute asentaa, valvoo ja paljastaa ensiluokkaisina reitityskohteina. Toisin kuin ulkoiset palveluntarjoajat (joihin päästään Internetin kautta API -näppäimillä), sulautetut palvelut toimivat samassa koneessa kuin OmniRoute ja kommunikoivat silmukan kautta.
 
 ---
 
@@ -31,7 +31,7 @@ Kahdeksan palvelua on upotettu:
 
 | Palvelu           | npm-paketti                        | Oletusportti | Tarkoitus                                                                                                                                                                                                                                                                                                                                        |
 | ----------------- | ---------------------------------- | :----------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| **9 Reititin**    | `9router`                          |    20130     | AI reititin, jota OmniRoute voi käyttää alipalveluntarjoajana. Mallit näkyvät `9router/{sub}/{model}`:nä                                                                                                                                                                                                                                         |
+| **9 Reititin**    | `9router`                          |    20130     | AI reititin, jota OmniRoute voi käyttää alipalveluntarjoajana. Models exposed as `9router/{sub}/{model}`                                                                                                                                                                                                                                         |
 | **CLIProxyAPI**   | GitHub release binary (`cliproxy`) |     8317     | Paikallinen välityspalvelinsovitin Anthropic CLI -todennusvirroille. Tarjoaa varareitityksen, kun OAuth -tunnukset vanhenevat                                                                                                                                                                                                                    |
 | **Mux**           | `mux` (päätön `mux server`)        |     8322     | Paikallinen agentti-orkesteridaemon (coder/mux). Vain elinkaaren mukaan hallittu — ei reitityskohde (ei LLM välityspalvelinta).                                                                                                                                                                                                                  |
 | **Bifrost**       | `@maximhq/bifrost`                 |     8080     | Siirry AI-gateway-releen taustajärjestelmään. Juoksessa valittu automaattisesti viestin reitin mukaan (`/v1/relay/`)                                                                                                                                                                                                                             |
@@ -45,7 +45,7 @@ Kaikki kahdeksan noudattavat samaa valvontamallia:
 - OmniRoute asentaa ne `DATA_DIR/services/{name}/` n alle (eristettynä OmniRoute:n omasta `package.json`)
 - OmniRoute synnyttää ja valvoo niitä lapsiprosesseina
 - OmniRoute ruiskuttaa lyhytaikaisen API -avaimen lapsen ympäristöön ja pyörittää sitä ilman seisokkeja (tarvittaessa)
-- Kaikki hallintareitit (`/api/services/*`) ovat**LOCAL_ONLY** — käytettävissä vain silmukan kautta (kova sääntö 17)
+- Kaikki hallintareitit (`/api/services/*`) ovat**LOCAL_ONLY** — käytettävissä vain silmukan kautta (kova sääntö #17)
 
 ### Keskeiset päätökset (suunnittelusuunnitelmasta)
 
@@ -55,7 +55,7 @@ Kaikki kahdeksan noudattavat samaa valvontamallia:
 | Asennusmekanismi                             | `npm install {package}` `execFile` kautta (ei shellin interpolointia)                  |
 | Kulutustila                                  | Palveluntarjoaja on rekisteröity reititysmoottoriin nimellä `9router/{sub}/{model}`    |
 | API avainten hallinta                        | OmniRoute luo, salaa lepotilassa (AES-256-GCM) ja ruiskuttaa env:n kautta              |
-| Kojelaudan sijainti                          | `/dashboard/providers/services` (kolme välilehteä)                                     |
+| Dashboard location                           | `/dashboard/providers/services` (three tabs)                                           |
 | Automaattinen käynnistys                     | Vaihda palvelukohtaisesti, oletus OFF                                                  |
 
 ---

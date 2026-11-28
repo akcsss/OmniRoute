@@ -4,14 +4,14 @@
 
 ---
 
-Perbandingan ciri objektif berbanding penghala AI sumber terbuka yang popular.
+Perbandingan ciri objektif berbanding penghala AI sumber terbuka popular.
 
 > **Metodologi** : Repo awam diaudit 2026-S2. Versi seperti yang disenaraikan. Serahkan pembetulan melalui PR — kami mahu ini tepat.
 
 | Ciri                                                  |                 OmniRoute 3.8                 |     LiteLLM 1.x      |  OpenRouter (SaaS)   |  Portkey   |
 | ----------------------------------------------------- | :-------------------------------------------: | :------------------: | :------------------: | :--------: |
 | **Pembekal**                                          |                    **329**                    |         ~100         |         ~50          |    ~30     |
-| **entri katalog Free/no-auth**                        |                    **155**                    |         n/a          |        lulus         |    n/a     |
+| **Pembekal dengan akses percuma**                     |          **50 dengan akses percuma**          |         n/a          |        lulus         |    n/a     |
 | **Boleh dihoskan sendiri**                            |                      ✅                       |          ✅          |          ❌          |  ⚠ bayar   |
 | **entri katalog OAuth**                               |                    **23**                     |        separa        |          ❌          |     ❌     |
 | **Gabungan auto-undur**                               |                **22 strategi**                | berasaskan keutamaan | berasaskan peringkat | berwajaran |
@@ -38,7 +38,7 @@ Perbandingan ciri objektif berbanding penghala AI sumber terbuka yang popular.
 
 ## Bila nak pilih OmniRoute
 
-- Anda menjadi hos sendiri dan mahu** liputan pembekal maksimum** (394 pembekal, 155 entri katalog free/no-auth )
+- Anda menjadi hos sendiri dan mahu** liputan pembekal maksimum** (394 pembekal, 50 dengan akses percuma)
 - Anda memerlukan a** pelayan MCP terbina dalam** ( alatan LLM, ingatan, kemahiran didedahkan sebagai alatan)
 - Awak perlukan** protokol A2A** untuk aliran kerja ejen-ke-ejen
 - awak nak** siluman cap jari** (JA3/JA4) untuk mengelakkan pengesanan oleh CAPTCHAs hulu
@@ -56,12 +56,12 @@ Perbandingan ciri objektif berbanding penghala AI sumber terbuka yang popular.
 - Anda tidak keberatan membayar bagi setiap token dengan tokokan harga SaaS
 - Anda memerlukan **satu kaedah pembayaran** merentas semua penyedia
 
-## Bila perlu memilih Portkey
+## Bila hendak memilih Portkey
 
-- Anda memerlukan **SLA komersial** dengan jaminan masa operasi
-- Anda lebih suka **papan pemuka terurus** tanpa beban operasi
-- Anda memerlukan **ciri pematuhan perusahaan** yang tersedia serta-merta
+- Anda memerlukan a** SLA komersial** dengan jaminan masa beroperasi
+- Anda lebih suka a** papan pemuka terurus** tanpa ops overhed
+- Awak perlukan** pematuhan perusahaan** ciri di luar kotak
 
 ---
 
-_Kemas kini terakhir: 2026-08-02. Serahkan pembetulan melalui PR untuk memastikan jadual ini tepat._
+_Serahkan pembetulan melalui PR untuk memastikan jadual ini tepat._

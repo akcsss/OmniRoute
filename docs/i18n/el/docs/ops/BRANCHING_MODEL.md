@@ -53,7 +53,7 @@ flowchart LR
 Ελέγξτε για ανοιχτό πάγωμα προτού υποθέσετε ότι το υποκατάστημα που θέλετε είναι συγχωνεύσιμο:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 Οι μηχανισμοί συγχώνευσης (ιδιοκτήτρια ετικέτα `queue` → Mergify) τεκμηριώνονται στο [MERGE_TRAIN.md](./MERGE_TRAIN.md).

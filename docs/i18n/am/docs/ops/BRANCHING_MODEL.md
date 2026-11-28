@@ -47,13 +47,13 @@ flowchart LR
 ልቀትን በሚታረቅበት ጊዜ `release-freeze` የሚል ምልክት ማድረጊያ ችግር ይከፈታል። ያ** ልማትን አያቆምም።** :
 
 - የቀዘቀዘው `release/vX.Y.Z` የዚያ መርከብ የተለቀቀው ካፒቴን ነው።
-- የሚቀጥለው ዑደት `release/vX+1` ከቀዘቀዘው ጫፍ ተቆርጧል ስለዚህ አስተዋፅዖ አበርካቾች የማረፍ ስራቸውን ይቀጥላሉ.
-- አሁንም የታሰረውን ቅርንጫፍ ያነጣጠረ PRs ይክፈቱ** እንደገና ዒላማ አድርጓል** ወደ ንቁ (ከፍተኛ) `release/v*` ቅርንጫፍ።
+- የሚቀጥለው ዑደት `release/vX+1` ከቀዘቀዘው ጫፍ ተቆርጧል ስለዚህ አስተዋፅዖ አበርካቾች የማረፊያ ስራቸውን ይቀጥላሉ.
+- አሁንም የቀዘቀዘውን ቅርንጫፍ ያነጣጠረ PRs ይክፈቱ** እንደገና ዒላማ አድርጓል** ወደ ንቁ (ከፍተኛ) `release/v*` ቅርንጫፍ።
 
-የሚፈልጉትን ቅርንጫፍ ሊዋሃድ ይችላል ብለው ከመገመትዎ በፊት ክፍት ቅዝቃዜ እንዳለ ያረጋግጡ፡-
+የሚፈልጉትን ቅርንጫፍ ሊዋሃድ ይችላል ብለው ከመገመትዎ በፊት ክፍት ቅዝቃዜ እንዳለ ያረጋግጡ፡
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 ውህደት ሜካኒክስ (ባለቤት `queue` መለያ → Mergify) በ [MERGE_TRAIN.md](./MERGE_TRAIN.md) ውስጥ ተመዝግቧል።

@@ -48,7 +48,7 @@ flowchart LR
 Проверете за отворено замразяване, преди да приемете, че клонът, който искате, може да се слее:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 Механиката на сливане (собственик `queue` етикет → Mergify) е документирана в [MERGE_TRAIN.md](./MERGE_TRAIN.md).

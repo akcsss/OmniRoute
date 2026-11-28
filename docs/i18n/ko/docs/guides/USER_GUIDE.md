@@ -234,31 +234,39 @@ Dashboard → Connect Kiro → AWS Builder ID 또는 Google/GitHub → 월 약 5
 
 ## 🎨 콤보
 
-각 카드의 핸들을 드래그하여 **대시보드 → 콤보**에서 콤보 카드의 순서를 직접 변경할 수 있습니다. 순서는 SQLite에 저장되며 다시 로드할 때 복원됩니다.
+콤보 카드를 직접 재정렬할 수 있습니다.** 대시보드 → 콤보** 각 카드의 핸들을 드래그하여 주문은 SQLite 에 저장되고 다시 로드할 때 복원됩니다.
 
-### 예시 1: 구독 최대 활용 → 저렴한 백업
+### 공급자, 모델 또는 계정 찾기
 
-```
-대시보드 → 콤보 → 새로 만들기
+콤보 만들기 또는 편집에서 단계별 공급자, 모델, 계정 및 콤보 참조 선택기에 로컬 검색 필드가 포함됩니다. 표시된 이름, 식별자, 공급자 별칭 또는 모델 소스로 검색한 다음 결과를 클릭하거나 화살표 키와 Enter를 사용합니다. 여러 검색어가 모두 일치해야 합니다. 검색을 지우거나 Esc 키를 누르면 선택한 값이 변경되지 않습니다.
 
-이름: premium-coding
-모델:
-  1. cc/claude-opus-4-7 (구독 기본 모델)
-  2. glm/glm-4.7 (저렴한 백업, $0.6/1M)
-  3. minimax/MiniMax-M2.7 (가장 저렴한 대체 모델, $0.3/1M)
+검색하는 동안 자동 계정 선택이 계속 표시됩니다. 선택적 계정 제한 목록에는 별도의 필터가 있습니다. 표시된 결과 외부에서 선택한 계정은 선택된 상태로 유지되며 개수에는 해당 계정이 포함됩니다. 이메일 개인정보 보호가 켜져 있는 동안에는 숨겨진 이메일 조각을 검색할 수 없습니다. 단계를 추가하고 평소와 같이 콤보를 저장합니다. 쿼리를 입력해도 아무것도 저장되거나 테스트되지 않습니다.
 
-CLI에서 사용: premium-coding
-```
+연결 테스트 모델, 사용자 정의 CLI 기본 및 별칭 모델, 저장된 프록시 선택에 대해 동일한 로컬 검색을 사용할 수 있습니다. 기존 저장, 적용 및 테스트 작업은 별도로 유지됩니다.
 
-### 예시 2: 무료 전용(비용 없음)
+### 예 1: 구독 최대화 → 저렴한 백업
 
 ```
-이름: free-combo
-모델:
-  1. if/kimi-k2.7-code (무료 액세스로 표시됨, 제공업체 제한이 적용될 수 있음)
-  2. kr/qwen3-coder-next (Kiro 무료 대체 모델)
+Dashboard → Combos → Create New
 
-비용: 현재 $0로 표시됨. 약관 및 이용 가능 여부는 변경될 수 있음
+Name: premium-coding
+Models:
+  1. cc/claude-opus-4-7 (Subscription primary)
+  2. glm/glm-4.7 (Cheap backup, $0.6/1M)
+  3. minimax/MiniMax-M2.7 (Cheapest fallback, $0.3/1M)
+
+Use in CLI: premium-coding
+```
+
+### 예 2: 무료 전용(비용 없음)
+
+```
+Name: free-combo
+Models:
+  1. if/kimi-k2.7-code (listed free access; provider limits may apply)
+  2. kr/qwen3-coder-next (Kiro free fallback)
+
+Cost: currently listed as $0; terms and availability may change
 ```
 
 ---
@@ -418,7 +426,7 @@ OmniRoute 더 이상 필요하지 않은 경우 깔끔하게 제거할 수 있�
 ### VPS 배포
 
 ```bash
-git clone https://github.com/diegosouzapw/OmniRoute.git
+git clone https://github.com/cheaper-inference/OmniRoute.git
 cd OmniRoute && npm install && npm run build
 
 export JWT_SECRET="your-secure-secret-change-this"
@@ -500,8 +508,8 @@ depends="openssl"
 short_desc="Universal AI gateway with smart routing for multiple LLM providers"
 maintainer="zenobit <zenobit@disroot.org>"
 license="MIT"
-homepage="https://github.com/diegosouzapw/OmniRoute"
-distfiles="https://github.com/diegosouzapw/OmniRoute/archive/refs/tags/v${version}.tar.gz"
+homepage="https://github.com/cheaper-inference/OmniRoute"
+distfiles="https://github.com/cheaper-inference/OmniRoute/archive/refs/tags/v${version}.tar.gz"
 checksum=009400afee90a9f32599d8fe734145cfd84098140b7287990183dde45ae2245b
 system_accounts="_omniroute"
 omniroute_homedir="/var/lib/omniroute"
@@ -700,7 +708,7 @@ OpenAI API (자체 호스팅 프록시, vLLM, 타사 수집기)를 사용하는 
 
 1. **공급자 → OpenAI 호환 추가** .
 2. **이름** : 노드의 표시 레이블입니다.
-3. **접두사** : 라우팅 이름입니다. 클라이언트는 모델을 `<prefix>/<model>` 로 호출하므로 접두사가 `mygw` 인 노드는 `mygw/gpt-4o-mini` 제공합니다. 필수의; 문자 제한은 없습니다.
+3. **접두사** : 라우팅 이름입니다. 클라이언트는 모델을 `<prefix>/<model>` 로 호출하므로 접두사 `mygw` 가 있는 노드는 `mygw/gpt-4o-mini` 제공합니다. 필수의; 문자 제한은 없습니다.
 4. **API 유형** : 게이트웨이가 제공하는 엔드포인트 제품군(채팅 완료, 응답, 임베딩, 오디오, 이미지)입니다.
 5. **베이스 URL** : 전체 `/chat/completions` 경로가 아닌 `/v1` 까지의 API 루트(예: `https://gateway.example.com/v1`). 비표준 경로가 있는 게이트웨이는 다음과 같이 설정됩니다.** 고급 설정** (채팅 경로, 모델 경로).
 6. 그만큼**API 키(확인용)** 필드는 연결만 테스트합니다. 노드를 생성한 후 열어서 사용하세요.** 연결 추가** 요청에 사용할 키를 저장합니다.
@@ -721,7 +729,7 @@ prefix: "<prefix>" is a reserved provider prefix — choose a different prefix (
 
 이러한 키는 연결의 `providerSpecificData` 에 들어갑니다(예: `PUT /api/providers/{id}` 통해).
 
-- `toolNameMaxLength` (정수, 1–1024) — - 게이트웨이가 긴 도구 이름을 거부하는 OpenAI 채팅 형식 호환 연결용. 더 긴 이름은 짧은 별칭으로 전송되고 응답으로 복원됩니다. OpenAI, Azure OpenAI, Azure AI Foundry, Mistral, NVIDIA, OpenCode Zen/Go 및 Muse Code는 이미 설정 없이 64자 이상의 별칭 이름을 지정했습니다. 연결 값은 Azure OpenAI / Azure AI Foundry 기본값(더 엄격한 게이트웨이 뒤에 있는 Azure 연결)을 대체하고 사용자 지정 호환 노드에 대한 제한을 설정합니다. OpenAI, Mistral, NVIDIA, OpenCode Zen/Go 및 Muse Code는 레지스트리 제한을 유지하고 이를 무시합니다.
+- `toolNameMaxLength` (정수, 1–1024) — - 게이트웨이가 긴 도구 이름을 거부하는 OpenAI 채팅 형식 호환 연결용. 더 긴 이름은 짧은 별칭으로 전송되고 응답으로 복원됩니다. OpenAI, Azure OpenAI, Azure AI Foundry, Mistral, NVIDIA, OpenCode Zen/Go 및 Muse Code는 이미 설정 없이 64자 이상의 별칭 이름을 지정했습니다. 연결 값은 Azure OpenAI / Azure AI Foundry 기본값(더 엄격한 게이트웨이 뒤의 Azure 연결)을 대체하고 사용자 지정 호환 노드에 대한 제한을 설정합니다. OpenAI, Mistral, NVIDIA, OpenCode Zen/Go 및 Muse Code는 레지스트리 제한을 유지하고 이를 무시합니다.
 - `quotaEndpoint` — 게이트웨이의 quota/credits 엔드포인트, 대시보드 할당량 스트립 및 할당량 인식 라우팅을 읽어보세요. OpenAI 및 Anthropic 호환 연결 모두에서 작동합니다. 전체 모양은 `open-sse/services/usage/openaiCompatible.ts` 에 문서화되어 있습니다.
 
 ```json
@@ -868,9 +876,9 @@ curl http://localhost:20128/api/models/catalog
 - `p2c` (두 가지 선택의 힘)
 - `least-used` 와 `cost-optimized`
 - 모든 후보자에 대한 `auto` — 점수 중심
-- `lkgp` (Last Known Good Provider) — 마지막으로 성공한 공급자에 고정한 다음 규칙으로 돌아갑니다.
-- `context-optimized` — 자유 컨텍스트 창이 가장 큰 모델을 선택합니다.
-- `context-relay` — 는 후속 턴을 위해 긴 컨텍스트 모델을 연결합니다.
+- `lkgp` (Last Known Good Provider) — 마지막으로 성공한 공급자를 고정한 다음 규칙으로 돌아갑니다.
+- `context-optimized` — 알려진 가장 큰 컨텍스트 창을 사용하여 모델을 먼저 시도합니다.
+- 대화가 다른 계정으로 이동할 때 `context-relay` — 우선순위 및 전달 요약
 
 #### 외부 고정 세션 헤더
 
@@ -1049,7 +1057,7 @@ curl -X POST http://localhost:20128/api/db-backups/import \
 | **일반적인** | 시스템 스토리지 도구, 기본 동작, 엔드포인트 터널 가시성                                                                                  |
 | **모습**     | 테마 컨트롤(light/dark/system), 사이드바 가시성, Cloudflare/Tailscale/ngrok 터널 카드용 패널 토글                                        |
 | **AI**       | 예산 고려(통과/자동 제거/사용자 정의/적응형 — [THINKING_BUDGET.md](./THINKING_BUDGET.md) 참조), 전역 시스템 프롬프트, 프롬프트 캐시 통계 |
-| **보안**     | Login/Password 설정, IP 액세스 제어, `/models` 에 대한 API 인증, 공급자 차단, 프롬프트 주입 가드                                         |
+| **보안**     | Login/Password 설정, IP 액세스 제어, `/models` 에 대한 API 인증, 공급자 차단, 프롬프트 주입 보호                                         |
 | **라우팅**   | 글로벌 라우팅 전략(Fill First / Round Robin / P2C / Random / Least Used / Cost Optimized), 와일드카드 모델 별칭, 폴백 체인, 콤보 기본값  |
 | **회복력**   | 요청 대기열, 연결 휴지, 공급자 차단기 구성 및 휴지 대기 동작                                                                             |
 | **고급의**   | 전역 프록시 구성(HTTP/SOCKS5), 공급자별 프록시 재정의                                                                                    |
@@ -1319,32 +1327,34 @@ curl -X POST http://localhost:20128/api/keys -H "Authorization: Bearer $OMNIROUT
 
 ## 💻 내부 CLI
 
-OmniRoute는 설정, 진단 및 런타임 제어를 위한 내부 CLI(`omniroute …`)를 제공합니다. 이는 타사 CLI(Claude Code, Cursor, Codex, Cline, …)가 OmniRoute와 통신할 수 있도록 구성하는 **대시보드의 "CLI Tools" 페이지와는 별개입니다**.
+OmniRoute 설정, 진단 및 런타임 제어를 위한 내부 CLI (`omniroute …`)를 제공합니다. 이것은** 대시보드의 "CLI Tools" 페이지와 별도로** , OmniRoute 와 통신할 수 있도록 타사 CLIs (Claude Code, Cursor, Codex, Cline, …)를 구성합니다.
 
 ```bash
-omniroute setup                    # 대화형 마법사(비밀번호, 공급자, 콤보)
-omniroute setup --non-interactive  # CI 친화적 모드
-omniroute doctor                   # 상태 진단(데이터 디렉터리, DB, 공급자, 포트)
-omniroute providers available      # 지원되는 공급자 목록 표시
-omniroute providers list           # 구성된 연결 목록 표시
-omniroute providers test <id>      # 공급자 연결 실시간 테스트
-omniroute combos list              # 콤보 목록 표시
-omniroute combos switch <name>     # 기본 콤보 설정
-omniroute models                   # 사용 가능한 모델 목록 표시(--json, --search)
-omniroute keys add | list | remove # 터미널에서 API 키 관리
-omniroute backup                   # 구성 + DB 스냅샷 생성
-omniroute restore [<timestamp>]    # 스냅샷에서 복원
-omniroute health                   # 상세 상태(차단기, 캐시, 메모리)
-omniroute quota                    # 공급자 할당량 사용량
-omniroute mcp status               # MCP 서버 상태
-omniroute a2a status               # A2A 서버 상태
-omniroute tunnel list|create|stop  # Cloudflare/Tailscale/ngrok 터널
-omniroute reset-password           # 관리자 비밀번호 재설정
-omniroute --mcp                    # stdio를 통해 MCP 서버 시작
-omniroute --port 3000              # 사용자 지정 포트에서 서버 시작
+omniroute setup                    # Interactive wizard (password, providers, combos)
+omniroute setup --non-interactive  # CI-friendly
+omniroute doctor                   # Local diagnostics (config, DB, ports, Node runtime, native deps)
+omniroute chat "<prompt>"          # One-shot chat prompt (also --file / --stdin)
+omniroute repl                     # Interactive terminal chat (/model, /combo, /skill, /memory)
+omniroute providers available      # List supported providers
+omniroute providers list           # List configured connections
+omniroute providers test <id>      # Live test a provider connection
+omniroute combos list              # List combos
+omniroute combos switch <name>     # Set default combo
+omniroute models                   # List available models (--json, --search)
+omniroute keys add | list | remove # Manage API keys from the terminal
+omniroute backup                   # Snapshot config + DB
+omniroute restore [<timestamp>]    # Restore from a snapshot
+omniroute health                   # Detailed health (breakers, cache, memory)
+omniroute quota                    # Provider quota usage
+omniroute mcp status               # MCP server status
+omniroute a2a status               # A2A server status
+omniroute tunnel list|create|stop  # Cloudflare/Tailscale/ngrok tunnels
+omniroute reset-password           # Reset the admin password
+omniroute --mcp                    # Start MCP server over stdio
+omniroute --port 3000              # Start the server on a custom port
 ```
 
-팁: 비정상적인 공급자 연결에 대한 알림을 받으려면 `omniroute doctor --json`을 모니터링 도구와 함께 사용하세요.
+팁: `omniroute doctor --json` 모니터링 도구와 연결하여 손상된 로컬 설치에 대해 경고하세요. `doctor` 공급자 연결을 테스트하지 않습니다. 이를 위해 `omniroute providers test <id>` 사용하십시오.
 
 ---
 

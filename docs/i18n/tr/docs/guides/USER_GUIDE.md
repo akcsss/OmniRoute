@@ -232,33 +232,41 @@ Modeller: kr/claude-sonnet-4.5, kr/claude-haiku-4.5
 
 ---
 
-## 🎨 Kombolar
+## 🎨 Kombinasyonları
 
-Kombo kartlarını doğrudan **Kontrol Paneli → Kombolar** bölümünde, her karttaki tutamacı sürükleyerek yeniden sıralayabilirsiniz. Sıralama SQLite'ta saklanır ve yeniden yükleme sırasında geri yüklenir.
+Birleşik kartları doğrudan yeniden sıralayabilirsiniz.** Kontrol Paneli → Kombinasyonları** her kartın üzerindeki tutamacı sürükleyerek. Sipariş SQLite saklanır ve yeniden yükleme sırasında geri yüklenir.
 
-### Örnek 1: Aboneliği En Üst Düzeye Çıkarma → Ucuz Yedek
+### Bir sağlayıcı, model veya hesap bulun
+
+Kombo Oluşturma veya Düzenleme'de, adım adım Sağlayıcı, Model, Hesap ve karma referans seçiciler yerel bir arama alanı içerir. Görüntülenen ada, tanımlayıcıya, sağlayıcı takma adına veya model kaynağına göre arama yapın, ardından bir sonuca tıklayın veya ok tuşlarını ve Enter'ı kullanın. Birden çok arama teriminin tümü eşleşmelidir. Aramayı temizlemek veya Escape tuşuna basmak, seçilen değeri değiştirmeden bırakır.
+
+Arama sırasında otomatik hesap seçimi görünür kalır. İsteğe bağlı hesap kısıtlama listesinin ayrı bir filtresi vardır: görünür sonuçların dışındaki seçilen hesaplar seçili kalır ve sayım bunları içerir. E-posta gizliliği açıkken gizli e-posta parçaları aranamaz. Adımı ekleyin ve kombinasyonu her zamanki gibi kaydedin; sorgu yazmak hiçbir şeyi kaydetmez veya test etmez.
+
+Bağlantı testi modelleri, Özel CLI varsayılanı ve takma ad modelleri ve kayıtlı proxy seçenekleri için aynı yerel arama mevcuttur. Mevcut kaydetme, uygulama ve test eylemleri ayrı kalır.
+
+### Örnek 1: Aboneliği En Üst Düzeye Çıkarın → Ucuz Yedekleme
 
 ```
-Kontrol Paneli → Kombolar → Yeni Oluştur
+Dashboard → Combos → Create New
 
-Ad: premium-coding
-Modeller:
-  1. cc/claude-opus-4-7 (Birincil abonelik)
-  2. glm/glm-4.7 (Ucuz yedek, $0.6/1M)
-  3. minimax/MiniMax-M2.7 (En ucuz geri dönüş seçeneği, $0.3/1M)
+Name: premium-coding
+Models:
+  1. cc/claude-opus-4-7 (Subscription primary)
+  2. glm/glm-4.7 (Cheap backup, $0.6/1M)
+  3. minimax/MiniMax-M2.7 (Cheapest fallback, $0.3/1M)
 
-CLI'da kullanın: premium-coding
+Use in CLI: premium-coding
 ```
 
 ### Örnek 2: Yalnızca Ücretsiz (Sıfır Maliyet)
 
 ```
-Ad: free-combo
-Modeller:
-  1. if/kimi-k2.7-code (ücretsiz erişim olarak listelenmiştir; sağlayıcı sınırları geçerli olabilir)
-  2. kr/qwen3-coder-next (Ücretsiz Kiro geri dönüş seçeneği)
+Name: free-combo
+Models:
+  1. if/kimi-k2.7-code (listed free access; provider limits may apply)
+  2. kr/qwen3-coder-next (Kiro free fallback)
 
-Maliyet: şu anda $0 olarak listelenmektedir; koşullar ve kullanılabilirlik değişebilir
+Cost: currently listed as $0; terms and availability may change
 ```
 
 ---
@@ -418,7 +426,7 @@ Artık OmniRoute ihtiyacınız kalmadığında, temiz bir kaldırma işlemi içi
 ### VPS Dağıtımı
 
 ```bash
-git clone https://github.com/diegosouzapw/OmniRoute.git
+git clone https://github.com/cheaper-inference/OmniRoute.git
 cd OmniRoute && npm install && npm run build
 
 export JWT_SECRET="your-secure-secret-change-this"
@@ -500,8 +508,8 @@ depends="openssl"
 short_desc="Universal AI gateway with smart routing for multiple LLM providers"
 maintainer="zenobit <zenobit@disroot.org>"
 license="MIT"
-homepage="https://github.com/diegosouzapw/OmniRoute"
-distfiles="https://github.com/diegosouzapw/OmniRoute/archive/refs/tags/v${version}.tar.gz"
+homepage="https://github.com/cheaper-inference/OmniRoute"
+distfiles="https://github.com/cheaper-inference/OmniRoute/archive/refs/tags/v${version}.tar.gz"
 checksum=009400afee90a9f32599d8fe734145cfd84098140b7287990183dde45ae2245b
 system_accounts="_omniroute"
 omniroute_homedir="/var/lib/omniroute"
@@ -585,28 +593,28 @@ post_install() {
 
 ### Ortam Değişkenleri
 
-| Değişken                                | Varsayılan                      | Tanım                                                                                                                                            |
-| --------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `JWT_SECRET`                            | _(otomatik olarak oluşturulan)_ | JWT imzalama sırrı — ilk çalıştırmada otomatik olarak oluşturulur ve `server.env` kalıcı olur; veri dizini geçici olduğunda açıkça ayarlayın     |
-| `INITIAL_PASSWORD`                      | _(ayarlanmadı)_                 | İlk giriş şifresi. npm/source kurulumları `CHANGEME` ile başlar: değiştirin. Ayarlanmadı: katılım sihirbazı                                      |
-| `DATA_DIR`                              | `~/.omniroute`                  | Veri dizini (db, kullanım, günlükler)                                                                                                            |
-| `PORT`                                  | çerçeve varsayılanı             | Servis portu (örneklerde `20128` )                                                                                                               |
-| `HOSTNAME`                              | çerçeve varsayılanı             | Ana makineyi bağlayın (Docker varsayılan olarak `0.0.0.0`)                                                                                       |
-| `NODE_ENV`                              | çalışma zamanı varsayılanı      | Dağıtım için `production` ayarlayın                                                                                                              |
-| `NEXT_PUBLIC_BASE_URL`                  | `http://localhost:20128`        | Genel taban URL kontrol paneline çıktı ve sunucuya sunuldu (eski `BASE_URL` yerini aldı)                                                         |
-| `NEXT_PUBLIC_CLOUD_URL`                 | `https://omniroute.dev`         | Bulut senkronizasyonu uç noktası tabanı URL (eski `CLOUD_URL` yerine geçer)                                                                      |
-| `API_KEY_SECRET`                        | _(otomatik olarak oluşturulan)_ | oluşturulan API anahtarları için HMAC sırrı — ilk çalıştırmada otomatik olarak oluşturulur ve `server.env` kalıcı olur                           |
-| `REQUIRE_API_KEY`                       | `false`                         | `/v1/*` Taşıyıcı API anahtarını zorunlu kıl                                                                                                      |
-| `ALLOW_API_KEY_REVEAL`                  | `false`                         | Kimliği doğrulanmış kontrol paneli kullanıcılarının talep üzerine depolanan API anahtar değerlerinin tamamını ortaya çıkarmasına izin ver        |
-| `PROVIDER_LIMITS_SYNC_INTERVAL_MINUTES` | `70`                            | Önbelleğe alınmış Sağlayıcı Sınırları verileri için sunucu tarafı yenileme temposu; UI yenileme düğmeleri hala manuel senkronizasyonu tetikliyor |
-| `DISABLE_SQLITE_AUTO_BACKUP`            | `false`                         | writes/import/restore önce otomatik SQLite anlık görüntülerini devre dışı bırakın; manuel yedeklemeler hala çalışıyor                            |
-| `APP_LOG_TO_FILE`                       | `true`                          | Diske uygulama ve denetim günlüğü çıktısını etkinleştirir                                                                                        |
-| `AUTH_COOKIE_SECURE`                    | `false`                         | `Secure` kimlik doğrulama çerezini zorla ( HTTPS ters proxy'nin arkasında)                                                                       |
-| `CLOUDFLARED_BIN`                       | ayarsız                         | Yönetilen indirme yerine mevcut `cloudflared` ikili programını kullanın                                                                          |
-| `CLOUDFLARED_PROTOCOL`                  | `http2`                         | Yönetilen Hızlı Tüneller için aktarım (`http2`, `quic` veya `auto`)                                                                              |
-| `OMNIROUTE_MEMORY_MB`                   | `512`                           | MBNode.js yığın sınırı                                                                                                                           |
-| `PROMPT_CACHE_MAX_SIZE`                 | `50`                            | Maksimum istem önbellek girişleri                                                                                                                |
-| `SEMANTIC_CACHE_MAX_SIZE`               | `100`                           | Maksimum anlamsal önbellek girişi                                                                                                                |
+| Değişken                                | Varsayılan                      | Tanım                                                                                                                                           |
+| --------------------------------------- | ------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `JWT_SECRET`                            | _(otomatik olarak oluşturulan)_ | JWT imzalama sırrı — ilk çalıştırmada otomatik olarak oluşturulur ve `server.env` kalıcı olur; veri dizini geçici olduğunda açıkça ayarlayın    |
+| `INITIAL_PASSWORD`                      | _(ayarlanmadı)_                 | İlk giriş şifresi. npm/source kurulumları `CHANGEME` ile başlar: değiştirin. Ayarlanmadı: katılım sihirbazı                                     |
+| `DATA_DIR`                              | `~/.omniroute`                  | Veri dizini (db, kullanım, günlükler)                                                                                                           |
+| `PORT`                                  | çerçeve varsayılanı             | Servis portu (örneklerde `20128` )                                                                                                              |
+| `HOSTNAME`                              | çerçeve varsayılanı             | Ana makineyi bağlayın (Docker varsayılan olarak `0.0.0.0`)                                                                                      |
+| `NODE_ENV`                              | çalışma zamanı varsayılanı      | Dağıtım için `production` ayarlayın                                                                                                             |
+| `NEXT_PUBLIC_BASE_URL`                  | `http://localhost:20128`        | Genel taban URL kontrol paneline çıktı ve sunucuya sunuldu (eski `BASE_URL` yerini aldı)                                                        |
+| `NEXT_PUBLIC_CLOUD_URL`                 | `https://omniroute.dev`         | Bulut senkronizasyonu uç noktası tabanı URL (eski `CLOUD_URL` yerine geçer)                                                                     |
+| `API_KEY_SECRET`                        | _(otomatik olarak oluşturulan)_ | oluşturulan API anahtarları için HMAC sırrı — ilk çalıştırmada otomatik olarak oluşturulur ve `server.env` kalıcı olur                          |
+| `REQUIRE_API_KEY`                       | `false`                         | `/v1/*` Taşıyıcı API anahtarını zorunlu kıl                                                                                                     |
+| `ALLOW_API_KEY_REVEAL`                  | `false`                         | Kimliği doğrulanmış kontrol paneli kullanıcılarının talep üzerine depolanan API anahtar değerlerinin tamamını ortaya çıkarmasına izin ver       |
+| `PROVIDER_LIMITS_SYNC_INTERVAL_MINUTES` | `70`                            | Önbelleğe alınan Sağlayıcı Sınırları verileri için sunucu tarafı yenileme temposu; UI yenileme düğmeleri hala manuel senkronizasyonu tetikliyor |
+| `DISABLE_SQLITE_AUTO_BACKUP`            | `false`                         | writes/import/restore önce otomatik SQLite anlık görüntülerini devre dışı bırakın; manuel yedeklemeler hala çalışıyor                           |
+| `APP_LOG_TO_FILE`                       | `true`                          | Diske uygulama ve denetim günlüğü çıktısını etkinleştirir                                                                                       |
+| `AUTH_COOKIE_SECURE`                    | `false`                         | `Secure` kimlik doğrulama çerezini zorla ( HTTPS ters proxy'nin arkasında)                                                                      |
+| `CLOUDFLARED_BIN`                       | ayarsız                         | Yönetilen indirme yerine mevcut `cloudflared` ikili programını kullanın                                                                         |
+| `CLOUDFLARED_PROTOCOL`                  | `http2`                         | Yönetilen Hızlı Tüneller için aktarım (`http2`, `quic` veya `auto`)                                                                             |
+| `OMNIROUTE_MEMORY_MB`                   | `512`                           | MBNode.js yığın sınırı                                                                                                                          |
+| `PROMPT_CACHE_MAX_SIZE`                 | `50`                            | Maksimum istem önbellek girişleri                                                                                                               |
+| `SEMANTIC_CACHE_MAX_SIZE`               | `100`                           | Maksimum anlamsal önbellek girişi                                                                                                               |
 
 Ortam değişkeni referansının tamamı için [README](../README.md) bakın.
 
@@ -737,7 +745,7 @@ Bu anahtarlar bir bağlantının `providerSpecificData` gider (örneğin `PUT /a
 }
 ```
 
-### OmniRoute Akranlarını Zincirlemek
+### OmniRoute Akranlarını Zincirleme
 
 Başka bir OmniRoute ağ geçidi şu şekilde eklenebilir:** Özel OpenAI uyumlu** sağlayıcı. Eşin `/v1` tabanı URL ve bu eş tarafından verilen özel, en az ayrıcalıklı API anahtarını kullanın.
 
@@ -869,8 +877,8 @@ Sağlayıcıya göre türlerle (`chat`, `embedding`, `image`) gruplandırılmı�
 - `least-used` ve `cost-optimized`
 - `auto` — tüm adaylar genelinde puan odaklı
 - `lkgp` (Bilinen Son İyi Sağlayıcı) —, son başarılı sağlayıcıya sabitlenir ve ardından kurallara geri döner
-- `context-optimized` — en büyük serbest içerik penceresine sahip modeli seçiyor
-- `context-relay` — takip dönüşleri için uzun bağlamlı modelleri zincirliyor
+- `context-optimized` — ilk önce bilinen en büyük bağlam penceresine sahip modeli dener
+- `context-relay` — öncelik sırası artı görüşme başka bir hesaba taşındığında aktarım özeti
 
 #### Harici Sabit Oturum Başlığı
 
@@ -880,7 +888,7 @@ Harici oturum benzeşimi için (örneğin, ters proxy'lerin arkasındaki Claude 
 X-Session-Id: your-session-key
 ```
 
-OmniRoute ayrıca `x_session_id` kabul eder ve etkin oturum anahtarını `X-OmniRoute-Session-Id` döndürür.
+OmniRoute ayrıca `x_session_id` kabul eder ve etkili oturum anahtarını `X-OmniRoute-Session-Id` döndürür.
 
 Nginx kullanıyorsanız ve alt çizgi biçiminde başlıklar gönderiyorsanız şunları etkinleştirin:
 
@@ -918,7 +926,7 @@ Birden çok sağlayıcıyı birleştirmek ve bunlar arasında OmniRoute yönlend
 
 #### 1. Kodlama Aracısı Kombinasyonu: Cost/Speed Fallback ile Üst Düzey Muhakeme
 
-Ajanları kodlamak için idealdir (OpenCode, Claude Code, Cursor, Cline). Başlangıçta sınır muhakeme modellerine yönelir, kota tükenmesi veya hatalar durumunda hızlı kodlama modellerine geri döner.
+Kodlama aracıları için idealdir (OpenCode, Claude Code, Cursor, Cline). Başlangıçta sınır muhakeme modellerine yönelir, kota tükenmesi veya hatalar durumunda hızlı kodlama modellerine geri döner.
 
 - **Kontrol Paneli** : Kombinasyonlar → Yeni Kombinasyon → Adı: `agent-coding` → Strateji: `Priority`
 - **Modeller** :
@@ -1143,7 +1151,7 @@ Kombinasyon başına dengelemeyi yapılandırın** Kontrol Paneli → Kombinasyo
 | **En Az Kullanılan**         | En az yeni isteğin bulunduğu modele yönlendirir (birleşik metrikleri kullanır) |
 | **Maliyet Optimize Edilmiş** | Mevcut en ucuz modele giden rotalar (fiyat tablosunu kullanır)                 |
 
-Genel kombo varsayılanları şurada ayarlanabilir:** Kontrol Paneli → Ayarları → Yönlendirme → Birleşik Varsayılanlar** . Birleşik hedef zaman aşımları, varsayılan olarak geçerli istek zaman aşımını devralır. Kullanmak** Hedef zaman aşımı (saniye)** kombo varsayılanlarında veya bireysel komboda yalnızca hedef başına daha kısa bir limitin daha hızlı geri dönüşü tetiklemesi gerektiğinde.
+Genel kombo varsayılanları şurada ayarlanabilir:** Kontrol Paneli → Ayarları → Yönlendirme → Birleşik Varsayılanlar** . Birleşik hedef zaman aşımları, varsayılan olarak geçerli istek zaman aşımını devralır. Kullanmak** Hedef zaman aşımı (saniye)** kombo varsayılanlarında veya bireysel komboda yalnızca hedef başına daha kısa bir sınırın daha hızlı geri dönüşü tetiklemesi gerektiğinde.
 
 Sıfır gecikmeli birleşik optimizasyonlar isteğe bağlıdır. Ayrılmak** Sıfır gecikmeli optimizasyonlar** bu gecikme özelliklerinin geri dönüş hedefleriyle yarışmasını, TTFT geçmişine dayalı hedefleri atlamasını veya geri dönüş isteklerini sıkıştırmasını önlemek için devre dışı bırakıldı; etkinleştirilmesi, yapılandırılmış korunmaya, tahmine dayalı TTFT atlamalarına ve routing/request doğruluğunu daha düşük kuyruk gecikmesi karşılığında değiştirmek için proaktif geri dönüş sıkıştırmasına olanak tanır.
 
@@ -1319,32 +1327,34 @@ Uç noktaların tam kataloğu ve istek/yanıt şemaları için [API_REFERENCE.md
 
 ## 💻 Dahili CLI
 
-OmniRoute; kurulum, tanılama ve çalışma zamanı denetimi için dahili bir CLI (`omniroute …`) ile birlikte gelir. Bu, üçüncü taraf CLI'ları (Claude Code, Cursor, Codex, Cline, …) OmniRoute ile iletişim kurabilecek şekilde yapılandıran panodaki **"CLI Araçları" sayfasından ayrıdır**.
+OmniRoute, kurulum, tanılama ve çalışma zamanı kontrolü için dahili bir CLI (`omniroute …`) gönderir. Bu** kontrol panelindeki "CLI Araçlar" sayfasından ayrı** , üçüncü taraf CLIs (Claude Code, Cursor, Codex, Cline, …) yapılandırarak OmniRoute ile konuşabilmelerini sağlar.
 
 ```bash
-omniroute setup                    # Etkileşimli sihirbaz (parola, sağlayıcılar, kombinasyonlar)
-omniroute setup --non-interactive  # CI kullanımına uygun
-omniroute doctor                   # Sistem durumu tanılaması (veri dizini, DB, sağlayıcılar, portlar)
-omniroute providers available      # Desteklenen sağlayıcıları listele
-omniroute providers list           # Yapılandırılmış bağlantıları listele
-omniroute providers test <id>      # Bir sağlayıcı bağlantısını canlı olarak test et
-omniroute combos list              # Kombinasyonları listele
-omniroute combos switch <name>     # Varsayılan kombinasyonu ayarla
-omniroute models                   # Kullanılabilir modelleri listele (--json, --search)
-omniroute keys add | list | remove # API anahtarlarını terminalden yönet
-omniroute backup                   # Yapılandırmanın ve DB'nin anlık görüntüsünü al
-omniroute restore [<timestamp>]    # Bir anlık görüntüden geri yükle
-omniroute health                   # Ayrıntılı sistem durumu (devre kesiciler, önbellek, bellek)
-omniroute quota                    # Sağlayıcı kota kullanımı
-omniroute mcp status               # MCP sunucusu durumu
-omniroute a2a status               # A2A sunucusu durumu
-omniroute tunnel list|create|stop  # Cloudflare/Tailscale/ngrok tünelleri
-omniroute reset-password           # Yönetici parolasını sıfırla
-omniroute --mcp                    # MCP sunucusunu stdio üzerinden başlat
-omniroute --port 3000              # Sunucuyu özel bir portta başlat
+omniroute setup                    # Interactive wizard (password, providers, combos)
+omniroute setup --non-interactive  # CI-friendly
+omniroute doctor                   # Local diagnostics (config, DB, ports, Node runtime, native deps)
+omniroute chat "<prompt>"          # One-shot chat prompt (also --file / --stdin)
+omniroute repl                     # Interactive terminal chat (/model, /combo, /skill, /memory)
+omniroute providers available      # List supported providers
+omniroute providers list           # List configured connections
+omniroute providers test <id>      # Live test a provider connection
+omniroute combos list              # List combos
+omniroute combos switch <name>     # Set default combo
+omniroute models                   # List available models (--json, --search)
+omniroute keys add | list | remove # Manage API keys from the terminal
+omniroute backup                   # Snapshot config + DB
+omniroute restore [<timestamp>]    # Restore from a snapshot
+omniroute health                   # Detailed health (breakers, cache, memory)
+omniroute quota                    # Provider quota usage
+omniroute mcp status               # MCP server status
+omniroute a2a status               # A2A server status
+omniroute tunnel list|create|stop  # Cloudflare/Tailscale/ngrok tunnels
+omniroute reset-password           # Reset the admin password
+omniroute --mcp                    # Start MCP server over stdio
+omniroute --port 3000              # Start the server on a custom port
 ```
 
-İpucu: Sağlıksız sağlayıcı bağlantıları için uyarı almak üzere `omniroute doctor --json` komutunu izleme aracınızla birlikte kullanın.
+İpucu: Arızalı bir yerel kurulum hakkında uyarı vermek için `omniroute doctor --json` izleme aracınızla eşleştirin. `doctor` sağlayıcı bağlantılarını test etmez; bunun için `omniroute providers test <id>` kullanın.
 
 ---
 

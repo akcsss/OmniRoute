@@ -20,4 +20,6 @@ Pakkujateülene vaikepoliitika lubab kuni kolm teenusepakkuja katset, proovide u
   - Ühendusele kinnitatud taotlus (`x-omniroute-connection`) jääb sellele alles.
   - Eesliitega ID-d (`provider/model`) ei suunata kunagi ümber teisele pakkujale.
 
-Vooluahela olekud on `closed`, `open` ja `half_open`. Jahutus ajastab piiratud sondi; edukas sond sulgeb ahela ja ebaõnnestunud sond avab selle uuesti.
+Vooluahela olekud on `closed`, `open` ja `half_open`. Jahutus kavandab piiratud sondi; edukas sond sulgeb ahela ja ebaõnnestunud sond avab selle uuesti.
+
+Pakkuja tõrkesiirde töötab lüüsis. Vaadake [, millal OmniRoute ise ei ole](architecture/RESILIENCE_GUIDE.md#when-omniroute-itself-is-unreachable) lüüsi katkestuse ajal kliendi käitumise jaoks kättesaadav.

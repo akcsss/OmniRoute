@@ -4,9 +4,9 @@
 
 ---
 
-> **منبع حقیقت:** فضای کاری `electron/`** آخرین به روز رسانی:** 2026-06-28 — v3.8.40
+> **منبع حقیقت:** فضای کاری `electron/`
 
-OmniRoute یک برنامه دسکتاپ بین پلتفرمی (Windows / macOS / Linux) را ارائه میکند که بر روی آن ساخته شده است**Electron 41** +** الکترون ساز 26.10** . برنامه دسکتاپ سرور مستقل Next.js را به عنوان یک پردازش فرزند ایجاد می کند، `BrowserWindow` را به آن نشان می دهد و یک سینی سیستم، به روز رسانی خودکار، پل IPC و بوت استرپ مخفی با پیکربندی صفر را اضافه می کند.
+OmniRoute یک برنامه دسکتاپ بین پلتفرمی (Windows / macOS / Linux) را ارائه میکند که بر روی آن ساخته شده است**Electron 41** +** الکترون ساز 26.10** . برنامه دسکتاپ سرور مستقل Next.js را به عنوان یک فرآیند فرزند ایجاد می کند، `BrowserWindow` را به آن نشان می دهد و یک سینی سیستم، به روز رسانی خودکار، پل IPC و بوت استرپ مخفی با پیکربندی صفر را اضافه می کند.
 
 ## معماری
 
@@ -92,7 +92,7 @@ scripts/
     └── smoke-electron-packaged.mjs       # Post-build smoke test
 ```
 
-`main.js` و `preload.js` هر دو هستند** فایل های CommonJS `.js`** نه TypeScript. تایپ های سمت رندر در `electron/types.d.ts` زندگی می کنند.
+هم `main.js` و هم `preload.js` هستند** فایل های CommonJS `.js`** نه TypeScript. تایپ های سمت رندر در `electron/types.d.ts` زندگی می کنند.
 
 ## IPC (`preload.js`)
 
@@ -198,7 +198,7 @@ spawn(process.execPath, [serverScript], {
 
 ## به روز رسانی خودکار
 
-`electron-updater` با ارائه دهنده GitHub (`diegosouzapw/OmniRoute`) استفاده می کند.
+`electron-updater` با ارائهدهنده GitHub (`cheaper-inference/OmniRoute`) استفاده میکند.
 
 - `autoDownload = false`, `autoInstallOnAppQuit = true`
 - رویدادهای ارسال شده به رندر از طریق `update-status` IPC: `checking`، `available`، `not-available`، `downloading` (با `percent`)، `downloaded`، `error`
@@ -273,7 +273,7 @@ npm run electron:build:win
 - `OmniRoute-X.Y.Z-mac.dmg`, `OmniRoute-X.Y.Z-arm64-mac.dmg` (macOS)
 - `OmniRoute-X.Y.Z.AppImage`, `omniroute-desktop_X.Y.Z_amd64.deb` (Linux)
 
-نسخهها در GitHub Releases (`diegosouzapw/OmniRoute`) منتشر میشوند، که همچنین جایی است که `electron-updater` نسخههای جدید را بررسی میکند.
+نسخهها در GitHub Releases (`cheaper-inference/OmniRoute`) منتشر میشوند، که همچنین جایی است که `electron-updater` نسخههای جدید را بررسی میکند.
 
 ## عیب یابی
 

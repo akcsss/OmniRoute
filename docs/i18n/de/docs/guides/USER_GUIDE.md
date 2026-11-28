@@ -237,33 +237,41 @@ Modelle: kr/claude-sonnet-4.5, kr/claude-haiku-4.5
 
 ---
 
-## 🎨 Kombinationen
+## 🎨 Combos
 
-Du kannst Kombinationskarten direkt unter **Dashboard → Kombinationen** neu anordnen, indem du den Ziehgriff auf jeder Karte verschiebst. Die Reihenfolge wird in SQLite gespeichert und beim erneuten Laden wiederhergestellt.
+Sie können Combo-Karten direkt in nachbestellen** Dashboard → -Combos** indem Sie den Griff auf jeder Karte ziehen. Die Bestellung wird in SQLite gespeichert und beim erneuten Laden wiederhergestellt.
 
-### Beispiel 1: Abonnement maximieren → Günstige Ausweichoption
+### Finden Sie einen Anbieter, ein Modell oder ein Konto
+
+In „Kombination erstellen“ oder „Kombination bearbeiten“ umfassen die schrittweisen Auswahlmöglichkeiten für Anbieter, Modell, Konto und Kombinationsreferenzen ein lokales Suchfeld. Suchen Sie nach einem angezeigten Namen, einer Kennung, einem Anbieteralias oder einer Modellquelle und klicken Sie dann auf ein Ergebnis oder verwenden Sie die Pfeiltasten und die Eingabetaste. Mehrere Suchbegriffe müssen alle übereinstimmen. Wenn Sie die Suche löschen oder Escape drücken, bleibt der ausgewählte Wert unverändert.
+
+Die automatische Kontoauswahl bleibt während der Suche sichtbar. Die optionale Kontoeinschränkungsliste verfügt über einen separaten Filter: Ausgewählte Konten außerhalb der sichtbaren Ergebnisse bleiben ausgewählt und werden in die Zählung einbezogen. Versteckte E-Mail-Fragmente können nicht durchsucht werden, solange der E-Mail-Datenschutz aktiviert ist. Fügen Sie den Schritt hinzu und speichern Sie die Kombination wie gewohnt. Durch die Eingabe einer Abfrage wird nichts gespeichert oder getestet.
+
+Die gleiche lokale Suche ist für Verbindungstestmodelle, benutzerdefinierte CLI Standard- und Aliasmodelle sowie gespeicherte Proxy-Auswahlmöglichkeiten verfügbar. Vorhandene Speicher-, Anwendungs- und Testaktionen bleiben getrennt.
+
+### Beispiel 1: Abonnement → Cheap Backup maximieren
 
 ```
-Dashboard → Kombinationen → Neu erstellen
+Dashboard → Combos → Create New
 
 Name: premium-coding
-Modelle:
-  1. cc/claude-opus-4-7 (Primärmodell per Abonnement)
-  2. glm/glm-4.7 (Günstige Ausweichoption, $0.6/1M)
-  3. minimax/MiniMax-M2.7 (Günstigste Rückfalloption, $0.3/1M)
+Models:
+  1. cc/claude-opus-4-7 (Subscription primary)
+  2. glm/glm-4.7 (Cheap backup, $0.6/1M)
+  3. minimax/MiniMax-M2.7 (Cheapest fallback, $0.3/1M)
 
-In der CLI verwenden: premium-coding
+Use in CLI: premium-coding
 ```
 
-### Beispiel 2: Ausschließlich kostenlos (keine Kosten)
+### Beispiel 2: Nur kostenlos (kostenlos)
 
 ```
 Name: free-combo
-Modelle:
-  1. if/kimi-k2.7-code (als kostenloser Zugang aufgeführt; möglicherweise gelten Anbieterbeschränkungen)
-  2. kr/qwen3-coder-next (Kostenlose Kiro-Rückfalloption)
+Models:
+  1. if/kimi-k2.7-code (listed free access; provider limits may apply)
+  2. kr/qwen3-coder-next (Kiro free fallback)
 
-Kosten: derzeit mit $0 aufgeführt; Bedingungen und Verfügbarkeit können sich ändern
+Cost: currently listed as $0; terms and availability may change
 ```
 
 ---
@@ -423,7 +431,7 @@ Wenn Sie OmniRoute nicht mehr benötigen, stellen wir zwei schnelle Skripte für
 ### VPS Bereitstellung
 
 ```bash
-git clone https://github.com/diegosouzapw/OmniRoute.git
+git clone https://github.com/cheaper-inference/OmniRoute.git
 cd OmniRoute && npm install && npm run build
 
 export JWT_SECRET="your-secure-secret-change-this"
@@ -505,8 +513,8 @@ depends="openssl"
 short_desc="Universal AI gateway with smart routing for multiple LLM providers"
 maintainer="zenobit <zenobit@disroot.org>"
 license="MIT"
-homepage="https://github.com/diegosouzapw/OmniRoute"
-distfiles="https://github.com/diegosouzapw/OmniRoute/archive/refs/tags/v${version}.tar.gz"
+homepage="https://github.com/cheaper-inference/OmniRoute"
+distfiles="https://github.com/cheaper-inference/OmniRoute/archive/refs/tags/v${version}.tar.gz"
 checksum=009400afee90a9f32599d8fe734145cfd84098140b7287990183dde45ae2245b
 system_accounts="_omniroute"
 omniroute_homedir="/var/lib/omniroute"
@@ -599,8 +607,8 @@ post_install() {
 | `HOSTNAME`                              | Framework-Standard        | Host binden (Docker ist standardmäßig `0.0.0.0`)                                                                                                                                    |
 | `NODE_ENV`                              | Laufzeitstandard          | Legen Sie `production` für die Bereitstellung fest                                                                                                                                  |
 | `NEXT_PUBLIC_BASE_URL`                  | `http://localhost:20128`  | Die öffentliche Basis- URL wird im Dashboard angezeigt und dem Server zugänglich gemacht (ersetzt die alte `BASE_URL`).                                                             |
-| `NEXT_PUBLIC_CLOUD_URL`                 | `https://omniroute.dev`   | Cloud-Synchronisierungsendpunkt-Basis URL (ersetzt Legacy- `CLOUD_URL`)                                                                                                             |
-| `API_KEY_SECRET`                        | _(automatisch generiert)_ | HMAC -Geheimnis für generierte API Schlüssel — wird bei der ersten Ausführung automatisch generiert und auf `server.env` gespeichert                                                |
+| `NEXT_PUBLIC_CLOUD_URL`                 | `https://omniroute.dev`   | Basis URL für den Cloud-Synchronisierungsendpunkt (ersetzt Legacy- `CLOUD_URL`)                                                                                                     |
+| `API_KEY_SECRET`                        | _(automatisch generiert)_ | HMAC -Geheimnis für generierte API Schlüssel — wird beim ersten Start automatisch generiert und auf `server.env` gespeichert                                                        |
 | `REQUIRE_API_KEY`                       | `false`                   | Erzwingen Sie den Bearer- API -Schlüssel auf `/v1/*`                                                                                                                                |
 | `ALLOW_API_KEY_REVEAL`                  | `false`                   | Ermöglichen Sie authentifizierten Dashboard-Benutzern, bei Bedarf vollständig gespeicherte API -Schlüsselwerte anzuzeigen                                                           |
 | `PROVIDER_LIMITS_SYNC_INTERVAL_MINUTES` | `70`                      | Serverseitige Aktualisierungsfrequenz für zwischengespeicherte Provider-Limit-Daten; UI Aktualisierungsschaltflächen lösen weiterhin eine manuelle Synchronisierung aus             |
@@ -874,8 +882,8 @@ Konfigurieren über** Dashboard → -Einstellungen → Routing** . Das Dashboard
 - `least-used` und `cost-optimized`
 - `auto` — punktzahlgesteuert für alle Kandidaten
 - `lkgp` (Last Known Good Provider) — heftet sich an den letzten erfolgreichen Anbieter und greift dann auf die Regeln zurück
-- `context-optimized` — wählt das Modell mit dem größten freien Kontextfenster aus
-- `context-relay` — verkettet Modelle mit langem Kontext für Folgerunden
+- `context-optimized` — probiert zuerst das Modell mit dem größten bekannten Kontextfenster aus
+- `context-relay` — Prioritätsreihenfolge sowie eine Übergabezusammenfassung, wenn die Konversation auf ein anderes Konto verschoben wird
 
 #### Externer Sticky-Session-Header
 
@@ -1001,7 +1009,7 @@ OmniRoute implementiert Resilienz auf Anbieterebene mit fünf Komponenten:
    - **OPEN** Der — Provider wird nach wiederholten Ausfällen vorübergehend blockiert
    - **HALF_OPEN** — Testet, ob sich der Anbieter erholt hat
 
-   Verbindungsbezogene `429` -Ratenbegrenzungen bleiben bestehen** Abklingzeit der Verbindung** und zählen nicht zum Provider Breaker.
+   Verbindungsbezogene `429` -Ratenbegrenzungen bleiben erhalten** Abklingzeit der Verbindung** und zählen nicht zum Provider Breaker.
 
    Der Laufzeitstatus des Provider-Breakers wird angezeigt** Dashboard → Gesundheit** nur.
 
@@ -1047,7 +1055,7 @@ curl -X POST http://localhost:20128/api/db-backups/import \
 
 ### Einstellungs-Dashboard
 
-Die Einstellungsseite ist unterteilt in:** 7 Registerkarten** zur einfachen Navigation:
+Die Einstellungsseite ist unterteilt in** 7 Registerkarten** zur einfachen Navigation:
 
 | Tab                      | Inhalt                                                                                                                                                                                                           |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -1059,7 +1067,7 @@ Die Einstellungsseite ist unterteilt in:** 7 Registerkarten** zur einfachen Navi
 | **Widerstandsfähigkeit** | Anforderungswarteschlange, Verbindungsabklingzeit, Anbieterunterbrechungskonfiguration und Verhalten beim Warten auf die Abklingzeit                                                                             |
 | **Fortschrittlich**      | Globale Proxy-Konfiguration (HTTP/SOCKS5), Proxy-Überschreibungen pro Anbieter                                                                                                                                   |
 
-Allgemein dupliziert keine schreibgeschützte Protokollierung und Cache-Notizen mehr. Die Einstellungen zur Datenbankaufbewahrung und -optimierung werden über `/api/settings/database` beibehalten. Das manuelle Löschen des Caches verwendet `DELETE /api/cache`. Die Obergrenzen für Anforderungs- und Proxy-Protokollzeilen werden durch `CALL_LOGS_TABLE_MAX_ROWS` und `PROXY_LOGS_TABLE_MAX_ROWS` gesteuert.
+Allgemein dupliziert keine schreibgeschützte Protokollierung und Cache-Notizen mehr. Die Einstellungen zur Datenbankaufbewahrung und -optimierung werden über `/api/settings/database` beibehalten. Das manuelle Löschen des Caches verwendet `DELETE /api/cache`. Die Obergrenzen für Anforderungs- und Proxy-Protokollzeilen werden von `CALL_LOGS_TABLE_MAX_ROWS` und `PROXY_LOGS_TABLE_MAX_ROWS` gesteuert.
 
 ---
 
@@ -1152,7 +1160,7 @@ Es können globale Combo-Standardwerte festgelegt werden** Dashboard → -Einste
 
 Kombinationsoptimierungen ohne Latenz sind optional. Verlassen** Optimierungen ohne Latenz** deaktiviert, um zu verhindern, dass diese Latenzfunktionen Fallback-Ziele beschleunigen, Ziele basierend auf dem TTFT Verlauf überspringen oder Fallback-Anfragen komprimieren; Die Aktivierung ermöglicht konfiguriertes Hedging, prädiktive TTFT Sprünge und proaktive Fallback-Komprimierung, um routing/request Treue gegen eine geringere Tail-Latenz einzutauschen.
 
-Deaktivieren** Begründungstokenpuffer** wenn Upstream-Anbieter strenge `max_tokens` / `maxOutputTokens` Grenzwerte verlangen. Wenn die Kombinationsweiterleitung aktiviert ist, erhöht sie den Spielraum des Reasoning-Modells nur für Modelle mit einer bekannten Ausgabeobergrenze und lässt das Client-Token-Limit unverändert, wenn der sichere gepufferte Wert diese Obergrenze überschreiten würde. Wenn das Client-Limit bereits über einer bekannten Obergrenze liegt, begrenzt OmniRoute es auf diese Obergrenze, bevor die Upstream-Anfrage gesendet wird.
+Deaktivieren** Begründungstokenpuffer** wenn Upstream-Anbieter strenge `max_tokens` / `maxOutputTokens` Grenzwerte verlangen. Wenn die Kombinationsweiterleitung aktiviert ist, erhöht sie den Spielraum des Reasoning-Modells nur für Modelle mit einer bekannten Ausgabeobergrenze und lässt das Client-Token-Limit unverändert, wenn der sicher gepufferte Wert diese Obergrenze überschreiten würde. Wenn das Client-Limit bereits über einer bekannten Obergrenze liegt, begrenzt OmniRoute es auf diese Obergrenze, bevor die Upstream-Anfrage gesendet wird.
 
 ---
 
@@ -1322,34 +1330,36 @@ Den vollständigen Endpunktkatalog sowie die Anfrage-/Antwortschemata finden Sie
 
 ---
 
-## 💻 Interne CLI
+## 💻 Intern CLI
 
-OmniRoute enthält eine interne CLI (`omniroute …`) für die Einrichtung, Diagnose und Laufzeitsteuerung. Diese ist **von der Seite „CLI-Tools“ im Dashboard getrennt**, auf der CLIs von Drittanbietern (Claude Code, Cursor, Codex, Cline, …) so konfiguriert werden, dass sie mit OmniRoute kommunizieren können.
+OmniRoute liefert einen internen CLI (`omniroute …`) für Setup, Diagnose und Laufzeitsteuerung. Das ist** getrennt von der Seite „CLI Tools“ im Dashboard** , das Drittanbieter- CLIs (Claude -Code, Cursor, Codex, Cline, …) konfiguriert, damit diese mit OmniRoute kommunizieren können.
 
 ```bash
-omniroute setup                    # Interaktiver Assistent (Passwort, Anbieter, Kombinationen)
-omniroute setup --non-interactive  # Für CI geeignet
-omniroute doctor                   # Systemdiagnose (Datenverzeichnis, DB, Anbieter, Ports)
-omniroute providers available      # Unterstützte Anbieter auflisten
-omniroute providers list           # Konfigurierte Verbindungen auflisten
-omniroute providers test <id>      # Eine Anbieterverbindung live testen
-omniroute combos list              # Kombinationen auflisten
-omniroute combos switch <name>     # Standardkombination festlegen
-omniroute models                   # Verfügbare Modelle auflisten (--json, --search)
-omniroute keys add | list | remove # API-Schlüssel über das Terminal verwalten
-omniroute backup                   # Snapshot von Konfiguration und DB erstellen
-omniroute restore [<timestamp>]    # Aus einem Snapshot wiederherstellen
-omniroute health                   # Detaillierter Systemzustand (Schutzschalter, Cache, Arbeitsspeicher)
-omniroute quota                    # Nutzung der Anbieter-Kontingente
-omniroute mcp status               # Status des MCP-Servers
-omniroute a2a status               # Status des A2A-Servers
-omniroute tunnel list|create|stop  # Cloudflare-/Tailscale-/ngrok-Tunnel
-omniroute reset-password           # Administratorpasswort zurücksetzen
-omniroute --mcp                    # MCP-Server über stdio starten
-omniroute --port 3000              # Server auf einem benutzerdefinierten Port starten
+omniroute setup                    # Interactive wizard (password, providers, combos)
+omniroute setup --non-interactive  # CI-friendly
+omniroute doctor                   # Local diagnostics (config, DB, ports, Node runtime, native deps)
+omniroute chat "<prompt>"          # One-shot chat prompt (also --file / --stdin)
+omniroute repl                     # Interactive terminal chat (/model, /combo, /skill, /memory)
+omniroute providers available      # List supported providers
+omniroute providers list           # List configured connections
+omniroute providers test <id>      # Live test a provider connection
+omniroute combos list              # List combos
+omniroute combos switch <name>     # Set default combo
+omniroute models                   # List available models (--json, --search)
+omniroute keys add | list | remove # Manage API keys from the terminal
+omniroute backup                   # Snapshot config + DB
+omniroute restore [<timestamp>]    # Restore from a snapshot
+omniroute health                   # Detailed health (breakers, cache, memory)
+omniroute quota                    # Provider quota usage
+omniroute mcp status               # MCP server status
+omniroute a2a status               # A2A server status
+omniroute tunnel list|create|stop  # Cloudflare/Tailscale/ngrok tunnels
+omniroute reset-password           # Reset the admin password
+omniroute --mcp                    # Start MCP server over stdio
+omniroute --port 3000              # Start the server on a custom port
 ```
 
-Tipp: Kombinieren Sie `omniroute doctor --json` mit Ihrem Überwachungswerkzeug, um bei fehlerhaften Anbieterverbindungen alarmiert zu werden.
+Tipp: Koppeln Sie `omniroute doctor --json` mit Ihrem Überwachungstool, um bei einer fehlerhaften lokalen Installation eine Warnung zu erhalten. `doctor` testet keine Anbieterverbindungen; Benutze dafür `omniroute providers test <id>`.
 
 ---
 

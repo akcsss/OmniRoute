@@ -190,10 +190,10 @@ OmniRoute istifadə edir** versiyalı, idempotent köçlər** `src/lib/db/migrat
 
 ### Miqrasiya Adlandırma
 
-| Format                                           | Misal                                | üçün istifadə olunur                                                                                                                                           |
-| ------------------------------------------------ | ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `NNN_description.sql` (dəqiq 3 rəqəm)            | `241_seen_models.sql`                | Köhnə seriya `001`–`241`. Vaxt damğası formatı endikdə dondurulub (`240` və `241` ondan bir qədər əvvəl birləşdirilib): heç bir yeni fayl ardıcıl nömrə almır. |
-| `YYYYMMDDHHMMSS_description.sql` (14 rəqəm, UTC) | `20261113120000_add_usage_index.sql` | 2026-11-13 tarixindən yaranan hər miqrasiya.                                                                                                                   |
+| Format                                           | Misal                                | üçün istifadə olunur                                                                                                                                         |
+| ------------------------------------------------ | ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `NNN_description.sql` (dəqiq 3 rəqəm)            | `241_seen_models.sql`                | Köhnə seriya `001`–`241`. Zaman damğası formatı endikdə dondurulub (`240` və `241` ondan dərhal əvvəl birləşdirilib): heç bir yeni fayl ardıcıl nömrə almır. |
+| `YYYYMMDDHHMMSS_description.sql` (14 rəqəm, UTC) | `20261113120000_add_usage_index.sql` | 2026-11-13 tarixindən yaranan hər miqrasiya.                                                                                                                 |
 
 Dəyişiklik niyə: ardıcıl nömrələrlə paralel PRs eyni növbəti nömrəni seçdi və birindən başqa hamısı birləşmədən əvvəl yenidən nömrələnməlidir. UTC vaxt damgası hər PR öz versiyasını verir.
 
@@ -207,7 +207,7 @@ Vaxt damğası formatı üçün qaydalar ( `npm run check:migration-numbering` t
 
 **Sifariş tətbiq edin.** Qaçışçı mətnə görə deyil, prefiksin ədədi dəyərinə görə çeşidləyir: əvvəlcə köhnə `001`–`241` faylları, sonra zaman damğası sırası ilə zaman damğası qoyulmuş fayllar, sonra `OMNIROUTE_EXTRA_MIGRATIONS_DIRS` ilə qeydiyyatdan keçmiş istənilən ad boşluqlu qovluqlar ( `ee-001` kimi versiyalar). Gözləyən miqrasiya versiyası `_omniroute_migrations`-də olmayan hər hansı bir fayldır, ona görə də yenisindən sonra birləşən köhnə filialdan miqrasiya hələ də mövcud verilənlər bazalarına tətbiq edilir.
 
-**Vaxt möhürü birləşmə qaydası deyil, yaradılış sırasıdır.** Əgər miqrasiyanız a ilə miqrasiya tərəfindən yaradılmış cədvəl və ya sütundan asılıdırsa** daha yeni** vaxt damgası (məsələn, birinci birləşən digər PR dan biri), təzə verilənlər bazası əvvəlcə sizinkini işlədəcək və uğursuz olacaq. Sizin PR hələ açıq olsa da, fayl adını `npm run db:new-migration` ilə bərpa edin ki, o, daha yeni vaxt damğası əldə etsin və ya onu müstəqil edin. `npm run test:migrations:fresh` hər miqrasiyanı boş verilənlər bazasına tətbiq edir və bunu tutur.
+**Vaxt möhürü birləşmə qaydası deyil, yaradılış sırasıdır.** Əgər miqrasiyanız a ilə miqrasiya tərəfindən yaradılmış cədvəl və ya sütundan asılıdırsa** daha yeni** vaxt damgası (məsələn, birinci birləşən digər PR dan biri), təzə verilənlər bazası əvvəlcə sizinkini işlədəcək və uğursuz olacaq. PR hələ açıq olsa da, fayl adını `npm run db:new-migration` ilə bərpa edin ki, o, daha yeni vaxt damğası əldə etsin və ya onu müstəqil edin. `npm run test:migrations:fresh` hər miqrasiyanı boş verilənlər bazasına tətbiq edir və bunu tutur.
 
 ### Birləşdirilmiş miqrasiya heç vaxt silinmir və ya adı dəyişdirilmir
 
@@ -307,7 +307,7 @@ CREATE TABLE IF NOT EXISTS proxy_registry (
 1. **Generator ilə fayl yaradın** : `npm run db:new-migration -- <description>` (məsələn, `npm run db:new-migration -- add combo priority`). O, cari UTC vaxtı və şərh başlığı ilə `src/lib/db/migrations/<YYYYMMDDHHMMSS>_<description>.sql` yazır, həmin vaxt damğası götürülərsə, bir saniyə irəliləyir və heç vaxt faylın üzərinə yazmır. Nömrəni əl ilə seçməyin.
 2. **Təhlükəsiz DDL istifadə edin** : `CREATE TABLE IF NOT EXISTS`, `CREATE INDEX IF NOT EXISTS`, `ALTER TABLE ... ADD COLUMN`
 3. **Məlumatları diqqətlə doldurun** : mövcud sətirləri idarə etmək üçün `UPDATE ... WHERE ...` istifadə edin
-4. **Sifarişi və adını yoxlayın** : `npm run test:migrations:fresh` (boş verilənlər bazasında bütün köçürmələr) və `npm run check:migration-numbering`
+4. **Sifarişi və adını yoxlayın** : `npm run test:migrations:fresh` (boş verilənlər bazasında bütün köçürmələr) və `npm run check:migration-numbering`. `src/lib/db/migrations/` altında faylı səhnələşdirən zaman husky pre-commit çəngəl öz-özünə `check:migration-numbering` işləyir, beləliklə, əl ilə seçilmiş və ya pis formalaşmış ad (məsələn, `242_x.sql`) eyni CI çap mesajı ilə yerli icrada uğursuz olur. Qarmaq adları, dublikatları və yalnız dondurulmuş `001`–`241` seriyasını yoxlayır; PR bazası ilə müqayisə (silinmiş, adı dəyişdirilmiş və ya sıradan çıxmış köçlər) hələ də CI-də işləyir
 5. **Bir nüsxədə sınaq** : istehsalda heç vaxt sınaqdan keçirilməmiş miqrasiyaları həyata keçirməyin
 6. **Koddan yaradılmış cədvəlin də miqrasiyaya ehtiyacı var** : modul da cədvəli tənbəl şəkildə yaradırsa (`CREATE TABLE IF NOT EXISTS`, özünü sağaltma yolu kimi saxlanılır), köçürmə onu eyni DDL ilə yaratmalıdır. Əks halda, təmiz quraşdırma və təkmilləşdirilmiş quraşdırma, həmin kod yolunun keçib-keçməməsindən asılı olaraq müxtəlif sxemlərlə başa çatır. `tests/unit/db/lazy-table-migration-guard.test.ts` `src/` və `open-sse/` skan edir və köçürmə olmadan tənbəl `CREATE` də uğursuz olur (#20557). Misal: `src/lib/db/migrations/20261118120853_compression_run_telemetry.sql`.
 
@@ -320,7 +320,7 @@ UPDATE combos SET priority = 100 WHERE priority IS NULL;
 CREATE INDEX IF NOT EXISTS idx_combos_priority ON combos(priority);
 ```
 
-> **Geriyə uyğun olmayan dəyişikliklər** (məsələn, sütunları atmaq) çətin olur. OmniRoute miqrasiya tətbiq edildikdən sonra NOT — endirilməsini dəstəkləyir, sxem dəyişikliyi daimidir. Buna uyğun olaraq planlaşdırın.
+> **Geriyə uyğun olmayan dəyişikliklər** (məsələn, sütunları atmaq) çətin olur. OmniRoute NOT miqrasiya tətbiq edildikdən sonra — endirməyi dəstəkləyir, sxem dəyişikliyi qalıcıdır. Buna uyğun olaraq planlaşdırın.
 
 ---
 

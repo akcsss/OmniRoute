@@ -12,7 +12,7 @@ Zadana politika za više pružatelja dopušta do tri pokušaja pružatelja, ogra
 
 ## Gdje se primjenjuje
 
-- **Kombinacije** neuspjeh između svojih ciljeva u skladu s vlastitom strategijom i postavkama kombinacije.
+- **Kombinacije** neuspjeh između svojih ciljeva u skladu s strategijom i postavkama kombinacije.
 - **ID golog modela** (bez prefiksa `provider/` ) koji poslužuje nekoliko aktivnih pružatelja usluga, bez kombinacije tog točnog imena, prvo se šalje odabirima zaključaka pružatelja usluga. Ako taj pokušaj ne uspije na način na koji pravilo ne uspije, isti se zahtjev šalje sljedećem aktivnom pružatelju koji poslužuje ID. Odgovor nosi `x-omniroute-fallback-attempts` s brojem isprobanih pružatelja prije onog koji je odgovorio.
   - Svaki zamjenik je ovlašten točno kao da ga je zaključivanje odabralo. Cilj koji API ključ blokira ili ne priznaje da je preskočen bez uzlaznog poziva, a klijent dobiva stvarnu uzlaznu pogrešku, a ne odbijanje politike za cilj koji nikada nije imenovao.
   - Samo neuspjeli odgovor ide dalje: ništa ne pada nakon prvog strujanog bajta.
@@ -21,3 +21,5 @@ Zadana politika za više pružatelja dopušta do tri pokušaja pružatelja, ogra
   - ID s prefiksom (`provider/model`) nikad se ne preusmjerava na drugog pružatelja usluga.
 
 Stanja kruga su `closed`, `open` i `half_open`. Hlađenje zakazuje ograničenu sondu; uspješna sonda zatvara krug, a neuspješna ga ponovno otvara.
+
+Provider failover radi unutar pristupnika. Pogledajte [Kada je sam OmniRoute nedostupan](architecture/RESILIENCE_GUIDE.md#when-omniroute-itself-is-unreachable) za ponašanje klijenta tijekom ispada pristupnika.

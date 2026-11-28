@@ -4,12 +4,9 @@
 
 ---
 
-> **อัปเดตล่าสุด:** 2026-08-28 — v3.8.51
-> ปรับปรุงโฟลว์การเผยแพร่ให้กระชับขึ้น โดยใช้ทักษะของ Claude Code สำหรับระบบอัตโนมัติ
+> ขั้นตอนการเปิดตัวที่คล่องตัวซึ่งใช้ประโยชน์จากทักษะรหัส Claude สำหรับระบบอัตโนมัติ
 >
-> **รักษาคิว/บรাঞ্চให้เป็นสีเขียวระหว่างการเผยแพร่แต่ละครั้ง:** ดู [RELEASE_GREEN.md](./RELEASE_GREEN.md)
-> (ชุดคำสั่ง `/green-prs` + `npm run check:release-green` + `/babysit` + งานรายคืน) การเรียกใช้
-> กระบวนการนี้เป็นระยะ — และโดยเฉพาะอย่างยิ่ง **ก่อน** ทำรายการตรวจสอบนี้ — จะช่วยให้ PR สำหรับการเผยแพร่เริ่มต้นด้วยสถานะสีเขียว
+> **ให้ queue/branch เป็นสีเขียวระหว่างการเปิดตัว:** ดู [RELEASE_GREEN.md](./RELEASE_GREEN.md) ( ครอบครัว `/green-prs` + `npm run check:release-green` + `/babysit` + ทุกคืน) ใช้งาน — นี้เป็นระยะและโดยเฉพาะอย่างยิ่ง** ก่อน** รายการตรวจสอบนี้ — ทำให้การเปิดตัว PR เริ่มเป็นสีเขียว
 
 ## สรุปสั้น ๆ
 
@@ -60,7 +57,9 @@ npm run test:e2e           # ไม่บังคับ แต่แนะน�
 
 **Docker Hub `latest` (จำเป็นสำหรับการเผยแพร่ SemVer ที่เสถียรทุกรายการ):** เวิร์กโฟลว์ `docker-publish` ต้องติดแท็ก** ทั้งคู่** `X.Y.Z` และเมื่อ `should-promote-latest.sh` เห็นด้วย นี่คือความเสถียรสูงสุด SemVer, `:latest` ด้วย** ย่อยเดียวกัน** . หลังเลิกงาน: Hub `latest` digest เท่ากับ SemVer digest ใหม่และ `last_updated` ถูกย้าย อย่าทิ้ง `:latest` ไว้บนบิลด์เก่า ในขณะที่บันทึกประจำรุ่นพูดถึงการแก้ไขที่มีอยู่บน git เท่านั้น เขียนการเริ่มต้นอย่างรวดเร็วใช้ `:latest`; GitOps ควรปักหมุด `X.Y.Z` ต่อไป ดู [ช่องทางการเผยแพร่Docker](../guides/DOCKER_GUIDE.md#release-channels) และ #10317
 
-**พื้นที่เก็บข้อมูลองค์กร Docker Hub (`cheaperinference/omniroute`):** Docker Hub ไม่สามารถย้ายที่เก็บระหว่างเนมสเปซได้ ดังนั้น `diegosouzapw/omniroute` จะเก็บประวัติการดึงและทุกรีลีส และงาน `mirror-org-dockerhub` ของ `docker-publish` จะคัดลอกแต่ละเวอร์ชันที่เผยแพร่ (และ `:latest` เมื่อเลื่อนระดับ) จาก `ghcr.io/cheaper-inference/omniroute` ไปยังที่เก็บขององค์กร ต้องการความลับ `DOCKERHUB_ORG_USERNAME` / `DOCKERHUB_ORG_TOKEN` หากไม่มีงานเหล่านั้น งานยังคงเป็นสีเขียวโดยมีคำเตือน "Docker Hub org mirror ข้าม" และรีจิสทรีอื่นๆ จะเผยแพร่ตามปกติ หากต้องการเผยแพร่เวอร์ชันที่เผยแพร่ในภายหลัง ให้เรียกใช้** การดำเนินการ → Mirror อิมเมจ Docker ไปยัง Docker Hub org → Run เวิร์กโฟลว์** ด้วย `version=X.Y.Z` (และ `promote_latest` สำหรับเวอร์ชันเสถียรสูงสุด): จะคัดลอกอิมเมจที่มีอยู่ ไม่มีการสร้างใหม่
+**พื้นที่เก็บข้อมูลองค์กร Docker Hub (`cheaperinference/omniroute`):** Docker Hub ไม่สามารถย้ายที่เก็บระหว่างเนมสเปซได้ ดังนั้น `diegosouzapw/omniroute` จะเก็บประวัติการดึงและทุกรีลีส และงาน `mirror-org-dockerhub` ของ `docker-publish` จะคัดลอกแต่ละเวอร์ชันที่เผยแพร่ (และ `:latest` เมื่อเลื่อนระดับ) จาก `ghcr.io/cheaper-inference/omniroute` ไปยังที่เก็บขององค์กร ต้องการความลับ `DOCKERHUB_ORG_USERNAME` / `DOCKERHUB_ORG_TOKEN` หากไม่มีงานเหล่านั้น งานยังคงเป็นสีเขียวโดยมีคำเตือน "Docker Hub org mirror ข้าม" และรีจิสทรีอื่นๆ จะเผยแพร่ตามปกติ หากต้องการเผยแพร่เวอร์ชันที่เผยแพร่ในภายหลัง ให้เรียกใช้** การดำเนินการ → Mirror อิมเมจ Docker ไปยัง Docker Hub org → Run เวิร์กโฟลว์** ด้วย `version=X.Y.Z` (และ `promote_latest` สำหรับเวอร์ชันเสถียรสูงสุด): จะคัดลอกรูปภาพที่มีอยู่ ไม่มีการสร้างใหม่ ภาพรวม Docker Hub ของที่เก็บนั้นได้รับการตั้งค่าด้วยตนเอง: API ที่แก้ไขจะปฏิเสธโทเค็นการเข้าถึงองค์กร
+
+ขั้นตอนการทำงานเดียวกันนี้ยังคัดลอกทุกรีลีสไปยังแพ็คเกจ GHCR ดั้งเดิม `ghcr.io/diegosouzapw/omniroute` จนถึงวันที่ 30-06-2027 ดังนั้นการติดตั้งยังคงถูกปักหมุดไว้เพื่อให้อัปเดตอยู่เสมอ ดัชนีมีคำอธิบาย "moved to `ghcr.io/cheaper-inference/omniroute`" ต้องการความลับ `GHCR_LEGACY_TOKEN` (โทเค็นการเข้าถึงส่วนบุคคลแบบคลาสสิกของ `diegosouzapw` ด้วย `write:packages`); หากไม่มีงานนั้นก็จะข้ามไปพร้อมกับคำเตือน "Legacy GHCR มิเรอร์ข้าม"
 
 ## ช่องทางด่วนสำหรับ Hotfix (ป้ายกำกับ `hotfix`)
 
@@ -123,14 +122,14 @@ diff ที่เปลี่ยนเฉพาะการทดสอบ (ไ�
 - [ ] `npm run test:integration` — pass (หากมีการเปลี่ยนแปลง ให้แตะ DB / handlers)
 - [ ] `npm run test:combo:matrix` — pass (เมทริกซ์กลยุทธ์คำสั่งผสม: พิสูจน์การตัดสินใจเลือกกลยุทธ์การกำหนดเส้นทางสาธารณะทั้ง 22 รายการอย่างมีการกำหนด; ทำงานเมื่อแตะการกำหนดเส้นทางคำสั่งผสม การแก้ไขกลยุทธ์ หรือตรรกะทางเลือก)
 - [ ] `RUN_COMBO_LIVE=1 npm run test:combo:live` —**optional/manual** (ควันต้นน้ำจริงที่มีรั้วรอบขอบชิด; แหล่งที่มาของสแน็ปช็อต DB แบบอ่านอย่างเดียวจาก VPS `root@192.168.0.15`; เข้าถึงผู้ให้บริการจริง, เครดิตค่าใช้จ่าย; ไม่เคยทำงานใน CI; ข้ามอย่างหมดจดโดยไม่มีเกต)
-- [ ] `npm run test:combo:live:vps` —**optional/manual** (Phase-3 VPS live Smoke: สถานการณ์ 7 HTTP กับเซิร์ฟเวอร์ `.15` แบบสดผ่าน Node ธรรมดา ESM; ต้องใช้ `ssh root@192.168.0.15`; creates/deletes เฉพาะคอมโบ `__live_test__*` เท่านั้น เข้าถึงผู้ให้บริการจริง; ไม่เคยทำงานใน CI)
+- [ ] `npm run test:combo:live:vps` —**optional/manual** (Phase-3 VPS live smoke: สถานการณ์ 7 HTTP กับเซิร์ฟเวอร์ `.15` แบบสดผ่านโหนดธรรมดา ESM; ต้องใช้ `ssh root@192.168.0.15`; creates/deletes เฉพาะคอมโบ `__live_test__*` เท่านั้น เข้าถึงผู้ให้บริการจริง; ไม่เคยทำงานใน CI)
 - [ ] `npm run test:e2e` — ผ่าน (การเปลี่ยนแปลง UI )
 - [ ] `npm run test:protocols:e2e` — ผ่าน (การเปลี่ยนแปลง MCP/A2A )
 - [ ] `npm run test:ecosystem` — ผ่าน
 
 ### ตะขอ (ผ่านการตรวจสอบฮัสกี้)
 
-Husky hooks อยู่ใน `.husky/` และทำงานโดยอัตโนมัติในการดำเนินการ git
+Husky hooks อาศัยอยู่ใน `.husky/` และทำงานโดยอัตโนมัติในการดำเนินการ git
 
 - **กระทำล่วงหน้า:** `npx lint-staged + node scripts/check/check-docs-sync.mjs + npm run check:any-budget:t11`
 - **ดันล่วงหน้า:** ประตูกำหนดอย่างรวดเร็ว — `npm run check:any-budget:t11 && npm run check:tracked-artifacts` (เปิดใช้งาน 2026-06-13) จงใจแยก `test:unit` (ช้า ครอบคลุมโดยงาน CI `test-unit` )
@@ -146,15 +145,15 @@ Husky hooks อยู่ใน `.husky/` และทำงานโดยอั
 
 **ขอบเขตที่ถูกต้อง:** `db`, `sse`, `oauth`, `dashboard`, `api`, `cli`, `docker`, `ci`, `mcp`, `a2a`, `memory`, `skills`, `cloud-agent`, `guardrails`, `compression`, `auto-combo`, `resilience`, `providers`, `executors`, `translator`, `domain`, `authz`
 
-การเปลี่ยนแปลงที่ไม่สมบูรณ์: เพิ่มส่วนท้ายของ `BREAKING CHANGE:` หรือ `!` หลังขอบเขต (เช่น `feat(api)!: drop /v0`)
+การเปลี่ยนแปลงที่ไม่สมบูรณ์: เพิ่มส่วนท้าย `BREAKING CHANGE:` หรือ `!` หลังขอบเขต (เช่น `feat(api)!: drop /v0`)
 
 ### เอกสารประกอบ
 
 - [ ] `npm run check:docs-sync` pass (ทำงานอัตโนมัติโดยการคอมมิตล่วงหน้า)
-- [ ] `npm run check:docs-all` ผ่าน (ร่ม: docs-sync + docs-counts + env-doc-sync + deprecated-versions + doc-links)
+- [ ] `npm run check:docs-all` ผ่านไป คำแนะนำ `check:deprecated-versions` จะระบุเวอร์ชันที่มีการระบุแหล่งที่มาของ OmniRoute (3.6.x และเก่ากว่า) อย่างชัดเจน และไม่สนใจวันที่
 - [ ] `npm run check:env-doc-sync` ออกจาก 0 รหัส — ↔ `.env.example` ↔ `docs/reference/ENVIRONMENT.md` สัญญา env ยังคงเหมือนเดิม
 - [ ] `npm run check:doc-links` ออกจาก 0 — ไม่มีการอ้างอิง markdown ภายในที่เสียหายหลังจากการปรับโครงสร้างใหม่
-- [ ] `docs/architecture/ARCHITECTURE.md` ตรวจสอบแล้วสำหรับการดริฟท์ storage/runtime
+- [ ] `docs/architecture/ARCHITECTURE.md` ได้รับการตรวจสอบแล้วสำหรับ storage/runtime drift
 - [ ] `docs/guides/TROUBLESHOOTING.md` ได้รับการตรวจสอบสำหรับ env var และดริฟท์การปฏิบัติงาน
 - [ ] หาก `.env.example` เปลี่ยนไป: อัปเดต `docs/reference/ENVIRONMENT.md` แล้ว
 - [ ] หากคุณสมบัติใหม่มี UI: `docs/guides/USER_GUIDE.md` กล่าวถึง
@@ -164,7 +163,7 @@ Husky hooks อยู่ใน `.husky/` และทำงานโดยอั
 
 ### i18n
 
-- [ ] `npm run i18n:check` ออกจากสถานะการแปล 0 — (`.i18n-state.json`) โดยซิงค์กับเอกสารต้นฉบับ (ไม่มีแหล่งที่มาแบบลอยในโหมดเข้มงวด คำแนะนำในโหมดเตือนนั้นยอมรับได้สำหรับการปรับแต่งเอกสารในนาทีสุดท้าย แต่ควรเป็น 0 ก่อนการแท็ก)
+- [ ] `npm run i18n:check` ออกจากสถานะการแปล 0 — (`.i18n-state.json`) โดยซิงค์กับเอกสารต้นฉบับ (ไม่มีแหล่งที่มาแบบลอยในโหมดเข้มงวด คำแนะนำในโหมดเตือนนั้นยอมรับได้สำหรับการปรับแต่งเอกสารในนาทีสุดท้าย แต่ควรเป็น 0 ก่อนที่จะติดแท็ก)
 - [ ] `npm run i18n:check-ui-coverage` ออกจาก 0 — ทุก ๆ UI locale ที่หรือสูงกว่าพื้นที่ครอบคลุม 80%
 - [ ] `npm run i18n:sync-ui:dry` รายงานคีย์ที่หายไป 0 คีย์ในทุกสถานที่เป้าหมาย 66 แห่ง (ทุกสถานที่ยกเว้นแหล่งที่มา `en` )
 - [ ] หากเอกสารภาษาอังกฤษต้นฉบับมีการเปลี่ยนแปลง ให้รัน `npm run i18n:run` (ต้องใช้ `OMNIROUTE_TRANSLATION_API_KEY` ใน `.env`) ก่อนที่จะแท็ก
@@ -211,9 +210,9 @@ Husky hooks อยู่ใน `.husky/` และทำงานโดยอั
 | `.build/` | สร้างตัวกลาง — เอาต์พุต `next build` (`distDir`)      | ไม่ (gitignored) |
 | `dist/`   | มัด npm ที่จัดส่งได้ — ประกอบโดย `assembleStandalone` | ไม่ (gitignored) |
 
-> **หมายเหตุผู้ประกอบการ:** ไดเรกทอรีรูปภาพ VPS ระยะไกลยังคงอยู่ `/usr/lib/node_modules/omniroute/app/` เท่านั้น** ใน repo** ย้ายเอาต์พุตบิลด์แล้ว (`app/` → `dist/`) การปรับใช้ทักษะ rsync เนื้อหา `dist/` ใน `app/` dir — ระยะไกล ไม่จำเป็นต้องเปลี่ยนเส้นทาง VPS
+> **หมายเหตุผู้ประกอบการ:** ไดเร็กทอรีรูปภาพ VPS ระยะไกลยังคงอยู่ `/usr/lib/node_modules/omniroute/app/` เท่านั้น** ใน repo** ย้ายเอาต์พุตบิลด์แล้ว (`app/` → `dist/`) การปรับใช้ทักษะ rsync เนื้อหา `dist/` ใน `app/` dir — ระยะไกล ไม่จำเป็นต้องเปลี่ยนเส้นทาง VPS
 
-**โฟลว์บิวด์เดียว:**
+**โฟลว์บิวด์เดี่ยว:**
 
 ```
 npm run build:release
@@ -399,7 +398,7 @@ node scripts/release/dry-run-lts-cut.mjs --execute --rollback --remote rehearsal
 gh workflow run preview-artifact.yml -f pr_number=<N>   # or add the `preview-artifact` label
 gh run download <run-id> --name preview-artifact-pr<N>-<sha7> --dir preview
 cd preview && sha256sum -c SHA256SUMS
-gh attestation verify omniroute-*.tgz --repo diegosouzapw/OmniRoute
+gh attestation verify omniroute-*.tgz --repo cheaper-inference/OmniRoute
 npm install -g ./omniroute-*.tgz                          # preview install
 ```
 

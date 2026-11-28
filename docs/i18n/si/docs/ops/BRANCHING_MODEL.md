@@ -53,7 +53,7 @@ flowchart LR
 ඔබට අවශ්‍ය ශාඛාව ඒකාබද්ධ කළ හැකි යැයි උපකල්පනය කිරීමට පෙර විවෘත කැටි කිරීමක් සඳහා පරීක්ෂා කරන්න:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 ඒකාබද්ධ යාන්ත්‍ර විද්‍යාව (හිමිකරු `queue` ලේබලය → Mergify) [MERGE_TRAIN.md](./MERGE_TRAIN.md) හි ලේඛනගත කර ඇත.

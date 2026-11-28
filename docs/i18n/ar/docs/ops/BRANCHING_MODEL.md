@@ -46,7 +46,7 @@ flowchart LR
 تحقق من وجود تجميد مفتوح قبل افتراض أن الفرع الذي تريده قابل للدمج:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 تم توثيق آليات الدمج (علامة المالك `queue` → Mergify) في [MERGE_TRAIN.md](./MERGE_TRAIN.md).

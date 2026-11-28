@@ -20,24 +20,21 @@ dosegljiv na konfiguriranem URL-ju app-serverja** in da je ta CLI **prijavljen**
 ## 1. Arhitektura
 
 ```
-┌─ Aplikacija OmniRoute ───────────┐        ┌─ Spremljevalni vsebnik codex-app-server ┐
-│  CodexAppServerExecutor          │  WS    │  codex app-server                       │
-│  ws://codex-app-server:1456 ─────┼───────▶│  --listen ws://0.0.0.0:1456             │
-│  (+ žeton zmogljivosti)          │  JSON  │  --ws-auth capability-token             │
-│                                  │  RPC   │  samostojno upravlja OpenAI OAuth        │
-└──────────────────────────────────┘        │  (~/.codex/auth.json, samodejno osveževanje) │
-        │ souporablja (nosilci compose)      └─────────────────────────────────────────┘
+┌─ OmniRoute app ─────────────────┐        ┌─ codex-app-server sidecar ─────────┐
+│  CodexAppServerExecutor          │  WS    │  codex app-server                   │
+│  ws://codex-app-server:1456 ─────┼───────▶│  --listen ws://0.0.0.0:1456         │
+│  (+ capability token)            │  JSON  │  --ws-auth capability-token         │
+│                                  │  RPC   │  self-manages OpenAI OAuth          │
+└──────────────────────────────────┘        │  (~/.codex/auth.json, auto-refresh) │
+        │ shares (compose volumes)           └─────────────────────────────────────┘
         ▼
-  codex-appserver-token   → žeton zmogljivosti WS (priklopljen v oba)
-  codex-appserver-home    → ~/.codex (auth.json zapiše nadzorna plošča,
-                             prebere pa ga codex app-server v spremljevalnem vsebniku)
+  codex-appserver-token   → the WS capability token (both mount it)
+  codex-appserver-home    → ~/.codex (auth.json written by the dashboard,
+                             read by the sidecar's codex app-server)
 ```
 
-- Spremljevalni vsebnik posluša **samo** v notranjem omrežju compose
-  (`ws://codex-app-server:1456`), zaščiten z žetonom zmogljivosti. **Nikoli** ni
-  objavljen gostitelju ali internetu.
-- Codex CLI je vključen v `omniroute:base`, zato ob zagonu spremljevalnega
-  vsebnika namestitev codex v gostitelju ali uporabnikovem računalniku ni potrebna.
+- Stranska prikolica posluša** samo** v notranjem omrežju za sestavljanje (`ws://codex-app-server:1456`) za žetonom zmogljivosti. Je** nikoli** objavljeno gostitelju ali internetu.
+- Stranska prikolica uporablja `omniroute:cli-no-docker`, zgrajeno iz cilja `runner-cli-no-docker`, ki vključuje Codex CLI.
 
 ## 2. Zagon
 

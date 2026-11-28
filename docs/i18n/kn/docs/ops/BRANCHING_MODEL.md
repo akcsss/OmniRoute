@@ -53,7 +53,7 @@ flowchart LR
 ನೀವು ಬಯಸುವ ಶಾಖೆಯನ್ನು ವಿಲೀನಗೊಳಿಸಬಹುದೆಂದು ಊಹಿಸುವ ಮೊದಲು ತೆರೆದ ಫ್ರೀಜ್ ಅನ್ನು ಪರಿಶೀಲಿಸಿ:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 ವಿಲೀನ ಯಂತ್ರಶಾಸ್ತ್ರ (ಮಾಲೀಕ `queue` ಲೇಬಲ್ → Mergify) ಅನ್ನು [MERGE_TRAIN.md](./MERGE_TRAIN.md) ನಲ್ಲಿ ದಾಖಲಿಸಲಾಗಿದೆ.

@@ -4,8 +4,6 @@
 
 ---
 
-Zadnje ažuriranje: 2026-08-23
-
 OmniRoute se integrira s tri kategorije CLI alata raspoređenih na tri namjenske stranice nadzorne ploče:
 
 | Stranica       | Ruta                    | Koncept                                                                               | Računati         |

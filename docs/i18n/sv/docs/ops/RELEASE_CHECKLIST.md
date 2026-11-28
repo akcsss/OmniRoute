@@ -4,12 +4,9 @@
 
 ---
 
-> **Senast uppdaterad:** 2026-08-28 — v3.8.51
-> Effektiviserat releaseflöde som använder Claude Code-färdigheter för automatisering.
+> Strömlinjeformat releaseflöde som utnyttjar Claude Code-kunskaperna för automatisering.
 >
-> **Håll kön/grenen grön mellan releaser:** se [RELEASE_GREEN.md](./RELEASE_GREEN.md)
-> (`/green-prs`-familjen + `npm run check:release-green` + `/babysit` + nattlig körning). Att köra
-> detta regelbundet — och särskilt **före** den här checklistan — gör att release-PR:en börjar grönt.
+> **Håll queue/branch grön mellan releaser:** se [RELEASE_GREEN.md](./RELEASE_GREEN.md) (`/green-prs` familjen + `npm run check:release-green` + `/babysit` + varje natt). Kör denna periodvis — och speciellt** före** denna checklista — gör att releasen PR börjar grönt.
 
 ## Kortfattat
 
@@ -56,11 +53,13 @@ npm-publish-arbetsflödet publicerar inte längre direkt: det startar den packad
 
 **Engångshärdning (ägare, npmjs.com):** konfigurera Trusted Publisher för `omniroute` i endast scenläge så att en läckt långlivad token inte kan `npm publish` direkt från någonstans som — CI bara kan scen; endast ägarens 2FA-släpp.
 
-**Spelbok med trasiga artefakter (oförändrad):** `npm deprecate omniroute@<bad> "<reason> — use <fixed>"` som standardreflex (minuter, reversibel); `npm unpublish` bara innanför 72h/no-dependents fönstret och aldrig som första drag. Docker: skriv aldrig om en versionstagg — rollback pekar om `latest` till den sista bra sammanfattningen.
+**Spelbok med trasiga artefakter (oförändrad):** `npm deprecate omniroute@<bad> "<reason> — use <fixed>"` som standardreflex (minuter, reversibel); `npm unpublish` endast i 72h/no-dependents fönstret och aldrig som första drag. Docker: skriv aldrig om en versionstagg — rollback pekar om `latest` till den sista bra sammanfattningen.
 
 **Docker Hub `latest` (krävs för varje stabil SemVer publicering):** `docker-publish` -arbetsflödet måste tagga** både** `X.Y.Z` och, när `should-promote-latest.sh` överensstämmer är detta den högsta stabila SemVer, `:latest` med** samma sammandrag** . Efter jobbet: Hub `latest` digest är lika med den nya SemVer digest och `last_updated` flyttad. Lämna inte `:latest` på en äldre version medan release notes talar om fixar som bara finns på git. Skriv snabbstarter använd `:latest`; GitOps ska fortsätta att fästa `X.Y.Z`. Se [Docker release-kanaler](../guides/DOCKER_GUIDE.md#release-channels) och #10317.
 
-**Docker Hub organisationsförråd (`cheaperinference/omniroute`):** Docker Hub kan inte flytta ett arkiv mellan namnområden, så `diegosouzapw/omniroute` behåller sin pull-historik och varje release, och `mirror-org-dockerhub` -jobbet för `docker-publish` kopierar varje släppt version (och `:latest` när den marknadsförs) från `ghcr.io/cheaper-inference/omniroute` till organisationens arkiv. Den behöver `DOCKERHUB_ORG_USERNAME` / `DOCKERHUB_ORG_TOKEN` -hemligheterna; utan dem förblir jobbet grönt med varningen "Docker Hub org mirror skipped" och de andra registren publicerar normalt. För att publicera en släppt version där senare, kör** Åtgärder → Spegla Docker -bilden till Docker Hub org → Kör arbetsflöde** med `version=X.Y.Z` (och `promote_latest` för den högsta stabila versionen): den kopierar befintliga bilder, ingen ombyggnad.
+**Docker Hub organisationsförråd (`cheaperinference/omniroute`):** Docker Hub kan inte flytta ett arkiv mellan namnområden, så `diegosouzapw/omniroute` behåller sin pull-historik och varje release, och `mirror-org-dockerhub` -jobbet för `docker-publish` kopierar varje släppt version (och `:latest` när den marknadsförs) från `ghcr.io/cheaper-inference/omniroute` till organisationens arkiv. Den behöver `DOCKERHUB_ORG_USERNAME` / `DOCKERHUB_ORG_TOKEN` -hemligheterna; utan dem förblir jobbet grönt med varningen "Docker Hub org mirror skipped" och de andra registren publicerar normalt. För att publicera en släppt version där senare, kör** Åtgärder → Spegla Docker -bilden till Docker Hub org → Kör arbetsflöde** med `version=X.Y.Z` (och `promote_latest` för den högsta stabila versionen): den kopierar befintliga bilder, ingen ombyggnad. Förvarets Docker Hub-översikt ställs in för hand: API som redigerar det avvisar organisationens åtkomsttokens.
+
+Samma arbetsflöde kopierar också varje utgåva till det äldre GHCR paketet `ghcr.io/diegosouzapw/omniroute` fram till 2027-06-30, så installationer som fortfarande är fästa på det uppdateras kontinuerligt; dess index har en beskrivning av "flyttad till `ghcr.io/cheaper-inference/omniroute`". Den behöver `GHCR_LEGACY_TOKEN` hemligheten (en klassisk personlig åtkomsttoken för `diegosouzapw` med `write:packages`); utan det hoppar jobbet över med en "Legacy GHCR mirror skipped"-varning.
 
 ## Snabbspår för hotfixar (etiketten `hotfix`)
 
@@ -151,7 +150,7 @@ Bryta ändringar: lägg till `BREAKING CHANGE:` sidfot eller `!` efter omfånget
 ### Dokumentation
 
 - [ ] `npm run check:docs-sync` -pass (autokörning av pre-commit)
-- [ ] `npm run check:docs-all` pass (paraply: docs-sync + docs-counts + env-doc-sync + utfasade-versioner + doc-links)
+- [ ] `npm run check:docs-all` passerar. Dess rådgivande `check:deprecated-versions` flaggar versioner som uttryckligen tillskrivs OmniRoute (3.6.x och tidigare) och ignorerar datum.
 - [ ] `npm run check:env-doc-sync` exit 0 — kod ↔ `.env.example` ↔ `docs/reference/ENVIRONMENT.md` env kontrakt är intakt
 - [ ] `npm run check:doc-links` går ut 0 — inga trasiga interna markdown-referenser efter omstrukturering
 - [ ] `docs/architecture/ARCHITECTURE.md` recenserad för storage/runtime drift
@@ -235,7 +234,7 @@ Kör NOT `npm run build` följt av en separat `npm run build:cli` för att distr
 ### Taggning & Release
 
 - [ ] Kör `/generate-release-cc` (Claude Code skicklighet):
-  - Skapar taggen `vX.Y.Z`
+  - Skapar tagg `vX.Y.Z`
   - Trycker tag och gren
   - Öppnar GitHub Release med ändringsloggkropp
   - Bifogar Electron installatörer (om byggda)
@@ -262,7 +261,7 @@ Distribuera färdigheter använd det lätta rsync-flödet — no `npm pack`, no 
   - Verifiera att `/api/monitoring/health` returnerar `CLOSED` -kretsbrytare
   - Bekräfta att MCP transports svarar (`/mcp` HTTP, `/mcp-sse` SSE)
 
-### Efter release
+### Post-release
 
 - [ ] Kör `/capture-release-evidences-cc` (Claude -kodfärdighet)
   - Fångar WebP screenshots/recordings av nya funktioner
@@ -399,11 +398,11 @@ Development bump commit är byggt med git plumbing (inget fungerande träd berö
 gh workflow run preview-artifact.yml -f pr_number=<N>   # or add the `preview-artifact` label
 gh run download <run-id> --name preview-artifact-pr<N>-<sha7> --dir preview
 cd preview && sha256sum -c SHA256SUMS
-gh attestation verify omniroute-*.tgz --repo diegosouzapw/OmniRoute
+gh attestation verify omniroute-*.tgz --repo cheaper-inference/OmniRoute
 npm install -g ./omniroute-*.tgz                          # preview install
 ```
 
-Körningen gör `npm ci`, `npm run build:release`, `npm run check:pack-artifact`, packar tarballen, kör `npm run check:pack-boot` (falska hemligheter, ephemeral data dir), packar om och misslyckas såvida inte sammandraget är identiskt, registrerar sedan `artifact-identity.json` (head SHA, base SHA, lockfile-hash, plattform, arch, node ABI, build zq-ball, tar — `scripts/release/artifact-identity.mjs`) ett separat jobb. Att främja en förhandsvisning innebär att du installerar den där tarballen: bygg aldrig om från källan.
+Körningen gör `npm ci`, `npm run build:release`, `npm run check:pack-artifact`, packar tarballen, kör `npm run check:pack-boot` (falska hemligheter, ephemeral data dir), packar om och misslyckas såvida inte sammandraget är identiskt, registrerar sedan `artifact-identity.json` (head SHA, base SHA, lockfile-hash, plattform, arch, node ABI, build zq-ball, tar — `scripts/release/artifact-identity.mjs`) ett separat jobb. Att marknadsföra en förhandsgranskning innebär att du installerar den där tarballen: bygg aldrig om från källan.
 
 ### Snittet (3.9.0, efter GO)
 

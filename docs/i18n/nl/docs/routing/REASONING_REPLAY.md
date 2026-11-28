@@ -4,7 +4,7 @@
 
 ---
 
-> **Bron van waarheid:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`** Laatst bijgewerkt:** 28-06-2026 — v3.8.40
+> **Bron van waarheid:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`
 
 OmniRoute legt assistent- `reasoning_content` vast die is geproduceerd door modellen in de denkmodus en speelt deze transparant af op multi-turn-verzoeken wanneer de upstream-provider dit nodig heeft. Dit elimineert de HTTP 400-fouten die strikte providers naar voren brengen wanneer de gespreksgeschiedenis van een cliënt de redenering van de vorige beurt mist.
 

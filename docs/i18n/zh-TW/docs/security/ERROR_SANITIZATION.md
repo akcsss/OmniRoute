@@ -4,13 +4,7 @@
 
 ---
 
-> **真實來源：** `open-sse/utils/errorSanitization.ts`、
-> `open-sse/utils/errorPathRedaction.ts`，以及 `open-sse/utils/error.ts` 中的公開建構器
-> **測試：** `tests/unit/error-message-sanitization.test.ts`、
-> `tests/unit/error-public-boundaries-hardening.test.ts`
-> **最後更新：** 2026-09-02 — v3.8.51
-> **適用對象：** 所有處理錯誤回應（HTTP 路由、SSE 串流、執行器、MCP 處理常式）的工程師。
-> **狀態：** 對每一條會將錯誤訊息回傳給用戶端的程式碼路徑，皆為**強制要求**。
+> **事實來源：** `open-sse/utils/errorSanitization.ts`, `open-sse/utils/errorPathRedaction.ts`, and the public builders in `open-sse/utils/error.ts`**測試：** `tests/unit/error-message-sanitization.test.ts`, `tests/unit/error-public-boundaries-hardening.test.ts`**觀眾：** Any engineer touching error responses (HTTP routes, SSE streams, executors, MCP handlers).**地位：****MANDATORY** for every code path that returns an error message to a client.
 
 ## 為何需要此規範
 

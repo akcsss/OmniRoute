@@ -4,7 +4,7 @@
 
 ---
 
-> **Totuuden lähde:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`** Viimeksi päivitetty:** 28.6.2026 — v3.8.40
+> **Totuuden lähde:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`
 
 OmniRoute kaappaa ajattelutilan mallien tuottaman avustajan `reasoning_content` ja toistaa sen läpinäkyvästi usean kierroksen pyynnöissä, kun ylävirran toimittaja sitä vaatii. Tämä eliminoi HTTP 400 -virheet, joita tiukat palveluntarjoajat nostavat esiin, kun asiakkaan keskusteluhistoriasta puuttuu edellisen vuoron perustelut.
 

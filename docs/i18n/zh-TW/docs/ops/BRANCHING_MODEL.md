@@ -52,7 +52,7 @@ flowchart LR
 在假設您想要的分支可合併之前，請檢查開啟的凍結：
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 合併機制（所有者`queue`標籤→ Mergify）記錄在[MERGE_TRAIN.md](./MERGE_TRAIN.md) 。

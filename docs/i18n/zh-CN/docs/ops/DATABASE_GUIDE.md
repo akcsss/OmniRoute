@@ -217,7 +217,7 @@ OmniRoute使用**版本化、幂等迁移**在`src/lib/db/migrations/`.每个迁
 - **永远不要重命名它。** `_omniroute_migrations`中的版本将不再与文件匹配，因此每个已应用该版本的数据库都将再次运行它。然后，非幂等SQL会复制数据或停止启动。
 - **需要不同的架构吗？**使用`npm run db:new-migration`创建新的迁移。
 
-重命名仅对于尚未合并的文件是安全的，这就是门的提示所指的情况。发布标签在这里不会改变任何内容：每次推送到`release/v*`分支都会发布Docker `:next`映像并在同源、 VPS安装和企业同步上运行，因此在任何`vX.Y.Z`标签存在之前，合并迁移已在真实数据库上运行。每次删除基本文件（无论是否已标记）都会失败。
+重命名仅对于尚未合并的文件是安全的，这就是门的提示所指的情况。发布标签在这里不会改变任何内容：每次推送到`release/v*`分支都会发布Docker `:next`映像并在同源、 VPS安装和企业同步上运行，因此在任何`vX.Y.Z`标签存在之前，合并迁移已在真实数据库上运行。每次删除基本文件（无论是否已标记）时，该门都会失败。
 
 - **恢复合并的迁移。**删除文件的`git revert`会失败。保留文件并在新迁移中撤消其架构： `npm run db:new-migration -- <description>`、 `DROP TABLE IF EXISTS`、 `DROP INDEX IF EXISTS`等。升级后的新数据库将以相同的架构结束。
 - **接受的重命名是：兼容性条目和相同的内容。**如果合并的文件必须移动（例如，两个合并的文件共享时间戳并且运行程序因版本冲突而停止），请重命名后一个文件而不触及其SQL并将`{ fromVersion, fromName, toVersion, toName }`添加到`src/lib/db/migrationRunner/constants.ts`中的`RENAMED_MIGRATION_COMPATIBILITY` 。应用旧版本的数据库会移动其`_omniroute_migrations`行，而不是再次运行该文件。无论新的时间戳是什么，门都会对此类重命名发出警告，并始终对其运行交换检查：全新安装将文件应用到新位置，升级的数据库则不会，因此请选择靠近旧时间戳的新时间戳。如果内容发生更改（新迁移中仍会发生架构更改），或者条目的目标文件不在磁盘上，则门将导致重命名失败。
@@ -304,10 +304,10 @@ CREATE TABLE IF NOT EXISTS proxy_registry (
 
 ### 添加新的迁移
 
-1. **使用生成器创建文件**: `npm run db:new-migration -- <description>` （例如`npm run db:new-migration -- add combo priority`）。它使用当前UTC时间和注释标头写入`src/lib/db/migrations/<YYYYMMDDHHMMSS>_<description>.sql` ，如果采用该时间戳则向前移动一秒，并且永远不会覆盖文件。不要手动选择号码。
+1. **使用生成器创建文件**: `npm run db:new-migration -- <description>` （例如`npm run db:new-migration -- add combo priority`）。它使用当前UTC时间和注释标头写入`src/lib/db/migrations/<YYYYMMDDHHMMSS>_<description>.sql` ，如果采用该时间戳则向前移动一秒，并且从不覆盖文件。不要手动选择号码。
 2. **使用安全DDL** ： `CREATE TABLE IF NOT EXISTS`、 `CREATE INDEX IF NOT EXISTS`、 `ALTER TABLE ... ADD COLUMN`
 3. **仔细回填数据**：使用`UPDATE ... WHERE ...`处理现有行
-4. **检查顺序和命名**： `npm run test:migrations:fresh` （空数据库上的所有迁移）和`npm run check:migration-numbering`
+4. **检查顺序和命名**： `npm run test:migrations:fresh` （空数据库上的所有迁移）和`npm run check:migration-numbering`。当提交在`src/lib/db/migrations/`下暂存文件时，husky 预提交挂钩会自行运行`check:migration-numbering` ，因此手工选择或格式错误的名称（例如`242_x.sql`）会导致本地提交失败，并打印相同的消息CI 。该钩子仅检查名称、重复项和冻结的`001`–`241`系列；与PR基础的比较（删除、重命名或乱序迁移）仍然在CI中运行
 5. **在副本上测试**：永远不要在生产环境中运行未经测试的迁移
 6. **从代码创建的表也需要迁移**：如果模块也延迟创建表（`CREATE TABLE IF NOT EXISTS`，保留为自我修复路径），则迁移必须使用相同的DDL创建它。否则，全新安装和升级安装最终会产生不同的架构，具体取决于该代码路径是否运行。 `tests/unit/db/lazy-table-migration-guard.test.ts`扫描`src/`和`open-sse/`并在没有迁移的惰性`CREATE`上失败 (#20557)。示例： `src/lib/db/migrations/20261118120853_compression_run_telemetry.sql`。
 

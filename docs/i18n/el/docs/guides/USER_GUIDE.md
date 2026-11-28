@@ -246,33 +246,41 @@ Combo: "openclaw-free"
 
 ---
 
-## 🎨 Συνδυασμοί
+## 🎨 Combos
 
-Μπορείτε να αναδιατάξετε τις κάρτες συνδυασμών απευθείας στο **Dashboard → Combos** σύροντας τη λαβή κάθε κάρτας. Η σειρά αποθηκεύεται στο SQLite και αποκαθίσταται κατά την επαναφόρτωση.
+Μπορείτε να αναδιατάξετε σύνθετες κάρτες απευθείας** Ταμπλό → Combos** σύροντας τη λαβή σε κάθε φύλλο. Η παραγγελία αποθηκεύεται στο SQLite και αποκαθίσταται κατά την επαναφόρτωση.
 
-### Παράδειγμα 1: Μεγιστοποίηση Συνδρομής → Οικονομικό Εφεδρικό
+### Βρείτε έναν πάροχο, μοντέλο ή λογαριασμό
+
+Στο Create or Edit Combo, τα βήματα επιλογής Πάροχος, Μοντέλο, Λογαριασμός και σύνθετη αναφορά περιλαμβάνουν ένα πεδίο τοπικής αναζήτησης. Κάντε αναζήτηση με βάση ένα εμφανιζόμενο όνομα, αναγνωριστικό, ψευδώνυμο παρόχου ή προέλευση μοντέλου και, στη συνέχεια, κάντε κλικ σε ένα αποτέλεσμα ή χρησιμοποιήστε τα πλήκτρα βέλους και Enter. Όλοι οι όροι αναζήτησης πρέπει να ταιριάζουν με πολλούς όρους. Η διαγραφή της αναζήτησης ή το πάτημα Escape αφήνει την επιλεγμένη τιμή αμετάβλητη.
+
+Η αυτόματη επιλογή λογαριασμού παραμένει ορατή κατά την αναζήτηση. Η προαιρετική λίστα περιορισμών λογαριασμού έχει ξεχωριστό φίλτρο: επιλεγμένοι λογαριασμοί εκτός των ορατών αποτελεσμάτων παραμένουν επιλεγμένοι και η καταμέτρηση τους περιλαμβάνει. Δεν υπάρχει δυνατότητα αναζήτησης κρυφών θραυσμάτων email ενώ είναι ενεργοποιημένο το απόρρητο email. Προσθέστε το βήμα και αποθηκεύστε τον συνδυασμό ως συνήθως. Η πληκτρολόγηση ενός ερωτήματος δεν αποθηκεύει ή δοκιμάζει τίποτα.
+
+Η ίδια τοπική αναζήτηση είναι διαθέσιμη για μοντέλα δοκιμής σύνδεσης, προσαρμοσμένα μοντέλα προεπιλογής CLI και ψευδώνυμων και επιλογές αποθηκευμένου διακομιστή μεσολάβησης. Οι υπάρχουσες ενέργειες αποθήκευσης, εφαρμογής και δοκιμής παραμένουν ξεχωριστές.
+
+### Παράδειγμα 1: Μεγιστοποίηση συνδρομής → Φτηνό αντίγραφο ασφαλείας
 
 ```
 Dashboard → Combos → Create New
 
 Name: premium-coding
 Models:
-  1. cc/claude-opus-4-7 (Κύριο συνδρομής)
-  2. glm/glm-4.7 (Οικονομικό εφεδρικό, $0.6/1M)
-  3. minimax/MiniMax-M2.7 (Φθηνότερη εναλλακτική, $0.3/1M)
+  1. cc/claude-opus-4-7 (Subscription primary)
+  2. glm/glm-4.7 (Cheap backup, $0.6/1M)
+  3. minimax/MiniMax-M2.7 (Cheapest fallback, $0.3/1M)
 
 Use in CLI: premium-coding
 ```
 
-### Παράδειγμα 2: Μόνο Δωρεάν (Μηδενικό Κόστος)
+### Παράδειγμα 2: Μόνο δωρεάν (μηδενικό κόστος)
 
 ```
 Name: free-combo
 Models:
-  1. if/kimi-k2.7-code (Καταχωρισμένη δωρεάν πρόσβαση· ενδέχεται να ισχύουν όρια παρόχου)
-  2. kr/qwen3-coder-next (Δωρεάν εφεδρικό Kiro)
+  1. if/kimi-k2.7-code (listed free access; provider limits may apply)
+  2. kr/qwen3-coder-next (Kiro free fallback)
 
-Cost: αναφέρεται ως $0 αυτή τη στιγμή· οι όροι και η διαθεσιμότητα ενδέχεται να αλλάξουν
+Cost: currently listed as $0; terms and availability may change
 ```
 
 ---
@@ -432,7 +440,7 @@ omniroute autostart disable
 ### Ανάπτυξη VPS
 
 ```bash
-git clone https://github.com/diegosouzapw/OmniRoute.git
+git clone https://github.com/cheaper-inference/OmniRoute.git
 cd OmniRoute && npm install && npm run build
 
 export JWT_SECRET="your-secure-secret-change-this"
@@ -514,8 +522,8 @@ depends="openssl"
 short_desc="Universal AI gateway with smart routing for multiple LLM providers"
 maintainer="zenobit <zenobit@disroot.org>"
 license="MIT"
-homepage="https://github.com/diegosouzapw/OmniRoute"
-distfiles="https://github.com/diegosouzapw/OmniRoute/archive/refs/tags/v${version}.tar.gz"
+homepage="https://github.com/cheaper-inference/OmniRoute"
+distfiles="https://github.com/cheaper-inference/OmniRoute/archive/refs/tags/v${version}.tar.gz"
 checksum=009400afee90a9f32599d8fe734145cfd84098140b7287990183dde45ae2245b
 system_accounts="_omniroute"
 omniroute_homedir="/var/lib/omniroute"
@@ -705,7 +713,7 @@ curl -X POST http://localhost:20128/api/provider-models \
 
 Σημειώσεις:
 
-- Η διαχείριση των παρόχων OpenRouter και OpenAI/Anthropic-compatible γίνεται από** Διαθέσιμα μοντέλα** μόνο. Μη αυτόματη προσθήκη, εισαγωγή και αυτόματος συγχρονισμός όλων των στοιχείων στην ίδια λίστα διαθέσιμων μοντέλων, επομένως δεν υπάρχει ξεχωριστή ενότητα Προσαρμοσμένων μοντέλων για αυτούς τους παρόχους.
+- Η διαχείριση των παρόχων OpenRouter και OpenAI/Anthropic-compatible γίνεται από** Διαθέσιμα μοντέλα** μόνο. Μη αυτόματη προσθήκη, εισαγωγή και αυτόματος συγχρονισμός όλων των προϊόντων στην ίδια λίστα διαθέσιμων μοντέλων, επομένως δεν υπάρχει ξεχωριστή ενότητα Προσαρμοσμένων μοντέλων για αυτούς τους παρόχους.
 - Ο** Προσαρμοσμένα μοντέλα** Η ενότητα προορίζεται για παρόχους που δεν εκθέτουν τις διαχειριζόμενες εισαγωγές διαθέσιμων μοντέλων.
 
 ### Προσαρμοσμένοι πάροχοι συμβατοί με OpenAI
@@ -733,7 +741,7 @@ prefix: "<prefix>" is a reserved provider prefix — choose a different prefix (
 
 #### Επιλογές πύλης ανά σύνδεση
 
-Αυτά τα κλειδιά μπαίνουν στο `providerSpecificData` μιας σύνδεσης (για παράδειγμα μέσω `PUT /api/providers/{id}`):
+Αυτά τα πλήκτρα μπαίνουν στο `providerSpecificData` μιας σύνδεσης (για παράδειγμα μέσω `PUT /api/providers/{id}`):
 
 - `toolNameMaxLength` (ακέραιος, 1–1024) — για συνδέσεις συμβατές με μορφή συνομιλίας OpenAI των οποίων η πύλη απορρίπτει μεγάλα ονόματα εργαλείων. Τα μεγαλύτερα ονόματα αποστέλλονται ως σύντομα ψευδώνυμα και επαναφέρονται στην απάντηση. OpenAI, Azure OpenAI, Azure AI Foundry, Mistral, NVIDIA, OpenCode Zen/Go και Muse Code έχουν ήδη ψευδώνυμα πάνω από 64 χαρακτήρες χωρίς ρύθμιση. Μια τιμή σύνδεσης αντικαθιστά την προεπιλογή του Azure OpenAI / Azure AI Foundry (μια σύνδεση Azure πίσω από μια πιο αυστηρή πύλη) και ορίζει το όριο για έναν προσαρμοσμένο συμβατό κόμβο. OpenAI, Mistral, NVIDIA, OpenCode Zen/Go και Muse Code διατηρούν το όριο μητρώου τους και το αγνοούν.
 - `quotaEndpoint` — το τελικό σημείο quota/credits της πύλης, διαβάστε για τη λωρίδα ορίου του πίνακα οργάνων και τη δρομολόγηση με επίγνωση ορίων. Λειτουργεί σε συνδέσεις συμβατές με OpenAI και Anthropic. το πλήρες σχήμα τεκμηριώνεται σε `open-sse/services/usage/openaiCompatible.ts`.
@@ -751,9 +759,9 @@ prefix: "<prefix>" is a reserved provider prefix — choose a different prefix (
 }
 ```
 
-### Αλυσοδεσία OmniRoute Peers
+### Αλυσιδώνοντας OmniRoute Peers
 
-Μια άλλη πύλη OmniRoute μπορεί να προστεθεί ως α** Προσαρμοσμένο OpenAI-συμβατό** προμηθευτής. Χρησιμοποιήστε τη βάση `/v1` URL του ομότιμου και ένα αποκλειστικό κλειδί API με τα λιγότερα προνόμια που εκδόθηκε από αυτόν τον ομότιμο.
+Μια άλλη πύλη OmniRoute μπορεί να προστεθεί ως α** Προσαρμοσμένο OpenAI-συμβατό** προμηθευτής. Χρησιμοποιήστε τη βάση `/v1` URL του ομότιμου και ένα αποκλειστικό κλειδί API με τα λιγότερα προνόμια που εκδίδεται από αυτόν τον ομότιμο.
 
 Για αμφίδρομες ή πολλαπλές αλυσίδες, ενεργοποιήστε το προστατευτικό βρόχου opt-in σε κάθε πύλη:
 
@@ -773,11 +781,11 @@ OMNIROUTE_PEER_MAX_HOPS=4
 
 Μόνο τα αιτήματα που αποστέλλονται σε έναν ρητά επιτρεπόμενο ομότιμο URL λαμβάνουν την κεφαλίδα `X-OmniRoute-Peer-Trace`. Μια πύλη απορρίπτει ένα επαναλαμβανόμενο παράδειγμα ID ή εξαντλημένο προϋπολογισμό hop με HTTP `508 Loop Detected`. Οι απλοί πάροχοι ανάντη δεν λαμβάνουν ομότιμα μεταδεδομένα.
 
-Η ομότιμη αλυσίδα δεν είναι αναπαραγωγή βάσης δεδομένων ή ανακατεύθυνση κεντρικού υπολογιστή. Κάθε πύλη διατηρεί ανεξάρτητη κατάσταση SQLite, κρυφές μνήμες, μετρητές ποσοστών και συνεδρίες. Χρησιμοποιήστε έναν ελεγμένο αντίστροφο διακομιστή μεσολάβησης ή ανακατεύθυνση προγράμματος-πελάτη για διαθεσιμότητα active/passive ή active/active και ποτέ μην προσαρτήσετε μία βάση δεδομένων SQLite σε πολλές εκτελούμενες εμφανίσεις OmniRoute.
+Η ομότιμη αλυσίδα δεν είναι αναπαραγωγή βάσης δεδομένων ή ανακατεύθυνση κεντρικού υπολογιστή. Κάθε πύλη διατηρεί ανεξάρτητη κατάσταση SQLite, κρυφές μνήμες, μετρητές ρυθμών και συνεδρίες. Χρησιμοποιήστε έναν ελεγμένο αντίστροφο διακομιστή μεσολάβησης ή ανακατεύθυνση προγράμματος-πελάτη για διαθεσιμότητα active/passive ή active/active και ποτέ μην προσαρτήσετε μία βάση δεδομένων SQLite σε πολλές εκτελούμενες εμφανίσεις OmniRoute.
 
 ### Διαδρομές αποκλειστικών παρόχων
 
-Αιτήματα δρομολόγησης απευθείας σε συγκεκριμένο πάροχο με επικύρωση μοντέλου:
+Αιτήματα διαδρομής απευθείας σε συγκεκριμένο πάροχο με επικύρωση μοντέλου:
 
 ```bash
 POST http://localhost:20128/v1/providers/openai/chat/completions
@@ -883,8 +891,8 @@ curl http://localhost:20128/api/models/catalog
 - `least-used` και `cost-optimized`
 - `auto` — με βάση τη βαθμολογία σε όλους τους υποψηφίους
 - `lkgp` (Τελευταίος γνωστός καλός πάροχος) — καρφιτσώνει στον τελευταίο επιτυχημένο πάροχο και μετά επιστρέφει στους κανόνες
-- `context-optimized` — επιλέγει το μοντέλο με το μεγαλύτερο ελεύθερο παράθυρο περιβάλλοντος
-- `context-relay` αλυσίδες — μοντέλα με μεγάλο πλαίσιο για επακόλουθες στροφές
+- `context-optimized` — δοκιμάζει πρώτα το μοντέλο με το μεγαλύτερο γνωστό παράθυρο περιβάλλοντος
+- Σειρά προτεραιότητας `context-relay` — συν μια σύνοψη μεταβίβασης όταν η συνομιλία μετακινείται σε άλλο λογαριασμό
 
 #### Κεφαλίδα εξωτερικής κολλητικής περιόδου λειτουργίας
 
@@ -932,7 +940,7 @@ Chain: production-fallback
 
 #### 1. Coding Agent Combo: High-End Reasoning με Cost/Speed Fallback
 
-Ιδανικό για πράκτορες κωδικοποίησης (OpenCode, Claude Code, Cursor, Cline). Δρομολογείται αρχικά σε μοντέλα συλλογιστικής συνόρων, επιστρέφοντας στα μοντέλα γρήγορης κωδικοποίησης σε περίπτωση εξάντλησης ποσοστώσεων ή σφαλμάτων.
+Ιδανικό για πράκτορες κωδικοποίησης (OpenCode, Claude Code, Cursor, Cline). Αρχικά δρομολογεί σε μοντέλα συνοριακής συλλογιστικής, επιστρέφοντας στα μοντέλα γρήγορης κωδικοποίησης σε περίπτωση εξάντλησης ποσοστώσεων ή σφαλμάτων.
 
 - **Ταμπλό** : Combos → Νέο Combo → Όνομα: `agent-coding` → Στρατηγική: `Priority`
 - **Μοντέλα** :
@@ -1061,8 +1069,8 @@ curl -X POST http://localhost:20128/api/db-backups/import \
 | Αυτί             | Περιεχόμενα                                                                                                                                                                                                  |
 | ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | **Γενικός**      | Εργαλεία αποθήκευσης συστήματος, προεπιλεγμένη συμπεριφορά, ορατότητα σήραγγας τελικού σημείου                                                                                                               |
-| **Εμφάνιση**     | Χειριστήρια θεμάτων (light/dark/system), ορατότητα πλαϊνής γραμμής, εναλλαγές πίνακα για κάρτες σήραγγας Cloudflare/Tailscale/ngrok                                                                          |
-| **AI**           | Προϋπολογισμός σκέψης (διαβίβαση / αυτόματη λωρίδα / προσαρμοσμένη / προσαρμοστική — βλ. [THINKING_BUDGET.md](./THINKING_BUDGET.md) ), προτροπή καθολικού συστήματος, στατιστικά προσωρινής μνήμης προτροπής |
+| **Εμφάνιση**     | Χειριστήρια θεμάτων (light/dark/system), ορατότητα πλευρικής γραμμής, εναλλαγές πίνακα για κάρτες Cloudflare/Tailscale/ngrok tunnel                                                                          |
+| **AI**           | Προϋπολογισμός σκέψης (διαβίβαση / αυτόματη ταινία / προσαρμοσμένη / προσαρμοστική — βλ. [THINKING_BUDGET.md](./THINKING_BUDGET.md) ), προτροπή καθολικού συστήματος, στατιστικά προσωρινής μνήμης προτροπής |
 | **Ασφάλεια**     | Ρυθμίσεις Login/Password, IP Access Control, API auth for `/models`, Provider Blocking, prompt-injection guard                                                                                               |
 | **Δρομολόγηση**  | Παγκόσμια στρατηγική δρομολόγησης (Fill First / Round Robin / P2C / Random / Least Used / Cost Optimized), ψευδώνυμα μοντέλων μπαλαντέρ, εναλλακτικές αλυσίδες, σύνθετες προεπιλογές                         |
 | **Ελαστικότητα** | Ουρά αιτημάτων, ψύξη σύνδεσης, διαμόρφωση διακόπτη παρόχου και συμπεριφορά αναμονής για ψύξη                                                                                                                 |
@@ -1097,7 +1105,7 @@ curl http://localhost:20128/api/usage/budget
 
 ### Ηχητική μεταγραφή
 
-OmniRoute υποστηρίζει μεταγραφή ήχου μέσω του τελικού σημείου συμβατό με OpenAI:
+OmniRoute υποστηρίζει μεταγραφή ήχου μέσω του συμβατού με OpenAI τελικό σημείο:
 
 ```bash
 POST /v1/audio/transcriptions
@@ -1157,7 +1165,7 @@ curl -X POST http://localhost:20128/v1/audio/transcriptions \
 | **Λιγότερο Μεταχειρισμένο**            | Διαδρομές προς το μοντέλο με τα λιγότερα πρόσφατα αιτήματα (χρησιμοποιεί συνδυαστικές μετρήσεις) |
 | **Βελτιστοποιημένο ως προς το κόστος** | Διαδρομές προς το φθηνότερο διαθέσιμο μοντέλο (χρησιμοποιεί τον πίνακα τιμολόγησης)              |
 
-Μπορούν να οριστούν καθολικές προεπιλογές συνδυασμού** Ρυθμίσεις → ταμπλό → Δρομολόγηση → Combo προεπιλογές** . Τα σύνθετα χρονικά όρια στόχων κληρονομούν το χρονικό όριο του τρέχοντος αιτήματος από προεπιλογή. Χρήση** Χρονικό όριο λήξης στόχου (δευτερόλεπτα)** στις σύνθετες προεπιλογές ή σε ένα μεμονωμένο συνδυασμό μόνο όταν ένα μικρότερο όριο ανά στόχο θα πρέπει να ενεργοποιεί ταχύτερη εναλλακτική.
+Μπορούν να οριστούν καθολικές προεπιλογές συνδυασμού** Ρυθμίσεις → ταμπλό → Δρομολόγηση → Combo προεπιλογές** . Τα σύνθετα χρονικά όρια στόχων κληρονομούν το χρονικό όριο του τρέχοντος αιτήματος από προεπιλογή. Χρήση** Χρονικό όριο λήξης στόχου (δευτερόλεπτα)** σε σύνθετες προεπιλογές ή σε μεμονωμένο συνδυασμό μόνο όταν ένα μικρότερο όριο ανά στόχο θα πρέπει να ενεργοποιεί ταχύτερη εναλλακτική.
 
 Οι συνδυαστικές βελτιστοποιήσεις μηδενικού λανθάνοντος χρόνου είναι επιλέξιμες. Αδεια** Βελτιστοποιήσεις μηδενικής καθυστέρησης** απενεργοποιήθηκε για να αποτρέψει αυτές τις δυνατότητες λανθάνοντος χρόνου από την κούρσα εναλλακτικών στόχων, την παράλειψη στόχων με βάση το ιστορικό TTFT ή τη συμπίεση εναλλακτικών αιτημάτων. Η ενεργοποίησή του επιτρέπει τη διαμορφωμένη αντιστάθμιση, τις προγνωστικές παραλείψεις TTFT και την προληπτική εναλλακτική συμπίεση για την ανταλλαγή της πιστότητας routing/request για χαμηλότερο λανθάνοντα χρόνο.
 
@@ -1333,32 +1341,34 @@ curl -X POST http://localhost:20128/api/keys -H "Authorization: Bearer $OMNIROUT
 
 ## 💻 Εσωτερικό CLI
 
-Το OmniRoute διαθέτει ένα εσωτερικό CLI (`omniroute …`) για εγκατάσταση, διαγνωστικά και έλεγχο χρόνου εκτέλεσης. Αυτό είναι **ξεχωριστό από τη σελίδα "CLI Tools" στον πίνακα ελέγχου**, η οποία διαμορφώνει CLIs τρίτων (Claude Code, Cursor, Codex, Cline, …) ώστε να επικοινωνούν με το OmniRoute.
+OmniRoute αποστέλλει ένα εσωτερικό CLI (`omniroute …`) για ρύθμιση, διαγνωστικά και έλεγχο χρόνου εκτέλεσης. Αυτό είναι** ξεχωριστά από τη σελίδα "CLI Tools" στον πίνακα εργαλείων** , το οποίο διαμορφώνει CLIs τρίτου μέρους (Claude Code, Cursor, Codex, Cline,…) ώστε να μπορούν να συνομιλούν με OmniRoute.
 
 ```bash
-omniroute setup                    # Διαδραστικός οδηγός (κωδικός πρόσβασης, πάροχοι, combos)
-omniroute setup --non-interactive  # Κατάλληλο για CI
-omniroute doctor                   # Διαγνωστικά υγείας (data dir, DB, πάροχοι, θύρες)
-omniroute providers available      # Λίστα υποστηριζόμενων παρόχων
-omniroute providers list           # Λίστα διαμορφωμένων συνδέσεων
-omniroute providers test <id>      # Δοκιμή σύνδεσης παρόχου σε πραγματικό χρόνο
-omniroute combos list              # Λίστα combos
-omniroute combos switch <name>     # Ορισμός προεπιλεγμένου combo
-omniroute models                   # Λίστα διαθέσιμων μοντέλων (--json, --search)
-omniroute keys add | list | remove # Διαχείριση κλειδιών API από το τερματικό
-omniroute backup                   # Στιγμιότυπο διαμόρφωσης + DB
-omniroute restore [<timestamp>]    # Επαναφορά από στιγμιότυπο
-omniroute health                   # Λεπτομερής υγεία (breakers, cache, μνήμη)
-omniroute quota                    # Χρήση ορίου παρόχου
-omniroute mcp status               # Κατάσταση διακομιστή MCP
-omniroute a2a status               # Κατάσταση διακομιστή A2A
-omniroute tunnel list|create|stop  # Tunnels Cloudflare/Tailscale/ngrok
-omniroute reset-password           # Επαναφορά κωδικού πρόσβασης διαχειριστή
-omniroute --mcp                    # Εκκίνηση διακομιστή MCP μέσω stdio
-omniroute --port 3000              # Εκκίνηση διακομιστή σε προσαρμοσμένη θύρα
+omniroute setup                    # Interactive wizard (password, providers, combos)
+omniroute setup --non-interactive  # CI-friendly
+omniroute doctor                   # Local diagnostics (config, DB, ports, Node runtime, native deps)
+omniroute chat "<prompt>"          # One-shot chat prompt (also --file / --stdin)
+omniroute repl                     # Interactive terminal chat (/model, /combo, /skill, /memory)
+omniroute providers available      # List supported providers
+omniroute providers list           # List configured connections
+omniroute providers test <id>      # Live test a provider connection
+omniroute combos list              # List combos
+omniroute combos switch <name>     # Set default combo
+omniroute models                   # List available models (--json, --search)
+omniroute keys add | list | remove # Manage API keys from the terminal
+omniroute backup                   # Snapshot config + DB
+omniroute restore [<timestamp>]    # Restore from a snapshot
+omniroute health                   # Detailed health (breakers, cache, memory)
+omniroute quota                    # Provider quota usage
+omniroute mcp status               # MCP server status
+omniroute a2a status               # A2A server status
+omniroute tunnel list|create|stop  # Cloudflare/Tailscale/ngrok tunnels
+omniroute reset-password           # Reset the admin password
+omniroute --mcp                    # Start MCP server over stdio
+omniroute --port 3000              # Start the server on a custom port
 ```
 
-Συμβουλή: συνδυάστε το `omniroute doctor --json` με το εργαλείο παρακολούθησής σας για ειδοποιήσεις σε μη υγιείς συνδέσεις παρόχων.
+Συμβουλή: αντιστοιχίστε `omniroute doctor --json` με το εργαλείο παρακολούθησης για να ειδοποιήσετε για μια κατεστραμμένη τοπική εγκατάσταση. `doctor` δεν ελέγχει τις συνδέσεις παρόχου. χρησιμοποιήστε `omniroute providers test <id>` για αυτό.
 
 ---
 

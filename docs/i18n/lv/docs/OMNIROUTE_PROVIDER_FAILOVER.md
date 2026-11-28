@@ -21,3 +21,5 @@ Noklusējuma starpnodrošinātāju politika pieļauj ne vairāk kā trīs pakalp
   - Prefikss ID (`provider/model`) nekad netiek novirzīts citam pakalpojumu sniedzējam.
 
 Ķēdes stāvokļi ir `closed`, `open` un `half_open`. Atdzesēšana ieplāno ierobežotu zondi; veiksmīga zonde aizver ķēdi, un neveiksmīga zonde to atkal atver.
+
+Pakalpojumu sniedzēja kļūmjpārlēce darbojas vārtejā. Skatiet sadaļu [Kad OmniRoute pati par sevi nav sasniedzama](architecture/RESILIENCE_GUIDE.md#when-omniroute-itself-is-unreachable) klienta uzvedībai vārtejas pārtraukuma laikā.

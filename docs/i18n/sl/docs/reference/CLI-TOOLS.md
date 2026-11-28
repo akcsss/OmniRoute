@@ -4,8 +4,6 @@
 
 ---
 
-Zadnja posodobitev: 2026-08-23
-
 OmniRoute se integrira s tremi kategorijami orodij CLI, razporejenih na treh namenskih straneh nadzorne plošče:
 
 | Stran        | Pot                     | Koncept                                                                                    | štetje        |
@@ -235,7 +233,7 @@ Nova orodja z `configType: "custom"` imajo namenske nastavitve API routes:
 | `POST /api/cli-tools/grok-build-settings`   | Zgradba Grok (~/.grok/config.toml, `[model.omniroute]`)                         |
 | `POST /api/cli-tools/qwen-settings`         | koda Qwen ( namenski ključ `~/.qwen/settings.json` + `.env` )                   |
 
-Vse poti uporabljajo `sanitizeErrorMessage()` za odzive na napake (trdo pravilo št. 12).
+Vse poti uporabljajo `sanitizeErrorMessage()` za odzive na napake (trdo pravilo #12).
 
 ---
 

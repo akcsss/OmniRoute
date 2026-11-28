@@ -4,9 +4,9 @@
 
 ---
 
-> **Kas kur dzīvo: katrs izsekotais augstākā līmeņa direktorijs un saknes fails ar vienas rindiņas mērķi.** Pēdējo reizi atjaunināts: 2026-11-13 (OmniRoute v3.8.54)
+> **Kas kur dzīvo: katrs izsekotais augstākā līmeņa direktorijs un saknes fails ar vienas rindiņas mērķi.**
 >
-> Izmantojiet šo karti, lai orientētos kodu bāzē, pēc tam sekojiet saitēm uz īpašiem dokumentiem. Failu skaits tika mērīts ar `git ls-files` iepriekš minētajā datumā. Tie mainās gandrīz katrā izlaidumā, tāpēc uzskatiet tos par lielumiem.
+> Izmantojiet šo karti, lai orientētos kodu bāzē, pēc tam sekojiet saitēm uz īpašiem dokumentiem. Failu skaits nāk no `git ls-files` un mainās gandrīz katrā izlaidumā. Uztveriet tos kā lieluma kārtas.
 
 ## Augstākā līmeņa koks
 

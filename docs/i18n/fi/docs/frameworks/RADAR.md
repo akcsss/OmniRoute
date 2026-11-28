@@ -95,52 +95,30 @@ reititystä tai mallin valintaa — katso erillinen suostumus alta.
 
 ---
 
-## Tietojen synkronointi on ERILLINEN suostumus — tietosuojalupaus
+## Tietojen synkronointi on SEPARATE opt-in — tietosuojalupaus
 
-`RADAR_ENABLED`-asetuksen ottaminen käyttöön avaa vain käyttöliittymän. Syötteen synkronointi edellyttää toista,
-erillistä suostumusta, joka tallennetaan kenttään `radar_settings.opt_in` (`src/lib/db/radar.ts`,
-migraatio `136_radar_cache_settings.sql`). `syncRadar()` tarkistaa ominaisuuslipun _ja_ suostumuksen
-ennen minkään verkkokutsun tekemistä:
+`RADAR_ENABLED` kytkeminen päälle vain avaa UI lukituksen. Syötteen synkronointi vaatii toisen, itsenäisen valinnan, joka on tallennettu `radar_settings.opt_in` (`src/lib/db/radar.ts`, migration `136_radar_cache_settings.sql`). `syncRadar()` tarkistaa lipun _ja_ valinnan ennen verkkopuhelun soittamista:
 
 ```
-Ominaisuuslippu pois käytöstä → { status: "disabled" }   — ei verkkokutsua
-Suostumusta ei annettu        → { status: "opt_out" }    — ei verkkokutsua
+Flag off      → { status: "disabled" }   — no network call
+Opt-in false  → { status: "opt_out" }    — no network call
 ```
 
-Kun molemmat ovat käytössä, synkronointipolku on seuraava:
+Kun molemmat ovat päällä, synkronointipolku on:
 
-1. `GET <syötteen perus-URL>/v1/catalog/latest`, otsakkeena `x-omniroute-radar-schema: 2` ja valinnaisena
-   otsakkeena `Authorization: Bearer <tukija-avain>` (katso alta). Jos skeemaotsake puuttuu, palvelimet käyttävät oletuksena erikseen
-   allekirjoitettua v1-siirtymäartefaktia, jotta vanhemmat asennetut asiakasohjelmat saavat edelleen
-   päivityksiä.
-2. Tämä on vain tietoja lataava sovellusprosessi, mutta kyseessä on silti HTTPS-pyyntö. Isännöity
-   infrastruktuuri vastaanottaa tavanomaisia yhteyden metatietoja, kuten lähde-IP-osoitteen. Kun tukija-avain
-   on määritetty, synkronointi lähettää myös kyseisen avaimen Bearer-otsakkeessa, jotta palvelu voi selvittää
-   käyttöoikeuden. Yllä määritetyssä todisterajauksessa yksilöidyn yksityisen palvelimen täsmällisessä versiossa
-   syötepyyntöjen kirjanpito käyttää avainten tiivisteitä, koostettuja käyttötietoja ja IP-osoitteesta päivittäin vaihtuvalla avaimella laskettua katkaistua HMAC-arvoa
-   väärinkäytösten manuaalista tarkastelua varten; näihin tauluihin ei tallenneta avainta tai IP-osoitetta käsittelemättömässä muodossa.
-   Infrastruktuurin käyttölokit ja salattu toimituksen lähtevien viestien jono ovat erillisiä operatiivisia
-   rajoja.
-3. OmniRoute ei koskaan lähetä Radar-palveluun kehotteita, vastauksia, keskusteluja, palveluntarjoajien tunnistetietoja, malliliikennettä,
-   käytettävyysaikaa, viivettä tai paikallisia palveluntarjoajamäärityksiä.
-4. Vastaus todennetaan, validoidaan ja tallennetaan paikalliseen välimuistiin (katso
-   [Suojausmalli](#security-model)). Radarilla on täsmälleen neljä palvelinpuolen verkkopolkua:
-   `syncRadar()` luetteloa varten, `syncRadarReferrals()` suosituksia varten sekä
-   `syncRadarOffers()` / `syncRadarIntel()` vain tukijoille tarkoitettuja tarjouksia ja Intel-tietoja varten.
+1. `GET <feed base URL>/v1/catalog/latest` jossa on `x-omniroute-radar-schema: 2` ja valinnainen `Authorization: Bearer <supporter key>` -otsikko (katso alla). Palvelimet käyttävät oletuksena erikseen allekirjoitettua v1-siirtymäartefaktia, kun skeeman otsikko puuttuu, joten vanhemmat asennetut asiakkaat saavat jatkuvasti päivityksiä.
+2. Tämä on vain ladattavissa oleva sovelluskulku, mutta se on silti HTTPS pyyntö. Isännöity infrastruktuuri vastaanottaa tavallisia yhteyden metatietoja, kuten lähde IP. Kun tukiavain on määritetty, synkronointi lähettää myös sen avaimen Bearer-otsikossa, jotta palvelu voi ratkaista oikeuden. Tarkalla yksityisen palvelimen versiolla, joka on tunnistettu yllä olevassa todisteiden rajassa, syötepyyntölaskenta käyttää avaintiivisteitä, kokonaiskäyttöä ja IP :n päivittäin kiertävää katkaistua HMAC :tä manuaaliseen väärinkäytön tarkasteluun. nämä taulukot eivät säilytä avainta tai IP raakamuodossa. Infrastruktuurin käyttölokit ja salattu toimituslähteet ovat erillisiä toimintarajoja.
+3. OmniRoute ei koskaan lähetä tutkapalveluun kehotteita, vastauksia, keskusteluja, palveluntarjoajan tunnistetietoja, malliliikennettä, käytettävyyttä, latenssia tai paikallisen palveluntarjoajan määrityksiä.
+4. Vastaus varmistetaan, vahvistetaan ja tallennetaan välimuistiin paikallisesti (katso [Suojausmalli](#security-model) ). Tutkalla on täsmälleen neljä palvelinpuolen verkkopolkua: `syncRadar()` luettelolle, `syncRadarReferrals()` viittauksille ja `syncRadarOffers()` / `syncRadarIntel()` vain tukijoille ja Intelille.
 
-**Tukija-avain** on valinnainen Bearer-tunnus (`radar_settings.supporter_key`),
-jonka avulla syötepalvelu voi päättää tarjottavan tason (katso
-[Tasot](#tiers-community-and-live)). Se:
+Luettelon tarkistus suoritetaan 24 tunnin välein. Kun todennettu syöte sisältää edelleen välimuistissa olevan version ja tason, synkronointi säilyttää välimuistissa olevan hyötykuorman, uusii `fetchedAt` ja seuraava tarkistus tulee 24 tuntia myöhemmin seuraavan tuntiraidan sijaan.
 
-- Tallennetaan **levossa salattuna** samoilla AES-256-GCM-`encrypt()`/`decrypt()`-apufunktioilla
-  (`src/lib/db/encryption.ts`), joita käytetään palveluntarjoajien tunnistetietoihin.
-- Asetetaan `POST /api/radar/settings` -pyynnöllä (`{ supporterKey: "omr_" + 40 hex chars }`), eikä sitä
-  **koskaan palauteta sellaisenaan** — vastaus palauttaa peitetyn muodon (`omr_****abcd`).
-- Sen muuttaminen tai poistaminen mitätöi atomisesti luettelon, suositusten, tarjousten ja Intel-tietojen välimuistit. Seuraava
-  synkronointi tai luku selvittää uuden käyttöoikeuden palvelinpuolella; avaimen tallentaminen ei itsessään tee
-  verkkopyyntöä eikä kuluta kertakäyttöistä aktivointiavainta.
-- Lähetetään syötepalvelulle Bearer-tunnuksena synkronoinnin GET-pyynnössä — mitään muuta avaimeen liittyvää
-  ei koskaan poistu asiakasohjelmasta.
+The** tukiavain** on valinnainen siirtotietunnus (`radar_settings.supporter_key`), jonka avulla syötepalvelu päättää, mitä tasoa se palvelee (katso [Tasot](#tiers-community-and-live) ). Se on:
+
+- Tallennettu** salattu levossa** samoilla AES-256-GCM `encrypt()`/`decrypt()` apuohjelmilla (`src/lib/db/encryption.ts`), joita käytetään palveluntarjoajan tunnistetiedoissa.
+- Aseta kautta `POST /api/radar/settings` (`{ supporterKey: "omr_" + 40 hex chars }`) ja** ei koskaan kaikunut takaisin** — vastaus palauttaa peitetyn muodon (`omr_****abcd`).
+- Sen muuttaminen tai tyhjentäminen mitätöi luettelon, viittaukset, tarjoukset ja Intel-välimuistit. Seuraava sync/read ratkaisee uuden käyttöoikeuden palvelinpuolen; avaimen tallentaminen ei itse tee verkkopyyntöä tai kuluta kertakäyttöistä aktivointiavainta.
+- Lähetetty syötepalveluun Bearer-tunnuksena synkronointiin GET — mitään muuta avaimesta ei koskaan poistu asiakkaalta.
 
 ---
 
@@ -420,84 +398,45 @@ version, tier }` — hallintapaneeli näyttää tämän arvon, ei koskaan rungon
 
 ---
 
-## Lukuhetken yhdistämissäännöt
+## Lukuajan peittokuvan yhdistämissäännöt
 
-`applyFeed()` (`src/lib/radar/applyFeed.ts`) yhdistää välimuistissa olevan syötteen staattisen
-perustason **päälle** **lukuhetkellä** `getRadarCatalog()`-funktion sisällä. Perustasotaulukkoa
-(`FREE_MODEL_BUDGETS`) ei koskaan muokata — uusi `MergedEntry[]` lasketaan jokaisella
-kutsulla.
+`applyFeed()` (`src/lib/radar/applyFeed.ts`) yhdistää välimuistissa olevan syötteen** yli** staattinen perusviiva klo** lukuaika** , `getRadarCatalog()` n sisällä. Perusviivataulukkoa (`FREE_MODEL_BUDGETS`) ei koskaan mutatoidu — a `MergedEntry[]` lasketaan tuoreena jokaisessa kutsussa.
 
 Neljä sääntöä tärkeysjärjestyksessä:
 
-1. **Syöte ei koskaan korvaa paikallista ohitusta.** Kenttäkohtaisesti: jos operaattori on
-   mukauttanut tietueen kenttää (`localOverrides`-kartta, jonka avaimena on `provider:modelId`),
-   syötteen arvo kyseiselle kentälle ohitetaan — operaattorin arvo voittaa.
-2. **`enabled: false` poistaa tietueen käytöstä ja tallentaa alkuperän.** Syötetietue, joka poistaa
-   tietueen käytöstä, asettaa yhdistettyyn tulokseen arvot `enabled: false` ja `disabledBy: "radar"`,
-   jotta käyttöliittymä voi selittää, _miksi_ tietue muuttui käytettävissä olevasta poistetuksi käytöstä.
-3. **Käyttäjän lisäämä tietue, jota ei ole syötteessä, säilyy muuttumattomana.** Tietueet, jotka
-   ovat olemassa vain perustasossa (tai jotka lisättiin paikallisesti) ja joilla ei ole vastaavaa syötetietuetta,
-   säilyvät muuttumattomina.
-4. **Poistomerkinnällä merkittyä tietuetta ei koskaan palauteta.** Jos operaattori on nimenomaisesti poistanut
-   tietueen (`tombstones`-joukko), syötteen myöhemmässä versiossa uudelleen lisäämä
-   `provider:modelId` ei palauta sitä.
+1. **Syöte ei koskaan korvaa paikallista ohitusta.** Kenttäkohtainen: jos operaattori on mukauttanut syötteen kentän (`localOverrides` map, keyed `provider:modelId`), syötteen arvo kyseisessä kentässä ohitetaan — operaattorin arvo voittaa.
+2. **`enabled: false` poistaa merkinnän käytöstä lähteellä.** Syötteen merkintä, joka poistaa merkinnän käytöstä, asettaa `enabled: false` ja `disabledBy: "radar"` yhdistetylle tulokselle, joten UI voi selittää, _miksi_ merkintä muuttui käytettävissä olevasta pois käytöstä.
+3. **Käyttäjän lisäämä merkintä, jota ei ole syötteessä, säilyy koskemattomana.** Merkinnät, jotka ovat olemassa vain perusviivalla (tai lisätty paikallisesti) ja joilla ei ole vastaavaa syötemerkintää, kulkevat läpi muuttumattomina.
+4. **Hautakivillä merkittyä sisäänkäyntiä ei koskaan herätetä henkiin.** Jos operaattori poisti nimenomaisesti merkinnän (`tombstones` set), syötteen lisääminen `provider:modelId` n uudelleen myöhemmässä versiossa ei tuo sitä takaisin.
 
-Muokattavat kentät ja poistomerkinnät säilytetään
-`radar_local_model_state`-taulussa (migraatio `153_radar_local_model_state.sql`). Julkinen tietokanta-
-adapteri (`src/lib/db/radar.ts`) muuntaa nämä rivit `applyFeed()`-funktion käyttämäksi `localOverrides`-kartaksi ja
-`tombstones`-joukoksi; tuotantoympäristön `getRadarCatalog()` lataa tämän tilan,
-kun ominaisuuslipun, välimuistin ja skeeman tarkistukset on läpäisty. Operaattori voi muokata vain kenttiä `displayName` ja `enabled`.
-Palveluntarjoajan tai mallin identiteettiä, syötteen alkuperätietoja, kiintiötä, ominaisuuksia, käyttöehtoja
-ja määritystietoja ei voi kirjoittaa tämän rajapinnan kautta.
+Muokattavat kentät ja hautakivet säilyvät muodossa `radar_local_model_state` (muutto `153_radar_local_model_state.sql`). Julkinen DB sovitin (`src/lib/db/radar.ts`) muuntaa nämä rivit `applyFeed()` käyttämäksi `localOverrides` -kartaksi ja `tombstones` joukoksi; production `getRadarCatalog()` lataa tilan lipun, välimuistin ja skeeman porttien ohituksen jälkeen. Vain `displayName` ja `enabled` ovat operaattorin muokattavissa. Provider/model -identiteettiä, syötteen alkuperää, kiintiötä, ominaisuuksia, ToS ja asetustietoja ei voi kirjoittaa tämän pinnan kautta.
 
-Hallintapaneeli tarjoaa neljä paikallista toimintoa:
+Kojelauta näyttää neljä paikallista toimintoa:
 
-- **Muokkaa** muuttaa paikallista näyttönimeä ja käyttöönottotilaa.
-- **Nollaa paikalliset muutokset** tyhjentää molemmat muokattavat kentät muuttamatta poistomerkintää.
-- **Piilota** luo poistomerkinnän, jotta myöhemmät syötepäivitykset eivät voi luoda riviä uudelleen.
-- **Palauta** poistaa poistomerkinnän; erikseen tallennettu ohitus säilyy voimassa.
+- **Muokata** muuttaa paikallista näyttönimeä ja käytössä olevaa tilaa.
+- **Palauta paikalliset muutokset** tyhjentää molemmat muokattavat kentät muuttamatta hautakiveä.
+- **Piilottaa** luo hautakiven, joten myöhemmät syötepäivitykset eivät voi luoda riviä uudelleen.
+- **Palauttaa** poistaa hautakiven; kaikki erikseen tallennetut ohitukset jäävät voimaan.
 
-Syötteen `enabled: false` säilyy turvallisuuspoikkeuksena: se ohittaa vanhentuneen paikallisen
-`enabled: true`-arvon, pitää yhdistetyn tietueen poissa käytöstä ja tallentaa arvon `disabledBy: "radar"`.
+Syöte `enabled: false` on edelleen turvallisuuspoikkeus: se voittaa vanhentuneen paikallisen `enabled: true`, pitää yhdistetyn merkinnän poissa käytöstä ja tallentaa `disabledBy: "radar"`.
 
-Luettelojulkaisut käyttävät arvoa `schemaVersion: 2`. `contextWindow` sekä kukin kentistä `tools`, `vision` ja
-`thinking` ovat toisistaan riippumatta tyyppiä `number | null` / `boolean | null`: `null` tarkoittaa tuntematonta, kun taas
-`false` tarkoittaa, että D16-vahvistettu palveluntarjoajan virallinen lähde ilmoittaa nimenomaisesti ominaisuuden puuttuvan.
-Sisäisiä OmniRoute-rekisterin tai mallimäärityksen lippuja ei koskaan ylennetä suoraan syötteen faktatiedoiksi. Asiakas
-hyväksyy edelleen v1-tilannekuvat; koska vanha muodostin käytti arvoa `false` puuttumisen paikkamerkkinä, v1-version `false`
-normalisoidaan tuntemattomaksi, kun taas v1-version `true` säilyy faktatietona. Tuntemattomat skeemaversiot hylätään turvallisesti, ja
-viimeisin kelvollinen välimuisti säilyy käytettävissä. Jokaisella v2-mallilla, jolla on muu kuin null-arvoinen konteksti tai ominaisuus, on oltava
-ilman tunnistetietoja käytettävä HTTPS-osoite `metadataEvidenceUrls[]`; muussa tapauksessa skeeman validointi epäonnistuu eikä välimuistia
-korvata. Luettelotaulukko esittää kaikki kolme tilaa merkinnöillä `✓`, `✕` ja `?`.
+Luettelojulkaisuissa käytetään `schemaVersion: 2`. `contextWindow` sekä `tools`, `vision` ja `thinking` ovat itsenäisesti `number | null` / `boolean | null`: `null` tarkoittaa tuntematonta, kun taas `false` tarkoittaa D16-confirmed virallista toimittajalähdettä, jossa ominaisuus puuttuu. Sisäisiä OmniRoute registry/model-spec -lippuja ei koskaan koroteta suoraan faktojen syöttämiseksi. Asiakas hyväksyy edelleen v1-tilanteet; koska vanha rakentaja käytti `false` poissaolon paikkamerkkinä, v1 `false` normalisoidaan tuntemattomaksi, kun taas v1 `true` pysyy tosiasiallisena. Tuntemattomien malliversioiden sulkeminen epäonnistuu ja viimeinen kelvollinen välimuisti on edelleen käytettävissä. Jokaisessa v2-mallissa, jossa on ei-nolla context/capability on oltava valtuustietovapaa HTTPS `metadataEvidenceUrls[]`; muuten skeeman tarkistus epäonnistuu eikä välimuistia korvata. Luettelotaulukko esittää kaikki kolme tilaa muotoina `✓`, `✕` ja `?`.
 
-### Ohjatut yhdistelmät ja MCP-käyttö
+### Ohjatut kombot ja MCP -pääsy
 
-Vahvistetut `familyId`-arvot säilyvät lukuhetken yhdistämisessä ja ohjaavat puhdasta
-`buildRadarComboSuggestions()`-moduulia (`src/lib/radar/comboSuggestions.ts`). Perhettä ehdotetaan
-vain, kun vähintään kahdella eri palveluntarjoajalla on aktiiviset yhteydet ja ne tarjoavat täsmälleen kuratoidun malli-
-ID:n. Käytöstä poistetut mallit, passiiviset palveluntarjoajat, puuttuvat malli-ID:t, vain yhden jäsenen perheet ja monitulkintaiset
-alias- tai etuliiteosumat hylätään turvallisesti. Ehdotukset käyttävät olemassa olevaa `priority`-strategiaa ja järjestävät
-suurimman toistuvan kuukausibudjetin ensimmäiseksi; käyttöliittymä luo ne vain kutsulla `POST /api/combos`.
+Vahvistetut `familyId` -arvot selviävät lukuaikapeittokuvasta ja käyttävät puhdasta `buildRadarComboSuggestions()` moduulia (`src/lib/radar/comboSuggestions.ts`). Perhettä suositellaan vain, kun vähintään kahdella erillisellä palveluntarjoajalla on aktiivinen yhteys ja ne paljastavat tarkan kuratoidun mallin ID. Käytöstä poistetut mallit, ei-aktiiviset palveluntarjoajat, puuttuva malli IDs, singleton perheet ja moniselitteiset alias/prefix -osumat epäonnistuvat. Ehdotuksissa käytetään olemassa olevaa `priority` strategiaa ja tilataan ensin suurin toistuva kuukausibudjetti. UI luo ne vain `POST /api/combos` kautta.
 
-Ohjattu käyttöliittymä sijaitsee polussa `/dashboard/radar/combos`. Se lukee vain paikallisia
-`GET /api/radar/catalog`- ja `GET /api/combos/builder/options`-päätepisteitä. Se ei koskaan käynnistä Radar-synkronointia,
-lue palveluntarjoajan tunnistetietoja tai kirjoita suoraan yhdistelmätietokantaan.
+Ohjattu UI asuu osoitteessa `/dashboard/radar/combos`. Se lukee vain paikalliset `GET /api/radar/catalog` ja `GET /api/combos/builder/options` -päätepisteet. Se ei koskaan laukaise tutkasynkronointia, lukee palveluntarjoajan tunnistetietoja tai kirjoita suoraan yhdistelmätietokantaan.
 
-MCP-asiakkaat voivat lukea saman paikallisen projektion komennolla `omniroute_radar_catalog` (`read:radar`).
-Valinnaiset `provider`-, `familyId`- ja `enabledOnly`-suodattimet arvioidaan yhden paikallisen
-`GET /api/radar/catalog`-luvun jälkeen. Sen rajattu tuloste sisältää luettelon metatiedot sekä palveluntarjoajan/mallin,
-näyttönimen, `familyId`-arvon, kiintiön, ominaisuudet, käyttöönottotilan, alkuperän ja `disabledBy`-arvon. Määritys-URL-osoitteita,
-vaiheita, yhteyksiä, sähköpostiosoitteita, avaimia tai suosittelutietoja ei koskaan palauteta. Tämä työkalu on
-vain luku -tilassa eikä koskaan kutsu päätepistettä `/api/radar/sync`.
+MCP -asiakkaat voivat lukea saman paikallisen projektion `omniroute_radar_catalog` llä (`read:radar`). Valinnaiset `provider`, `familyId` ja `enabledOnly` suodattimet arvioidaan yhden paikallisen `GET /api/radar/catalog` lukemisen jälkeen. Sen suljettu tulos sisältää luettelon metatiedot plus provider/model, näyttönimi, `familyId`, kiintiö, ominaisuudet, aktivoitu tila, alkuperä ja `disabledBy`; setup URLs, vaiheita, yhteyksiä, sähköpostiosoitteita, avaimia ja viittaustietoja ei koskaan palauteta. Tämä työkalu on vain luku -tilassa, eikä se koskaan kutsu `/api/radar/sync`. Kun välimuistissa oleva syöte on ennen asennettua luetteloa, `meta.olderThanRelease` on `true` ja työkalu palauttaa mallit asennetusta luettelosta, joissa on paikallisia ohituksia ja hautakiviä.
 
-### Alkuperämerkinnät
+### Alkuperämerkit
 
-Jokaisessa yhdistetyssä merkinnässä on `origin`-kenttä, jonka käyttöliittymä näyttää tunnisteena:
+Jokaisessa yhdistetyssä merkinnässä on `origin` -kenttä, jonka UI hahmontaa tunnuksena:
 
-- `"baseline"` — muuttumaton staattisesta julkaisuluettelosta.
-- `"radar"` — yksi tai useampi kenttä on päivitetty syötteestä.
-- `"local"` — operaattorilla on vähintään yksi paikallinen ohitus tässä merkinnässä (paikalliset
-  ohitukset ovat aina syötteen edellä säännön 1 mukaisesti riippumatta siitä, mitä syöte ilmoittaa).
+- `"baseline"` — koskematon staattisesta julkaisuluettelosta.
+- `"radar"` — syöte päivitti yhden tai useamman kentän.
+- `"local"` — operaattorilla on vähintään yksi paikallinen ohitus tässä merkinnässä (paikalliset ohitukset voittaa aina syötteen säännön 1 mukaisesti riippumatta siitä, mitä syöte sanoo).
 
 ---
 

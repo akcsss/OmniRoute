@@ -44,7 +44,7 @@ biasanya perlu disasarkan semula sebelum digabungkan.
 
 ## Lepaskan pembekuan (kitaran selari)
 
-Apabila keluaran sedang diselaraskan, isu penanda berlabel `release-freeze` dibuka. Itu** tidak menghentikan pembangunan** :
+Apabila keluaran sedang diselaraskan, isu penanda berlabel `release-freeze` dibuka. Itu** tidak menghalang pembangunan** :
 
 - `release/vX.Y.Z` beku kepunyaan kapten pelepasan untuk kapal itu.
 - `release/vX+1` kitaran seterusnya dipotong dari hujung beku supaya penyumbang meneruskan kerja pendaratan.
@@ -53,7 +53,7 @@ Apabila keluaran sedang diselaraskan, isu penanda berlabel `release-freeze` dibu
 Semak pembekuan terbuka sebelum menganggap cawangan yang anda inginkan boleh digabungkan:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 Mekanik gabungan (label `queue` pemilik → Mergify) didokumenkan dalam [MERGE_TRAIN.md](./MERGE_TRAIN.md).

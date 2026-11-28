@@ -4,7 +4,7 @@
 
 ---
 
-> **Tõe allikas:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`** Viimati värskendatud:** 2026-06-28 — v3.8.40
+> **Tõe allikas:** `src/lib/db/reasoningCache.ts`, `open-sse/services/reasoningCache.ts`
 
 OmniRoute jäädvustab mõtlemisrežiimi mudelite toodetud assistendi `reasoning_content` ja esitab selle läbipaistvalt uuesti mitme pöörde päringu korral, kui ülesvoolu pakkuja seda nõuab. See välistab HTTP 400 vead, mida ranged pakkujad tõstatavad, kui kliendi vestluste ajaloost puudub eelneva pöörde põhjendus.
 

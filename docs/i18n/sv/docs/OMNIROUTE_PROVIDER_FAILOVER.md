@@ -21,3 +21,5 @@ Standardprincipen för flera leverantörer tillåter upp till tre leverantörsf�
   - Ett prefix-id (`provider/model`) omdirigeras aldrig till en annan leverantör.
 
 Kretstillstånden är `closed`, `open` och `half_open`. En nedkylning schemalägger en avgränsad sond; en framgångsrik sond stänger kretsen och en misslyckad sond öppnar den igen.
+
+Provider failover körs inuti gatewayen. Se [När OmniRoute själv är otillgänglig](architecture/RESILIENCE_GUIDE.md#when-omniroute-itself-is-unreachable) för klientbeteende under ett gateway-avbrott.

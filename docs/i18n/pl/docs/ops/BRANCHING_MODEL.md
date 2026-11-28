@@ -53,13 +53,13 @@ zazwyczaj wymagają zmiany celu (retarget) przed merge.
 Kiedy wydanie jest uzgadniane, otwierany jest znacznik problemu oznaczony jako `release-freeze`. To** nie zatrzymuje rozwoju** :
 
 - Zamrożona `release/vX.Y.Z` należy do kapitana uwalniającego ten statek.
-- `release/vX+1` następnego cyklu jest wycinana z zamrożonej końcówki, więc autorzy mogą kontynuować prace związane z lądowaniem.
+- `release/vX+1` następnego cyklu jest wycinana z zamarzniętej końcówki, więc autorzy mogą kontynuować pracę związaną z lądowaniem.
 - Otwarte PRs, które nadal celują w zamrożoną gałąź, powinno być** ponownie ukierunkowane** do aktywnej (najwyższej) gałęzi `release/v*`.
 
 Sprawdź, czy nie ma otwartego zamrożenia, zanim założysz, że żądaną gałąź można połączyć:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 Mechanika scalania (właściciel `queue` label → Mergify) jest udokumentowana w [MERGE_TRAIN.md](./MERGE_TRAIN.md).

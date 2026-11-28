@@ -38,7 +38,7 @@ A `main` nem a napi integrációs ág. A `main` ágra nyitott PR-ok célágát �
 
 ## A fagyasztás feloldása (párhuzamos ciklusok)
 
-Egy kiadás egyeztetésekor megnyílik egy `release-freeze` címkével ellátott jelölő probléma. Hogy** nem állítja meg a fejlődést** :
+Egy kiadás egyeztetésekor megnyílik a `release-freeze` feliratú jelölő probléma. Hogy** nem állítja meg a fejlődést** :
 
 - A lefagyott `release/vX.Y.Z` a hajó kiszabadító kapitányáé.
 - A következő ciklus `release/vX+1` van vágva a fagyott hegyről, így a közreműködők folytatják a leszállási munkát.
@@ -47,7 +47,7 @@ Egy kiadás egyeztetésekor megnyílik egy `release-freeze` címkével ellátott
 Ellenőrizze, hogy nincs-e nyitott lefagyás, mielőtt feltételezi, hogy a kívánt ág összevonható:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 Az egyesítési mechanika (a tulajdonos `queue` címke → Mergify) [MERGE_TRAIN.md](./MERGE_TRAIN.md) fájlban van dokumentálva.

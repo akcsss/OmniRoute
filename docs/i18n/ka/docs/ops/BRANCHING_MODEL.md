@@ -53,7 +53,7 @@ flowchart LR
 შეამოწმეთ ღია გაყინვა, სანამ ვივარაუდოთ, რომ სასურველი ფილიალი გაერთიანებულია:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 შერწყმის მექანიკა (მფლობელი `queue` label → Mergify) დოკუმენტირებულია [MERGE_TRAIN.md-](./MERGE_TRAIN.md) ში.

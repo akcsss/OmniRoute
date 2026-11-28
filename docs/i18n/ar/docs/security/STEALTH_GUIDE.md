@@ -4,11 +4,9 @@
 
 ---
 
-> **مصدر الحقيقة:** `open-sse/utils/tlsClient.ts`، و`open-sse/services/{tlsClientBase,claudeTlsClient,perplexityTlsClient,grokTlsClient,notionTlsClient,lmarenaTlsClient,claudeCodeCCH,claudeCodeFingerprint,claudeCodeObfuscation,claudeCodeCompatible}.ts`، و`open-sse/config/cliFingerprints.ts`، و`src/mitm/`
-> **آخر تحديث:** 2026-09-02 — v3.8.51
-> **الجمهور المستهدف:** المهندسون المسؤولون عن صيانة عمليات التكامل التخفيّة الخاصة بكل مزوّد.
+> **مصدر الحقيقة:** `open-sse/utils/tlsClient.ts`، `open-sse/services/{tlsClientBase,claudeTlsClient,perplexityTlsClient,grokTlsClient,notionTlsClient,lmarenaTlsClient,claudeCodeCCH,claudeCodeFingerprint,claudeCodeObfuscation,claudeCodeCompatible}.ts`، `open-sse/config/cliFingerprints.ts`، `src/mitm/`** جمهور:** مهندسون يحافظون على تكاملات التخفي الخاصة بالمزود.
 
-يتكامل OmniRoute مع مزوّدين تعمل واجهاتهم الطرفية على أخذ بصمات نشطة للعملاء غير الرسميين (TLS JA3/JA4، وترتيب الترويسات، وبنية جسم JSON، ورموز التكامل). توثّق هذه الصفحة أسطح التخفي التي يتيحها OmniRoute ومواضع تنفيذها.
+تتكامل OmniRoute مع مقدمي الخدمة الذين تطبع حوافهم بشكل نشط العملاء غير الرسميين (TLS JA3/JA4، ترتيب الرأس، شكل جسم JSON ، رموز النزاهة). توثق هذه الصفحة الأسطح الخفية التي يكشفها OmniRoute ومكان تنفيذها.
 
 ## إشعار قانوني وأخلاقي
 
@@ -95,13 +93,16 @@ SHA256(SALT + msg[4] + msg[7] + msg[20] + version)[:3]
 التحقق من سلامة جانب الخادم من حساب Claude Code الرسمي CLI عبر عمليات إعادة تنفيذ Bun/Zig. OmniRoute باستخدام `xxhash-wasm`:
 
 1. تسلسل النص باستخدام العنصر النائب `cch=00000;`
-2. `xxhash64(bytes, seed) & 0xFFFFF`
-3. حرف سداسي صغير مكون من 5 أحرف مبطنة بصفر
-4. استبدل `cch=00000;` بالرمز المميز المحسوب
+2. أنشئ عرض التجزئة باستخدام بديلين للنص العادي، بهذا الترتيب (`hashView()`):
+   - كل تطابق لـ `/"model":"[^"]*"/g` يصبح `"model":""` — ويتوقف التطابق عند أول `"`، لذلك يتم إفراغ القيمة ذات علامة الاقتباس المحذوفة (`"model":"a\"b"`) فقط حتى ذلك الاقتباس، كما يفعل العميل
+   - تتم إزالة كل مباراة `/"max_tokens":\d+,|,?"max_tokens":\d+/g` — القيم الرقمية فقط، في أي عمق
+3. `xxhash64(view_bytes, seed) & 0xFFFFF`
+4. حرف سداسي صغير مكون من 5 أحرف مبطنة بصفر
+5. استبدل `cch=00000;` بالرمز المميز المحسوب
 
 الثوابت:
 
-- البذرة : `0x6e52736ac806831e`
+- البذور: `0x4d659218e32a3268` (تطابق عمليات الاسترجاع لرمز Claude 2.1.252 و2.1.322)
 - النمط: `/\bcch=([0-9a-f]{5});/`
 
 ### `claudeCodeObfuscation.ts`
@@ -161,7 +162,7 @@ aider, continue.dev, copilot, avante, codecompanion
 1. احتفظ بـ `ANTIGRAVITY_CREDITS=off` الافتراضي ما لم يقبل المشغل صراحةً مخاطر الائتمان المدفوع وإنفاذ الحساب. يرسل `retry` الطلب العادي أولاً ويدخل الاعتمادات مرة واحدة على الأكثر بعد الحصة المؤهلة 429؛ تقوم `always` بحقن الاعتمادات عند الطلب الأول.
 2. **قم بتوزيع الحمل عبر مقدمي الخدمة عبر التحرير والسرد التلقائي** (`model: "auto"` أو `kr/glm/etc` -combo) بدلاً من تشبع حساب Antigravity واحد.
 3. **تعيين حدود RPM لكل اتصال** في صفحة تحرير موفر Antigravity (موفرو → للوحة المعلومات → Antigravity → حد معدل اتصال → ). 30-60 RPM هو الحد الأعلى الذي يمكن الدفاع عنه للاستخدام المستمر.
-4. **استخدم شبكات المنبع المستقرة التي يتحكم فيها المشغل** وتجنب مشاركة حساب واحد عبر مستخدمين أو أحمال عمل غير مرتبطة.
+4. **استخدم شبكة أساسية مستقرة يتحكم فيها المشغل** وتجنب مشاركة حساب واحد عبر مستخدمين أو أحمال عمل غير مرتبطة.
 5. **إذا حظرت** : الاستئناف عبر `support.google.com` → "استعادة الوصول Workspace/Account " مع إرسال نص استجابة `quota_exceeded` / `service disabled` الدقيق Google. الاستعادة ليست مضمونة.
 
 يوثق مرجع البيئة آثار الحساب والإنفاق لكل وضع من أوضاع الاعتمادات.
@@ -192,7 +193,7 @@ Please submit an appeal to continue using this product.
 
 - `open-sse/executors/antigravity.ts` — يقرأ `process.env.ANTIGRAVITY_CREDITS`
 - `src/lib/oauth/providers/antigravity.ts` — السباكة الاعتماد
-- تقرير الحادث الأصلي: مناقشة [#1183](https://github.com/diegosouzapw/OmniRoute/discussions/1183)
+- تقرير الحادث الأصلي: مناقشة [#1183](https://github.com/cheaper-inference/OmniRoute/discussions/1183)
 
 ---
 

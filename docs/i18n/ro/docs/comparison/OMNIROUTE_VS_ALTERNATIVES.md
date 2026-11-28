@@ -11,10 +11,10 @@ Comparație obiectivă a caracteristicilor față de routerele AI sursă deschis
 | Caracteristică                                          |                  OmniRoute 3.8                  |     LiteLLM 1.x      | OpenRouter (SaaS) |   Portkey   |
 | ------------------------------------------------------- | :---------------------------------------------: | :------------------: | :---------------: | :---------: |
 | **Furnizorii**                                          |                     **329**                     |         ~100         |        ~50        |     ~30     |
-| **Free/no-auth intrări de catalog**                     |                     **155**                     |         n/a          |      trecere      |     n/a     |
+| **Furnizori cu acces gratuit**                          |             **50 cu acces gratuit**             |         n/a          |      trecere      |     n/a     |
 | **Auto-găzduit**                                        |                       ✅                        |          ✅          |        ❌         |  ⚠ plătit   |
 | **OAuth intrări de catalog**                            |                     **23**                      |       parţial        |        ❌         |     ❌      |
-| **Combo-uri de rezervă automată**                       |               **22 de strategii**               | bazate pe prioritate | bazat pe niveluri |  ponderat   |
+| **Combo-uri de rezervă automată**                       |               **22 de strategii**               | bazate pe prioritati | bazat pe niveluri |  ponderat   |
 | **Fusion (sinteza arbitrului + în paralel)**            |                       ✅                        |          ❌          |        ❌         |     ❌      |
 | **Tier 1/2/3 fallback (abonament → ieftin → gratuit)**  |                     ✅ + UI                     |        manual        |        n/a        |   manual    |
 | **Compresie de jetoane**                                | Stivă cu 12 motoare (RTK + Caveman + LLMLingua) |      nici unul       |     nici unul     |  nici unul  |
@@ -31,18 +31,18 @@ Comparație obiectivă a caracteristicilor față de routerele AI sursă deschis
 | **CLI cu bară de sistem (fără Electron)**               |                       ✅                        |          ❌          |        n/a        |     n/a     |
 | **CLI machine-ID auto-auth**                            |                       ✅                        |          ❌          |        n/a        |     n/a     |
 | **Bord**                                                |                   Next.js 16                    |       de bază        |    proprietate    | proprietate |
-| **i18n**                                                |              **67 de localități**               |          ❌          |        ❌         |      ⚠      |
+| **i18n**                                                |               **67 de localuri**                |          ❌          |        ❌         |      ⚠      |
 | **Abilități de agent public (SKILL.md)**                |                      ✅ 45                      |          ❌          |        ❌         |     ❌      |
 | **Suport pentru tunel (Cloudflared, Tailscale, Ngrok)** |                       ✅                        |          ❌          |        n/a        |     n/a     |
 | **Licenţă**                                             |                       MIT                       |         MIT          |    proprietate    | proprietate |
 
-## Când să alegeți OmniRoute
+## Când să alegi OmniRoute
 
-- Te auto-găzduiești și vrei** acoperire maximă a furnizorului** (394 de furnizori, 155 de intrări în catalog free/no-auth )
+- Te auto-găzduiești și vrei** acoperire maximă a furnizorului** (394 furnizori, 50 cu acces gratuit)
 - Ai nevoie de un** server MCP încorporat** ( instrumente LLM, memorie, abilități expuse ca instrumente)
 - Ai nevoie** protocolul A2A** pentru fluxurile de lucru de la agent la agent
 - Tu vrei** ascuns amprenta** (JA3/JA4) pentru a evita detectarea de către CAPTCHAs în amonte
-- Ai nevoie** caracteristicile întreprinderii** (paravane, evals, audit track) fără factură SaaS
+- Ai nevoie** caracteristicile întreprinderii** (parapede, evals, audit track) fără factură SaaS
 
 ## Când să alegeți LiteLLM
 
@@ -58,10 +58,10 @@ Comparație obiectivă a caracteristicilor față de routerele AI sursă deschis
 
 ## Când să alegeți Portkey
 
-- Aveți nevoie de un **SLA comercial** cu garanții privind disponibilitatea
-- Preferați un **panou de control gestionat**, fără efort operațional suplimentar
-- Aveți nevoie de **funcționalități de conformitate pentru întreprinderi** gata de utilizare
+- Ai nevoie de un** comercial SLA** cu garanții de funcționare
+- Preferi a** tabloul de bord gestionat** fără operațiuni deasupra capului
+- Ai nevoie** conformitatea intreprinderii** caracteristici scoase din cutie
 
 ---
 
-_Ultima actualizare: 2026-08-02. Trimiteți corecțiile prin PR pentru a menține acest tabel corect._
+_Trimiteți corecții prin PR pentru a menține acest tabel corect._

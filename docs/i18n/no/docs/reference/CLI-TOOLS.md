@@ -4,9 +4,7 @@
 
 ---
 
-Sist oppdatert: 2026-08-23
-
-OmniRoute integreres med tre kategorier av CLI verktøy spredt over tre dedikerte dashbordsider:
+OmniRoute integreres med tre kategorier av CLI verktøy fordelt på tre dedikerte dashbordsider:
 
 | Side            | Rute                    | Konsept                                                                   | Telle         |
 | --------------- | ----------------------- | ------------------------------------------------------------------------- | ------------- |

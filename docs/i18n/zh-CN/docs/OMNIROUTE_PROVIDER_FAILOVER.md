@@ -21,3 +21,5 @@
   - 带前缀的 id (`provider/model`) 永远不会重新路由到另一个提供者。
 
 电路状态为`closed`、 `open`和`half_open`。冷却时间安排有界探针；成功的探头会关闭电路，失败的探头会重新打开电路。
+
+提供程序故障转移在网关内部运行。请参阅网关中断期间客户端行为[无法访问OmniRoute本身时](architecture/RESILIENCE_GUIDE.md#when-omniroute-itself-is-unreachable)。

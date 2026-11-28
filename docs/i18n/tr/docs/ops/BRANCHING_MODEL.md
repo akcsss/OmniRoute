@@ -53,7 +53,7 @@ Bir yayın mutabakatı yapılırken `release-freeze` etiketli bir işaretleyici 
 İstediğiniz dalın birleştirilebilir olduğunu varsaymadan önce açık donma olup olmadığını kontrol edin:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 Birleştirme mekaniği ( `queue` etiketi → Mergify'ın sahibi) [MERGE_TRAIN.md](./MERGE_TRAIN.md) dosyasında belgelenmiştir.

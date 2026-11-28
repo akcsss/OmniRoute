@@ -38,16 +38,16 @@ flowchart LR
 
 ## Vabastage külmutamine (paralleelsed tsüklid)
 
-Väljalaske vastavusse viimisel avatakse tähisprobleem `release-freeze`. See** ei peata arengut** :
+Väljalaske vastavusse viimisel avatakse tähisega probleem `release-freeze`. See** ei peata arengut** :
 
 - Külmutatud `release/vX.Y.Z` kuulub selle laeva vabastamiskaptenile.
-- Järgmise tsükli `release/vX+1` lõigatakse külmunud otsa küljest ära, et panustajad jätkaksid maandumistööd.
+- Järgmise tsükli `release/vX+1` lõigatakse külmunud otsa küljest ära, et panustajad jätkaksid maandumist.
 - Avatud PRs, mis on endiselt suunatud külmunud oksale, peaksid olema** uuesti sihitud** aktiivsele (kõrgeimale) `release/v*` harule.
 
 Enne kui eeldate, et soovitud haru on ühendatav, kontrollige, kas see on külmutatud:
 
 ```bash
-gh issue list --repo diegosouzapw/OmniRoute --label release-freeze --state open
+gh issue list --repo cheaper-inference/OmniRoute --label release-freeze --state open
 ```
 
 Ühendamise mehaanika (omanik `queue` silt → Mergify) on dokumenteeritud failis [MERGE_TRAIN.md](./MERGE_TRAIN.md).

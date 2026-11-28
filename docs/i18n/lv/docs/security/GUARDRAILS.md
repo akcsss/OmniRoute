@@ -5,38 +5,26 @@
 ---
 
 > **Patiesības avots:** `src/lib/guardrails/`
-> **Pēdējo reizi atjaunināts:** 2026-10-17 — v3.8.52 (pievienota sadaļa [Pārklājums un ierobežojumi](#coverage-and-limits):
-> kurus maršrutus un atbilžu ceļus huki sasniedz, apvienotās atspējošanas galvenes (#16412), injekciju
-> bloķēšanas režīms kā obligāta robeža (#16413) un kas redz atbildi pirms pēcizsaukuma apstrādes)
 
-Aizsargmehānismi nodrošina drošības, politikas un satura transformācijas
-robežā starp OmniRoute un augšupvērstajiem (upstream) nodrošinātājiem. Katrs
-aizsargmehānisms var pārbaudīt (un pēc izvēles noraidīt, pārveidot vai
-anotēt) pieprasījumu saturu (`preCall`) un augšupvērstās atbildes (`postCall`).
+Aizsargi nodrošina drošības, politikas un satura pārveidojumus uz robežas starp OmniRoute un augšupējiem pakalpojumu sniedzējiem. Katrs aizsargmargas var pārbaudīt (un pēc izvēles noraidīt, pārveidot vai anotēt) pieprasījumu lietderīgās slodzes (`preCall`) un augšupējās atbildes (`postCall`).
 
-Sistēma darbojas pēc **fail-open** principa: ja aizsargmehānisms izpildes laikā
-izmet kļūdu, reģistrs to fiksē un turpina ar nākamo aizsargmehānismu, nevis
-atteic pieprasījumu. Bloķēšana ir skaidri izteikts lēmums (`block: true`),
-nekad nejaušība. Vienīgais izņēmums ir pārtraukts pieprasījums: kad izsaucēja
-`signal` tiek pārtraukts, kļūdu izmetošs aizsargmehānisms noraida hoka
-izpildi, nevis tiek izlaists.
+Sistēma ir** neveiksmīgs** : ja aizsargmargas izpildes laikā met, reģistrs reģistrē kļūdu un turpina ar nākamo aizsargmargu, nevis izpilda pieprasījumu. Bloķēšana ir nepārprotams lēmums (`block: true`), nevis nelaimes gadījums. Vienīgais izņēmums ir pārtraukts pieprasījums: kad zvanītāja `signal` tiek pārtraukts, metošais aizsargmargas noraida āķa skrējienu, nevis tiek izlaists.
 
-Huki **netiek** palaisti katrā maršrutā vai pie katras atbildes. Pirms
-paļaušanās uz aizsargmehānismu kā drošības kontroles līdzekli izlasiet
-[Pārklājums un ierobežojumi](#coverage-and-limits).
+Āķi dara** nē** palaist katrā maršrutā vai katrā atbildē. Pirms paļauties uz aizsargmargām kā drošības kontroli, izlasiet [informāciju par pārklājumu un ierobežojumiem](#coverage-and-limits).
 
 ## Iebūvētas aizsargmargas
 
-Reģistrs importējot prioritārā secībā automātiski ielādē sešas aizsargmargas (skatiet `registry.ts` → `registerDefaultGuardrails()`):
+Reģistrs automātiski ielādē šos aizsargmargas importēšanas laikā prioritārā secībā (skatiet `registry.ts` → `registerDefaultGuardrails()`):
 
-| Prioritāte | Vārds               | Posms(-i)      | Fails                 |
-| ---------- | ------------------- | -------------- | --------------------- |
-| `5`        | `vision-bridge`     | `preCall`      | `visionBridge.ts`     |
-| `6`        | `audio-bridge`      | `preCall`      | `audioBridge.ts`      |
-| `7`        | `video-bridge`      | `preCall`      | `videoBridge.ts`      |
-| `10`       | `pii-masker`        | `pre` + `post` | `piiMasker.ts`        |
-| `20`       | `prompt-injection`  | `preCall`      | `promptInjection.ts`  |
-| `95`       | `credential-masker` | `pre` + `post` | `credentialMasker.ts` |
+| Prioritāte | Vārds               | Posms(-i)      | Fails                     |
+| ---------- | ------------------- | -------------- | ------------------------- |
+| `1`        | `agent-guard`       | `preCall`      | `agentGuard/guardrail.ts` |
+| `5`        | `vision-bridge`     | `preCall`      | `visionBridge.ts`         |
+| `6`        | `audio-bridge`      | `preCall`      | `audioBridge.ts`          |
+| `7`        | `video-bridge`      | `preCall`      | `videoBridge.ts`          |
+| `10`       | `pii-masker`        | `pre` + `post` | `piiMasker.ts`            |
+| `20`       | `prompt-injection`  | `preCall`      | `promptInjection.ts`      |
+| `95`       | `credential-masker` | `pre` + `post` | `credentialMasker.ts`     |
 
 Darbojas zemākas prioritātes numuri** vispirms** .
 
@@ -44,7 +32,7 @@ Darbojas zemākas prioritātes numuri** vispirms** .
 
 GLM 5.3 bāzes modelim un `glm-5.3-{low,high,max}` ir skaidri `supportsVision:false` registry/spec metadati. GLM 5.3 Flash varianti joprojām ir vietējie modeļi. Claude koda `/v1/messages` maršruts tiek ievadīts koplietotajā `handleChat` pirmszvana aizsargmargu ķēdē** pirms tam** tulkojums no Kloda uz OpenAI; ligzdotie `Read` rīka rezultātu attēli ir jāapraksta vai jāapstrādā, pirms tie tiek pārvērsti OpenAI `image_url` saturā (#17069).
 
-Pārtver attēlus saturošus pieprasījumus, kuru mērķis ir** bezredzes modeļi** un vai nu pāradresē visu pieprasījumu uz modeli, kas spēj nodrošināt redzi, vai aizstāj attēla daļas ar teksta aprakstiem, ko izveidojis konfigurējams redzes modelis pirms augšupējā izsaukuma. Tas ļauj tikai teksta pakalpojumu sniedzējiem pārredzami apstrādāt multimodālās kravas.
+Pārtver attēlus saturošus pieprasījumus, kuru mērķis ir** modeļi bez redzes** un vai nu pāradresē visu pieprasījumu uz modeli, kas spēj nodrošināt redzi, vai aizstāj attēla daļas ar teksta aprakstiem, ko izveidojis konfigurējams redzes modelis pirms augšupējā izsaukuma. Tas ļauj tikai teksta pakalpojumu sniedzējiem pārredzami apstrādāt multimodālās kravas.
 
 Plūsma:
 
@@ -57,11 +45,11 @@ Plūsma:
 
 #### Režīma atlasītājs (`modalityBridgeVisionMode`)
 
-| Režīms     | Noklusējums | Uzvedība                                                                                                                                                                                                                                                                                           |
-| ---------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `auto`     | ✔           | Mantotā heiristiskā, neskarta (#6640/#7204): modeļi, kas nav kombinēti/`auto/` pārceļ uz labāko redzes modeli, ja vien sākotnējam modelim jau nav izmantojami akreditācijas dati (pēc tam aprakstiet); kombinētie mērķi vienmēr apraksta.                                                          |
-| `describe` |             | Vienmēr aprakstiet — ka maršruta maiņas bloks ir pilnībā izlaists; lietotāja izvēlētais modelis vienmēr atbild.                                                                                                                                                                                    |
-| `reroute`  |             | Piespiedu pārorientēšana: modeļa akreditācijas datu saglabāšanas aizsargs tiek apiets. Maršruta maiņa -** mērķis** akreditācijas datu aizsargs joprojām lieto —, ja nav izmantojama redzes mērķa, tilts bloķē ar skaidru kļūdu, nevis apraksta vai sūta neapstrādātus attēlus tikai teksta mērķim. |
+| Režīms     | Noklusējums | Uzvedība                                                                                                                                                                                                                                                                                         |
+| ---------- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `auto`     | ✔           | Mantotā heiristiskā, neskarta (#6640/#7204): modeļi, kas nav kombinēti/`auto/` pārceļ uz labāko redzes modeli, ja vien sākotnējam modelim jau nav izmantojami akreditācijas dati (pēc tam aprakstiet); kombinētie mērķi vienmēr apraksta.                                                        |
+| `describe` |             | Vienmēr aprakstiet — ka maršruta maiņas bloks ir pilnībā izlaists; lietotāja izvēlētais modelis vienmēr atbild.                                                                                                                                                                                  |
+| `reroute`  |             | Piespiedu kārtā pārorientēt: saglabāt akreditācijas datus modeļa aizsargs ir apiets. Maršruta maiņa -** mērķis** akreditācijas datu aizsargs joprojām lieto —, ja nav izmantojama redzes mērķa, tilts bloķē ar skaidru kļūdu, nevis apraksta vai sūta neapstrādātus attēlus tikai teksta mērķim. |
 
 Piespiedu režīmu īssavienojums** pirms tam** automātiskās heiristiskās darbības; `auto` darbība ir baitiem identiska pre-PR-1 aizsargmargam.
 
@@ -87,7 +75,7 @@ Apraksta pašcilpas paša OpenAI saderīgais pieprasījums (`callVisionModelSing
 
 #### Aprakstiet kešatmiņu (`modalityBridge/bridgeCache.ts`)
 
-Atmiņā esoša LRU + TTL kešatmiņa izvadu aprakstīšanai, koplietojama visā procesā. Taustiņš = `sha256(imageRef + composedPrompt + configuredBridgeModel)` ar garuma prefiksa ierāmēšanu (bez lauka robežas sadursmēm). Modeļa sastāvdaļa ir** konfigurēts** tilta modelis, nevis modelis, kas faktiski atbildēja — `callVisionModel` var atkāpties iekšēji, un ievadīšana katrā mēģinājumā sadrumstalotu kešatmiņu. Neizdevušies apraksti nekad netiek saglabāti kešatmiņā. Iestatījumi:
+Atmiņā esoša LRU + TTL kešatmiņa izvadu aprakstīšanai, koplietojama visā procesā. Taustiņš = `sha256(imageRef + composedPrompt + configuredBridgeModel)` ar garuma prefiksa ierāmēšanu (bez lauka robežas sadursmēm). Modeļa sastāvdaļa ir** konfigurēts** tilta modelis, nevis modelis, kas faktiski atbildēja uz — `callVisionModel` var atkāpties iekšēji, un ievadīšana katrā mēģinājumā sadrumstalotu kešatmiņu. Neizdevušies apraksti nekad netiek saglabāti kešatmiņā. Iestatījumi:
 
 | Atslēga                         | Noklusējums | Diapazons |
 | ------------------------------- | ----------- | --------- |
@@ -126,7 +114,7 @@ Pārtver audio saturošus tērzēšanas pieprasījumus, pirms tie sasniedz mēr�
 Plūsma:
 
 1. Atrisiniet `supportsAudio`, izmantojot `getResolvedModelCapabilities()`. Uzvar skaidrie pakalpojumu sniedzēja reģistra metadati, pēc tam statiskā modeļa metadati un pēc tam sinhronizēti `modalities_input`. Deklarēts ievades saraksts bez `audio` ir `false`; nekādu spēju pierādījumu nepaliek `null`. Gan `false` gan `null` aktivizē konservatīvo tiltu, savukārt `true` to apiet.
-2. Atrisiniet `modalityBridgeAudio*` iestatījumus un izņemiet savienojamas augstākā līmeņa audio daļas no katra ziņojuma, izmantojot koplietoto `detectMediaParts()` detektoru. Atbalstītās vadu formas ir OpenAI `input_audio`, `audio_url` un `source.media_type: "audio/*"`. Maršrutēšanai tiek noteikts ligzdots audio, bet savienojums nav noņemts. Darbu ierobežo `modalityBridgeAudioMaxClips`; vēlākās daļas paliek neskartas.
+2. Atrisiniet `modalityBridgeAudio*` iestatījumus un izņemiet savienojamas augstākā līmeņa audio daļas no katra ziņojuma, izmantojot koplietojamo `detectMediaParts()` detektoru. Atbalstītās vadu formas ir OpenAI `input_audio`, `audio_url` un `source.media_type: "audio/*"`. Maršrutēšanai tiek noteikts ligzdots audio, bet savienojums nav noņemts. Darbu ierobežo `modalityBridgeAudioMaxClips`; vēlākās daļas paliek neskartas.
 3. Ievērojiet konfigurētu `provider/model` vai ļaujiet `selectAudioBridgeModel()` staigāt `AUDIO_TRANSCRIPTION_PROVIDERS` stabilā kataloga secībā un atlasiet pirmo modeli ar izmantojamiem aktīvajiem pakalpojumu sniedzēja akreditācijas datiem.
 4. `callAudioTranscription()` pārvērš base64/data-URI audio par daudzdaļīgu `file` vai lejupielādē attālo `audio_url`, izmantojot tikai publisko izejošo aizsargu ar DNS piespraušanu un 25 MB saiti. Pēc tam tas POSTs failu un atlasīto modeli vietējā `/v1/audio/transcriptions` pašcilpā, kas autentificēts ar `resolveSelfLoopBearer()`. Esošais transkripcijas maršruts veic parasto akreditācijas datu meklēšanu, cooldown/rate-limit apstrādi un pakalpojumu sniedzēja nosūtīšanu.
 5. Veiksmīgi zvani aizstāj to daļas ar `[Audio N]: <transcript>`. Zvani tiek veikti ar `Promise.allSettled`: atsevišķa kļūme saglabā sākotnējo audio daļu (#4012 līgums). Ja katrs izsaukums neizdodas un mērķis ir pierādīts `supportsAudio === false`, daļas kļūst par `[Audio N]: (unavailable — no STT provider connected)` (#8430 līgums). Nezināmam mērķim (`null`) visu kļūdu rezultāts paliek neskarts. Pierādīts tikai teksta mērķis bez izmantojamiem STT akreditācijas datiem saņem to pašu nepārprotamo stub bez tīkla izsaukuma.
@@ -148,9 +136,9 @@ Koplietoto kešatmiņu joprojām kontrolē `modalityBridgeCacheEnabled`, `modali
 
 Pārtver augstākā līmeņa video daļas programmā Chat Completions `messages` un Responses API `input` pirms tiek izsaukts mērķis bez zināma vietējā video atbalsta. Atbalstītās formas ir `input_video`, `video_url`, `video_source`, HTTPS URLs un `data:video/*;base64,...` data URIs. Vienkārši failu nosaukumi tekstā netiek uzskatīti par video.
 
-`VideoBridgeGuardrail.preCall` (`videoBridge.ts`) pieder pieprasījuma pārvietošana, capability/policy pārbaude, pieprasījuma apkopošana un atbildes slodze. Katra video darba — iegūšana, visa rezultāta kešatmiņa, kas apraksta kadru secību (kas apvieno jebkuru zvanītāja deklarēto audio atšifrējumu) un katram mēģinājumam metrics/abort/cleanup — ir paslēpts aiz `processVideoPart` `videoBridgePipeline.ts`, kas tiek izsaukts vienu reizi katrā video daļā `preCall` cilpas iekšpusē. Šis modulis nosaka arī precīzās portu robežas `VideoMediaBrokerPort` (baitu iegūšana un izlases kadru izvilkšana), `VideoAudioTranscriptionPort` (zvanītāja deklarēta audio transkripta sapludināšana ar izlases parakstiem) un `VideoDrilldownPort` (mantotā neapstrādātā veikala forma). Ražošanas STT un rāmja saglabāšana tiek veidota ap aprakstošo portu, izmantojot `createVideoSttAdapter` un `createVideoDrilldownAdapter`; pēdējais izmanto kopīgu necaurspīdīgā roktura dzīves ciklu.
+`VideoBridgeGuardrail.preCall` (`videoBridge.ts`) pieder pieprasījuma pārvietošana, capability/policy pārbaude, pieprasījuma apkopošana un atbildes slodze. Katra video darba — iegūšana, visa rezultāta kešatmiņa, kas apraksta kadru secību (kas apvieno jebkuru zvanītāja deklarēto audio atšifrējumu) un katram mēģinājumam metrics/abort/cleanup — ir paslēpts aiz `processVideoPart` `videoBridgePipeline.ts`, kas tiek izsaukts vienu reizi katrā video daļā `preCall` cilpas iekšpusē. Šis modulis nosaka arī precīzās portu robežas `VideoMediaBrokerPort` (baitu iegūšana un izlases kadru izvilkšana), `VideoAudioTranscriptionPort` (zvanītāja deklarēta audio transkripta sapludināšana ar izlases parakstiem) un `VideoDrilldownPort` (mantotā neapstrādātā veikala forma). Ražošanas STT un rāmja saglabāšana tiek veidota ap aprakstošo portu, izmantojot `createVideoSttAdapter` un `createVideoDrilldownAdapter`; pēdējā izmanto kopīgu necaurspīdīgā roktura dzīves ciklu.
 
-Publiskais `/v1` pieprasījuma ceļš nekad neimportē vai neizsauc apakšprocesu. Attālinātie videoklipi tiek lejupielādēti ar 50 MiB ierobežojumu; iekļautajiem base64 videoklipiem ir konservatīvs 36 MiB dekodētais videoklipa ierobežojums, tāpēc model/messages/framing aploksne var palikt publiskā JSON pieprasījuma pieļaujamā ierobežojuma robežās — 50 MiB. Pirms piešķiršanas tiek pārbaudīti iekļautie garuma un dekodētā izmēra aprēķini. HTTPS ir nepieciešams sākotnējā attālajā URL un katrā novirzīšanā, izmantojot esošo tikai publisko izejošo aizsargu ar DNS piespraušanu. Pēc tam baiti šķērso precīzu iekšējo `POST /api/modality-bridge/video/extract` brokera robežu. Šis maršruts ir gan `LOCAL_ONLY`, gan `SPAWN_CAPABLE`, tas pieņem tikai katram procesam autentificētu, uzticamas cilpas pieprasījumu un nekad nepieņem URL, failu sistēmas ceļu, izpildāmo failu vai argumentu sarakstu. API korpusa izmēra cauruļvads un apdarinātāja inkrementālais korpusa lasītājs neatkarīgi nodrošina 50 MiB starpnieka ievades vāciņu. Tās ierobežotajā rindā vienlaikus tiek izpildīta viena izvilkšana, ir atļauti četri neapstiprinātie darbi un tiek ierobežota gaidošā ievade pie 100 MiB.
+Publiskais `/v1` pieprasījuma ceļš nekad neimportē un neizsauc apakšprocesu. Attālie videoklipi tiek lejupielādēti ar 50 MiB ierobežojumu; iekļautajiem base64 videoklipiem ir konservatīvs 36 MiB dekodētais videoklipa ierobežojums, tāpēc model/messages/framing aploksne var palikt publiskā JSON pieprasījuma pieļaujamā ierobežojuma robežās — 50 MiB. Pirms piešķiršanas tiek pārbaudīti iekļautie garuma un dekodētā izmēra aprēķini. HTTPS ir nepieciešams sākotnējā attālajā URL un katrā novirzīšanā, izmantojot esošo tikai publisko izejošo aizsargu ar DNS piespraušanu. Pēc tam baiti šķērso precīzu iekšējo `POST /api/modality-bridge/video/extract` brokera robežu. Šis maršruts ir gan `LOCAL_ONLY`, gan `SPAWN_CAPABLE`, tas pieņem tikai katram procesam autentificētu, uzticamas cilpas pieprasījumu un nekad nepieņem URL, failu sistēmas ceļu, izpildāmo failu vai argumentu sarakstu. API korpusa izmēra cauruļvads un apdarinātāja inkrementālais korpusa lasītājs neatkarīgi nodrošina 50 MiB starpnieka ievades vāciņu. Tās ierobežotajā rindā vienlaikus tiek izpildīta viena izvilkšana, ir atļauti četri neapstiprinātie darbi un tiek ierobežota gaidošā ievade pie 100 MiB.
 
 Brokera iekšpusē `ffprobe` nolasa privātu lokālo failu; fiksētā formāta atļaušanas saraksts neietver atskaņošanas sarakstu un manifesta formātus. Atļautajiem MOV ģimenes konteineriem ārējās MOV datu atsauces pēc noklusējuma paliek atspējotas, un fiksētā komanda tos neizvēlas. Gan `ffprobe`, gan `ffmpeg` izmanto `file` -only protokola balto sarakstu, vienu pavedienu, fiksētus argumentu masīvus, bez čaulas un izpildāmos failus, kas atrisināti no `PATH`. Pievienoto attēlu vāka straumes nav atskaņojamas. Visām atskaņojamām straumēm ir jāatbilst ierobežojumiem, un pirms deterministiskā zemākā indeksa atkāpšanās priekšroka tiek dota skaidrai noklusējuma straumei. Videoklipu garums ir ierobežots līdz 600 sekundēm, 8192 pikseļi katrā dimensijā un 33 554 432 avota pikseļi. FFmpeg izlasē 1–16 viduspunkta JPEG kadrus, samazina garo malu līdz ne vairāk kā 1024 pikseļiem, nepalielinot mazākas ievades vērtības, un nekad nesaņem URL. Pēc noklusējuma paraugu ņemšana ir `uniform`. Neobligātās `scene_aware` un eksperimentālās `segment_aware` politikas veic vienu papildu fiksētu FFmpeg pāreju pār jau apstiprināto lokālo straumi, atlasa ierobežotas `showinfo` ainas laikspiedolus un deterministiski atgriežas uz tiem pašiem vienotajiem viduspunktiem detektora kļūmes, taimauta, nepareizi veidotas izvades vai tukšas kandidātkopas gadījumā. Segmenta apzināšanās režīms piešķir viduspunkta paraugus proporcionāli apstiprinātajiem ainu intervāliem; Segmentu apzinošie pierādījumi un atkāpšanās darbības ir detalizēti aprakstītas tālāk. Cietais 16 kadru ierobežojums tiek piemērots pēc atlases katrā politikā. Ja sižeta pieprasījumam ir tikai viena kadra budžets, tas izmanto vienotu aktīvā pilna video vai fokusa loga viduspunktu un ziņo par `policyEffective: uniform`: viens atlasītais sižeta kadrs nevar saglabāt abus laika galus. Zvanītājs pēc izvēles var nodrošināt ierobežotu fokusa logu (`start`/`end` sekundes); robežas tiek ierobežotas ar datu nesēja ilgumu, apgrieztie vai neierobežotie logi tiek noraidīti, un visas izlases politikas tiek veiktas tikai normalizētajā intervālā. Iegūtais logs ir iekļauts izlases metadatos un neuzticamā apraksta prefiksā, lai pakārtotie modeļi varētu atšķirt koncentrētu fragmentu no pilnas laika skalas.
 
@@ -164,7 +152,7 @@ Strukturālās vērtības ir deterministiski izlases pierādījumi, nevis semant
 
 Trūkstošie filtri, malformed/empty pierādījumi, detektora kļūda vai ierobežots pirmsanalīzes taimauts neatbilst precīzai vienotai viduspunkta politikai. Zvanītāja pārtraukšana vai starpnieka termiņš neizdodas atvērt: tas pārtrauc apakšprocesu lidojuma laikā, novērš vēlāku kadra izvilkšanu, un privātais pagaidu koks tiek noņemts programmā `finally`.
 
-`scripts/perf/video-bridge-fu07-eval.ts` ģenerē deterministiskus reālus FFmpeg armatūras ietaupījumus pēc parakstu izsaukšanas, blīvas kustības budžeta sadales, blur/exposure/SI-TI pierādījumu, ātru samazinājumu ar garu asti un pakāpenisku viltus pozitīvu rezultātu izzušanu. Tas reģistrē pirmsanalīzes sienas laiku un, ja ir pieejams `/usr/bin/time`, bērnu CPU un maksimālo RSS. Tās kvalitātes pārbaudes ir tikai struktūras orākuli. Īsta parakstu modeļa kvalitāte joprojām ir `HOLD` jo šai siksnai nav atļauta galapunkta vai iesaldēta tiesneša. Naudas ietaupījumi arī paliek `HOLD`, ja vien `--caption-cost-per-call-usd` nesniedz skaidru pozitīvu aprēķinu par katru zvanu; skripts nekad nesafabricē nevienu rezultātu.
+`scripts/perf/video-bridge-fu07-eval.ts` ģenerē deterministiskus reālus FFmpeg armatūras ietaupījumus pēc parakstu izsaukšanas, blīvas kustības budžeta sadales, blur/exposure/SI-TI pierādījumu, ātru samazinājumu ar garu asti un pakāpenisku viltus pozitīvu rezultātu izzušanu. Tas reģistrē pirmsanalīzes sienas laiku un, ja ir pieejams `/usr/bin/time`, bērnu CPU un maksimālo RSS. Tās kvalitātes pārbaudes ir tikai struktūras orākuli. Īsta paraksta modeļa kvalitāte joprojām ir `HOLD` jo šai siksnai nav atļauta galapunkta vai iesaldēta tiesneša. Naudas ietaupījumi arī paliek `HOLD`, ja vien `--caption-cost-per-call-usd` nesniedz skaidru pozitīvu aprēķinu par katru zvanu; skripts nekad nesafabricē nevienu rezultātu.
 
 Katrs kadrs ir ierobežots līdz 4 MiB, visi neapstrādātie kadri kopā līdz 23 MiB un sērijveida starpnieka reakcija līdz 32 MiB. Privāts pagaidu direktorijs tiek noņemts programmā `finally`. OmniRoute neapkopo FFmpeg un nepieņem pielāgotu izpildāmo ceļu. Pirms parakstu pievienošanas tilts izmanto konservatīvu vizuālo dublēšanas pāreju: katrs JPEG tiek samazināts līdz 16 × 16 pelēktoņu buferim un tiek salīdzināts tikai ar pēdējo saglabāto kadru. Ja pieprasītais subtitru budžets pārsniedz vienu kadru, izvilkšana nodrošina ierobežotu kandidātu kopu līdz pat divreiz lielākam budžetam un nekad vairāk par 16 kadriem. Pieprasītā maksimālā robeža tiek piemērota tikai pēc dublēšanas, pirmie un galīgie atlasītie kandidāti tiek saglabāti galīgās retināšanas laikā, kad budžets ir vismaz divi. Versionētā `grayscale-16x16-mean-cells-v2` politika izmanto lielāko no vidējā luma delta un to sīktēlu šūnu attiecību, kuru normalizētā delta ir vismaz 0,05. Dublikāta slieksnis ir konstante 0,04, kas izvēlēta paredzamībai, nevis tiek rādīta kā izpildlaika iestatījums. Šis sekundārais augsta kontrasta signāls saglabā nelielas kustības un redzamā teksta izmaiņas, kuras var paslēpt tikai vidējais salīdzinājums. Salīdzinājuma vai dekodētāja kļūdas neizdodas atvērt un saglabāt pārklājumu. Izvades metadati atdala izvilktos kandidātus, veiksmīgi izmantotos kadrus un atmet vizuālos dublikātus.
 
@@ -178,17 +166,17 @@ FU-07 prasa vismaz 98% kvalitātes saglabāšanu un p95 latentumu, kas nepārsni
 
 Kolekcionāriem ir jāvērtē atbildes atmiņā un jāsaglabā `responseDigest` plus metrika un novērojumu saistījumi, nevis atbildes teksts. Patērētājs arī lasa mantotos neapstrādātos novērojumus, bet nekad nekopē šo tekstu savos pārskatos. Katram novērojumam tiek pieņemts tieši viens no `responseDigest` vai `rawResponseText`. Versiju atļautais saraksts paliek tukšs ar nemainīgu `hold` noklusējuma iestatījumu. Piemērotam ierakstam ir nepieciešama atsauce uz pierādījumiem, politika, modeļa pārskatīšana, precīzs kandidāta SHA, manifesta īssavilkums un divas atšķirīgas darbības IDs; pretrunīgi konteksti tiek noraidīti. Šie metadati ir audita līgums, nevis pierādījums tam, ka atsauces failā ir patiesi mērījumi. Pirms ieraksta pievienošanas pārskatiet faktiskās kvītis. Pārvaldības statistikas galapunkts un video informācijas panelis atklāj konservatīvu gatavību. Konfigurēts modeļa aizstājvārds vien nenosaka tā pārskatīšanu vai esošo kandidātu SHA, tāpēc pašreizējais informācijas panelis ziņo par `HOLD` nevis atkārtoti izmanto piemērotību no cita izpildes konteksta. Skaidra eksperimentāla atlase paliek atsevišķi no veicināšanas; neviens noklusējums netiek automātiski mainīts.
 
-Zvanītāji var pievienot papildu `transcript.cues` masīvu atbalstītai video daļai, ja viņiem jau ir līdzināts teksts. Katrai norādei ir jāietver `text`, ierobežots `start`/`end` intervāls pārbaudītajā ilgumā un baltajā sarakstā iekļauts `source` (`client`, `embedded` vai `audio-bridge`); `confidence` noklusējuma vērtība ir `1`, un tai jāpaliek starp `0` un `1`. Precīzi dublikāti ir sakļauti. OmniRoute nekad nesāk transkripciju no šiem metadatiem: apstiprinātās norādes tiek kopētas aprakstītajā rezultātā ar avotu, uzticamību un intervālu un tiek renderētas kā neuzticami novērojumi līdzās ietvara parakstiem. Nederīgs, ārpus diapazona vai bez izcelsmes teksts tiek noraidīts, nevis sajaukts parakstu straumē. Abi pieprasījuma pamatteksta transkripcijas kanāli normalizē `client` sniegto izcelsmi, tostarp pašpārliecinātās `embedded` vai `audio-bridge` etiķetes. Tikai serverim piederošs adapteris var piešķirt šīs uzticamās iezīmes, izmantojot tikai koda argumentu `trustedSource` ; pieprasījuma JSON lauks nevar sasniegt šo argumentu. Transkripcijas teksts joprojām ir neuzticams multivides saturs neatkarīgi no tā izcelsmes, un tas nekad nedrīkst noteikt autorizāciju.
+Zvanītāji var pievienot papildu `transcript.cues` masīvu atbalstītai video daļai, ja viņiem jau ir līdzināts teksts. Katrai norādei ir jāietver `text`, ierobežots `start`/`end` intervāls pārbaudītajā ilgumā un baltajā sarakstā iekļauts `source` (`client`, `embedded` vai `audio-bridge`); `confidence` noklusējuma vērtība ir `1`, un tai jāpaliek starp `0` un `1`. Precīzi dublikātu norādes ir sakļautas. OmniRoute nekad nesāk transkripciju no šiem metadatiem: apstiprinātās norādes tiek kopētas aprakstītajā rezultātā ar avotu, uzticamību un intervālu un tiek renderētas kā neuzticami novērojumi līdzās ietvara parakstiem. Nederīgs, ārpus diapazona vai bez izcelsmes teksts tiek noraidīts, nevis sajaukts parakstu straumē. Abi pieprasījuma pamatteksta transkripcijas kanāli normalizē `client` sniegto izcelsmi, tostarp pašpārliecinātās `embedded` vai `audio-bridge` etiķetes. Tikai serverim piederošs adapteris var piešķirt šīs uzticamās iezīmes, izmantojot tikai koda argumentu `trustedSource` ; pieprasījuma JSON lauks nevar sasniegt šo argumentu. Transkripcijas teksts joprojām ir neuzticams multivides saturs neatkarīgi no tā izcelsmes, un tas nekad nedrīkst noteikt autorizāciju.
 
 Uzlabots zvanītājs var nodrošināt `audioTranscript` ierakstu vienam un tam pašam videoklipam; tas tiek uzskatīts par klienta nodrošinātu tekstu, nevis servera transkripcijas pierādījumu. Sapludināšanas šuve veic vizuālos un audio novērojumus saskaņā ar vienu termiņu un pārtrauc signālu, pasūta tos pēc kopīgas laika skalas, sakļauj precīzus dublikātus un ziņo par daļēju rezultātu, ja izdodas tikai viena puse. Nederīgs `audioTranscript` tiek degradēts līdz šim daļējam rezultātam — vizuālais apraksts tiek saglabāts, un audio atzars ieraksta sanitizētu kļūmes kodu — nevis visu videoklipu. Katras filiāles pieejamība, daļējs karodziņš un sanitārie kļūdu kodi tiek saglabāti aprakstītajā rezultātos, aizsargmargu metadatos (`audioFusionRuns`/`audioFusionPartials`/ `audioFusionFailureCodes`), rezultātu kešatmiņas metadatos un tilta saplūšanas skaitītājos. Noklusējuma video tilta ceļš neizsauc runas pārveidošanu tekstā vai nelejupielādē otru multivides kopiju; bez šī precīzā ieraksta tas paliek tikai video.
 
 **Transkripta saglabāšana (#12150 P1).** Tas attiecas automātiski ikreiz, kad video tilts (pats izvēle) atveido atšifrējuma signālu — nav atsevišķa saglabāšanas karoga. Kad pieprasījums atveido jebkuru transkripcijas signālu (zvanītāja deklarētu `transcript` vai sapludinātu `audioTranscript`), aizsargmarga atzīmē to `videoBridgeObserved` un izveido rediģētu video apraksta ēnu — identisku atveidojumu, kurā katra norādes brīvā teksta pamatteksts tiek aizstāts ar `[redacted-video-transcript]`, kas izveidots, aizvietojot strukturēto veringne. saplacināts teksts, tāpēc nevar izdzīvot nekādas norādes saturs — pretrunīgs vai parasts, tostarp struktūras, kas satur `]` piemēram, `[inaudible]`/`[music]` — ). Pastāvīgā zvanu žurnāla pieprasījuma pamatteksts apmaina katru video atvasināto teksta daļu pret šo rediģēto ēnu, kas atbilst satura vienlīdzībai; `fullText` enkurs tiek atkārtoti nolasīts no gatavās pirmszvana aizsargmargas derīgās slodzes, tāpēc atbilstība joprojām izdodas pēc tam, kad vēlākie ķēdes aizsargmargi ( PII un akreditācijas datu maskētāji, prioritātes 10/95) pārraksta apraksta tekstu vietā un pēc system-prompt/handoff/memory injekcijas pārveido ziņojumu masīvu. Korpuss, kas nosūtīts pirms modeļa, ir nemainīgs. Novērotais pieprasījums arī neaizpilda noturīgu atmiņu (tiek izlaista gan pieprasījuma, gan atbildes iegūtā izvilkšana), tāpēc paša modeļa atbilde nevar atbalsot transkripcijas tekstu atmiņā.
 
-**Neapstrādāti video lauki (#12430).** Ja tilts ir iespējots un vietējais video atbalsts nav zināms vai tā nav, definētie `transcript`/`audioTranscript` lauki arī aktivizē `videoBridgeObserved` pat pēc apraksta kļūmes vai `maxVideos` ierobežojuma. `null` un tukšo virkņu skaits; nav pieejami lauki un metadati, kas nav video. Saglabātās kopijas rediģē šos laukus vai izlaiž pieprasījumu, un caches/Memory tiek apiets.
+**Neapstrādāti video lauki (#12430).** Ja tilts ir iespējots un vietējais video atbalsts nav zināms vai tā nav, definētie `transcript`/`audioTranscript` lauki arī aktivizē `videoBridgeObserved` pat pēc apraksta kļūmes vai `maxVideos` ierobežojuma. `null` un tukšo virkņu skaits; trūkstošo lauku un metadatu, kas nav video, nav. Saglabātās kopijas rediģē šos laukus vai izlaiž pieprasījumu, un caches/Memory tiek apiets.
 
-Šajos atkāpšanās ceļos derīgi zvanītāja norādījumi kļūst par atbalstītām `text`/`input_text` daļām, nevis nestandarta nodrošinātāja laukiem. Abi pēc pieprasījuma sniegtie celiņi joprojām ir neuzticami `client` novērojumi ar skaidru brīdinājumu, ka videoklips nav aprakstīts un laikspiedoli nav pārbaudīti pret plašsaziņas līdzekļiem. Esošais 256-cue/64-KiB kopējais budžets un budžets uz vienu zīmi tiek piemēroti abiem celiņiem kopā; laikspiedoliem ir jāatbilst brokera 600 sekunžu griestiem un jebkuram piegādātajam fokusa logam. Nederīgi ieraksti tiek izmesti, nevis pārsūtīti kā patvaļīgs teksts; derīgu brāli un māsu joprojām var izmantot, ja vien netiek pārsniegts viņu kopējais budžets. Null/empty lauki nepievieno tekstu. Šis atkāpšanās līdzeklis nepievieno multivides ienesi vai transkripciju. Atšifrējuma paplašinājuma lauki tiek noņemti no rezerves video nesēja un tā `video_url`/`source` objektiem. OpenAI vadu atļaušanas saraksts paliek stingrs; Nezināmi vietējie video nesēji joprojām ir pieejami, un zināmie tikai teksta mērķi saglabā drošus marķierus. Strukturētas rediģēšanas ēnas aizsargā pievienoto atšifrējuma tekstu, savukārt sākotnējais zvanītāja pieprasījums paliek nemainīgs. Vietējie atbalstītie mērķi un invalīdi tilti saglabā savu esošo apiešanas darbību.
+Šajos atkāpšanās ceļos derīgi zvanītāja norādījumi kļūst par atbalstītām `text`/`input_text` daļām, nevis nestandarta nodrošinātāja laukiem. Abi pēc pieprasījuma sniegtie celiņi joprojām ir neuzticami `client` novērojumi ar skaidru brīdinājumu, ka videoklips nav aprakstīts un laikspiedoli nav pārbaudīti pret plašsaziņas līdzekļiem. Esošais 256-cue/64-KiB kopējais budžets un budžets uz vienu zīmi tiek lietoti abos celiņos kopā; laikspiedoliem ir jāatbilst brokera 600 sekunžu griestiem un jebkuram piegādātajam fokusa logam. Nederīgi ieraksti tiek izmesti, nevis pārsūtīti kā patvaļīgs teksts; derīgu brāli un māsu joprojām var izmantot, ja vien netiek pārsniegts viņu kopējais budžets. Null/empty lauki nepievieno tekstu. Šis atkāpšanās līdzeklis nepievieno multivides ienesi vai transkripciju. Atšifrējuma paplašinājuma lauki tiek noņemti no rezerves video nesēja un tā `video_url`/`source` objektiem. OpenAI vadu atļaušanas saraksts paliek stingrs; Nezināmi vietējie video nesēji joprojām ir pieejami, un zināmie tikai teksta mērķi saglabā drošus marķierus. Strukturētas rediģēšanas ēnas aizsargā pievienoto atšifrējuma tekstu, savukārt sākotnējais zvanītāja pieprasījums paliek nemainīgs. Vietējie atbalstītie mērķi un invalīdi tilti saglabā savu esošo apiešanas darbību.
 
-Papildu saglabātās kopijas izmanto to pašu novērotā pieprasījuma signālu. Neapstrādāts klienta pieprasījuma momentuzņēmums pirms aizsargmargas, atmiņā esošais gaidošais pieprasījums un agrīnā noraidīto pieprasījumu žurnāls strukturāli aizstāj atšifrējuma laukus video daļās; virknes uzvednes, ko sintezē konveijera posmi un konteksta nodošana, tiek rediģētas pastāvīgā pieprasījuma pamatteksta izlietnē. Noturīgais `video_content_removed` marķieris neļauj `previous_response_id` turpinājumam aizvērt, nevis rekonstruē tekstu, kas tika apzināti izmests. Ja novērotais pieprasījums zaudē savu daļu rediģēšanas ēnu pirms reģistrēšanas vai pat viena no vairākām video ēnām nesakrīt pēc vēlākām pieprasījuma mutācijām, saglabātais pieprasījuma pamatteksts tiek pilnībā izlaists, nevis tiek saglabāts daļēji rediģēts atšifrējums.
+Papildu saglabātās kopijas izmanto to pašu novērotā pieprasījuma signālu. Neapstrādāts klienta pieprasījuma momentuzņēmums pirms aizsargmargas, atmiņā esošais gaidošais pieprasījums un agrīnā noraidīto pieprasījumu žurnāls strukturāli aizstāj atšifrējuma laukus video daļās; virknes uzvednes, ko sintezē konveijera posmi un konteksta nodošana, tiek rediģētas pastāvīgā pieprasījuma pamatteksta izlietnē. Pastāvīgais `video_content_removed` marķieris neļauj `previous_response_id` turpinājumam aizvērt, nevis rekonstruē tekstu, kas tika apzināti izmests. Ja novērotais pieprasījums zaudē savu daļu rediģēšanas ēnu pirms reģistrēšanas vai pat viena no vairākām video ēnām nesakrīt pēc vēlākām pieprasījuma mutācijām, saglabātais pieprasījuma pamatteksts tiek pilnībā izlaists, nevis tiek saglabāts daļēji rediģēts atšifrējums.
 
 Novērotajam pieprasījumam modeļa atbilde var citēt jebkuru atšifrējuma daļu bez strukturētas norādes robežas. Tāpēc tā pastāvīgais zvanu žurnāla `responseBody` tiek aizstāts ar izlaiduma marķieri; detalizētais cauruļvada artefakts (kas var ietvert upstream/client korpusus un straumes gabalus) netiek saglabāts. Semantiskās, idempotences un argumentācijas atkārtošanas kešatmiņas apiet šī pieprasījuma nolasīšanu un rakstīšanu. Pakalpojumu sniedzēja pieprasījums un klienta redzamā atbilde paliek nemainīgi. Ja detalizētais artefakts tiek izlaists, agrīnie saglabāšanas baiti tiek iztukšoti no pagaidu bufera. Kiro nepareizi veidots EventStream brīdinājums ziņo tikai par derīgās slodzes baitu skaitu, nevis par tā saturu vai JSON parsētāja neapstrādāto kļūdu. Tas neapgalvo, ka katra nesaistītā provider/plugin diagnostika ir pārbaudīta; plašāks saglabātās izlietnes slaucīšana tiek izsekota #11658.
 
@@ -202,11 +190,11 @@ Produkcijas ražotājs atkārtoti izmanto jau iegūtos brokeru kadrus tikai pēc
 
 Veiksmīgas JSON un SSE atbildes parāda ne vairāk kā četrus necaurspīdīgus rokturus ierobežotajā `x-omniroute-video-drilldown` galvenē. Autorizētās pārlūkprogrammas izcelsmes vietas var nolasīt šo galveni, nepaplašinot CORS izcelsmes politiku. Jaunajos rokturos tiek izmantots `v1.<32-byte random base64url token>`, un reģistrs saglabā tikai to SHA-256 jaucējus. reader/header parsētājs pieņem arī mantotos 64 heksadeciļu marķierus. Autentificēts publiskais patērētājs ir `GET /api/v1/video-bridge/drilldown?handle=...`, kuru neatkarīgi norobežo `modalityBridgeVideoDrilldownRemoteEnabled=true`. Skaidra un nepatiesa kļūda atsauc piekļuvi pat tad, ja ir iespējots mantotais `OMNIROUTE_VIDEO_BRIDGE_DRILLDOWN_REMOTE_ENABLED` env atkāpšanās variants. Ražošanas saglabāšanai ir līdzīgs mantotais `OMNIROUTE_VIDEO_BRIDGE_DRILLDOWN_ENABLED` atkāpšanās variants. Abas rezerves pēc noklusējuma ir izslēgtas.
 
-Patērētājs iegūst īpašumtiesības no autentificētās atslēgas un piemēro atslēgas politiku: gan GET, gan DELETE pieder `video` galapunkta kategorijai, tostarp `/v1` un `/api/v1` aizstājvārdiem. Atslēgās ar tukšu beigu punktu atļauto sarakstu ir jāietver `video`; neierobežotas atslēgas joprojām ir saderīgas. Patērētājs atgriež to pašu 404 par nezināmiem, beidzies derīguma termiņiem un citas atslēgas rokturiem. Tā pieņem `variant=preview|standard|detail` (maksimālā JPEG dimensija 320/640/1280, nekad nav palielināta), `limit=1..8` (vai mantotais `frames` aizstājvārds, nekad abus), nulles `page` un izvēles `start`/`end` fokusa sekundes. Dublētas vaicājuma atslēgas un apgrieztā fokusa logi tiek noraidīti. Katram atgrieztajam variantam ir tā faktiskā satura un faktiskās izšķirtspējas metadatu jaukšana, kas ir saistīta ar saglabāto avotu. Varianti tiek iegūti lasīšanas laikā, nevis tiek saglabāti kā papildu saglabātas kopijas. JSON reakcija, ieskaitot Base64/envelope, ir ierobežota līdz 32 MiB; pārāk liela lapa atgriež 413, un klientam ir jāpieprasa mazāk kadru. Nolasa pārbaudes atcelšanu ap katru izmēru un vēlreiz pārbauda roktura derīgumu pirms atgriešanās. `DELETE` pēc īpašnieka ir idempotents; dzēšana vai TTL beigu termiņš atbrīvo saglabāto avotu un lietojuma uzskaiti.
+Patērētājs iegūst īpašumtiesības no autentificētās atslēgas un piemēro atslēgas politiku: gan GET, gan DELETE pieder `video` galapunkta kategorijai, tostarp `/v1` un `/api/v1` aizstājvārdiem. Atslēgās ar tukšu beigu punktu atļauto sarakstu ir jāiekļauj `video`; neierobežotas atslēgas joprojām ir saderīgas. Patērētājs atgriež to pašu 404 par nezināmu, beidzies derīguma termiņu un citas atslēgas rokturiem. Tā pieņem `variant=preview|standard|detail` (maksimālā JPEG dimensija 320/640/1280, nekad nav palielināta), `limit=1..8` (vai mantotais `frames` aizstājvārds, nekad abus), nulles `page` un izvēles `start`/`end` fokusa sekundes. Dublētas vaicājuma atslēgas un apgrieztā fokusa logi tiek noraidīti. Katram atgrieztajam variantam ir tā faktiskā satura un faktiskās izšķirtspējas metadatu jaukšana, kas ir saistīta ar saglabāto avotu. Varianti tiek iegūti lasīšanas laikā, nevis tiek saglabāti kā papildu saglabātas kopijas. JSON reakcija, ieskaitot Base64/envelope, ir ierobežota līdz 32 MiB; pārāk liela lapa atgriež 413, un klientam ir jāpieprasa mazāk kadru. Nolasa pārbaudes atcelšanu ap katru izmēru un vēlreiz pārbauda roktura derīgumu pirms atgriešanās. `DELETE` pēc īpašnieka ir idempotents; dzēšana vai TTL beigu termiņš atbrīvo saglabāto avotu un lietojuma uzskaiti.
 
 Koplietotais veikals ir procesa lokāls: turētāju derīguma termiņš beidzas, restartējot, un tos nevar pārsūtīt starp neatkarīgiem OmniRoute procesiem. Pārvaldības statistika atklāj efektīvu saglabāšanas/attālināto politiku un apkopo tikai saglabātos entries/bytes, nevis multividi, atsauces, galvenos IDs vai rokturus. Video iestatījumu panelī tiek rādītas šīs vērtības, un var saglabāt abus piekrišanas slēdžus. Šī ieviešanas dokumentācija nav tiešs izvietošanas vai veicināšanas pierādījums; reālā modeļa pieņemšana tiek izsekota atsevišķi.
 
-Kadriem tiek pievienoti paraksti secīgi ar konfigurēto video modeli. Tukša Video ignorēšana pārņem Vision iestatījumu; ja abi ir tukši, Vision automātiskais maršrutētājs izvēlas efektīvu modeli, kas spēj nodrošināt redzi. Veiksmīgi paraksti aizstāj sākotnējo daļu ar stabilu `[Video description:` prefiksu, kas arī atzīmē tekstu kā neuzticamu mediju radītu novērojumu un liek pakārtotajiem modeļiem neievērot plašsaziņas līdzekļos atrodamos norādījumus. Kadru parakstu kešatmiņas atslēgas ietver JPEG baitus, uzvedni, laikspiedolu un efektīvu modeli; kešatmiņā tiek saglabāti tikai veiksmīgie paraksti. Kešatmiņas ieraksti saglabā faktisko veiksmīgo ražotāja modeli, tostarp atkāpšanās modeli; tilts ziņo par `mixed` kad dažādi modeļi tika ražoti dažādi rāmji. Kešatmiņas trāpījums atkārtoti izmanto šo ražotāja identitāti, nevis pārzīmē to kā pieprasīto maršrutēšanas plānu. Visa video rezultāta kešatmiņa tiek ievadīta katrā ieejā, kas maina izvades — uzvedni, efektīvu modeli, iztveršanas politiku, kadru skaitu, semantiskās analīzes režīmu, normalizētā fokusa mājiena SHA-256 pirkstu nospiedumu, fokusa logu, `transcript`, `audioTranscript` un kontaktu lapas karogu —, tāpēc neviena no šiem izmēriem mainīšana nekad nav kešatmiņas atkārtota izmantošana. Vizuālā atkopšanas politikas versija, slieksnis un ierobežotais kandidātu kadru skaits ir arī skaidri norādīts rezultātu kešatmiņas atslēgā un metadatos; tādēļ politikas izmaiņas nevar atkārtoti izmantot novecojušu visa videoklipa aprakstu. Result-cache v4 metadati saglabā režīmu un pirkstu nospiedumu, nevis neapstrādātu lietotāja uzdevumu. Guardrail metadati ziņo gan par pieprasītajiem, gan efektīvajiem analīzes veidiem; pieprasītais `focused` režīms bez lietojama lietotāja teksta tiek ziņots kā efektīvs `full`.
+Kadriem tiek pievienoti paraksti secīgi ar konfigurēto video modeli. Tukša Video ignorēšana pārmanto Vision iestatījumu; ja abi ir tukši, Vision automātiskais maršrutētājs izvēlas efektīvu modeli, kas spēj nodrošināt redzi. Veiksmīgi paraksti aizstāj sākotnējo daļu ar stabilu `[Video description:` prefiksu, kas arī atzīmē tekstu kā neuzticamu mediju radītu novērojumu un liek pakārtotajiem modeļiem neievērot plašsaziņas līdzekļos atrodamos norādījumus. Kadru parakstu kešatmiņas atslēgas ietver JPEG baitus, uzvedni, laikspiedolu un efektīvu modeli; kešatmiņā tiek saglabāti tikai veiksmīgie paraksti. Kešatmiņas ieraksti saglabā faktisko veiksmīgo ražotāja modeli, tostarp atkāpšanās modeli; tilts ziņo par `mixed` kad dažādi modeļi tika ražoti dažādi rāmji. Kešatmiņas trāpījums atkārtoti izmanto šo ražotāja identitāti, nevis pārzīmē to kā pieprasīto maršrutēšanas plānu. Visa video rezultāta kešatmiņa tiek ievadīta katrā ieejā, kas maina izvades — uzvedni, efektīvu modeli, iztveršanas politiku, kadru skaitu, semantiskās analīzes režīmu, normalizētā fokusa mājiena SHA-256 pirkstu nospiedumu, fokusa logu, `transcript`, `audioTranscript` un kontaktu lapas karogu —, tāpēc neviena no šiem izmēriem mainīšana nekad nav kešatmiņas atkārtota izmantošana. Vizuālā atkopšanas politikas versija, slieksnis un ierobežotais kandidātu kadru skaits ir arī skaidri norādīts rezultātu kešatmiņas atslēgā un metadatos; tādēļ politikas izmaiņas nevar atkārtoti izmantot novecojušu visa videoklipa aprakstu. Result-cache v4 metadati saglabā režīmu un pirkstu nospiedumu, nevis neapstrādātu lietotāja uzdevumu. Guardrail metadati ziņo gan par pieprasītajiem, gan efektīvajiem analīzes veidiem; pieprasītais `focused` režīms bez lietojama lietotāja teksta tiek ziņots kā efektīvs `full`.
 
 Aizsargmarga izvelk katru atbalstīto video daļu, bet apraksta ne vairāk kā `modalityBridgeVideoMaxVideos`. Ja ir pierādīts, ka mērķim ir `supportsVideo === false`, neveiksmīgi un pārmērīgi ierobežoti videoklipi kļūst par skaidriem, drošiem teksta marķieriem, tāpēc neapstrādāts video nepaliek. Ja iespējas nav zināmas, šīs daļas saglabā savu video nesēju; Jebkurš atkāpšanās atšifrējums atbilst iepriekš norādītajai ierobežotā teksta konvertēšanai. Mērķi ar `supportsVideo === true` apiet tiltu. Klienta pieprasījuma pārtraukšanas signāls izplatās, izmantojot lejupielādi, starpnieka rindu, apakšprocesus un parakstu izsaukumus; pārtraukumi apstājas starp videoklipiem un nekad neizdodas atvērt neapstrādātiem medijiem.
 
@@ -292,24 +280,98 @@ Atklāj pretrunīgas struktūras lietotāja nodrošinātajā saturā un ievieš 
 
 Atklāšanas avoti:
 
-1. `sanitizeRequest()` no `@/shared/utils/inputSanitizer` (koplietots detektoru komplekts, ko izmanto citur cauruļvadā).
+1. `sanitizeRequest()` no `@/shared/utils/inputSanitizer` (kopīgs detektoru komplekts, ko izmanto citur cauruļvadā).
 2. Iebūvēts `DEFAULT_GUARD_PATTERNS` (šobrīd `system_override_inline` un `markdown_system_block`, abiem `high` smaguma pakāpe).
 3. Izvēles `customPatterns` ir nodota, izmantojot konstruktora opcijas (virknes, regex vai `{ name, pattern, severity }` ierakstus).
 
-Kad `mode === "block"`** un** vismaz viena noteikšana atbilst nopietnības slieksnim, `preCall` atgriež `{ block: true, message: "Request rejected: suspicious content detected" }`. Režīmos `warn`/`log` aizsargmargas reģistrē, bet atļauj zvanu. Koplietotais palīgs `evaluatePromptInjection()` tiek eksportēts arī zvanītājiem, kuriem ir jānovērtē uzvednes, neizejot cauri reģistram.
+Kad `mode === "block"`** un** vismaz viena noteikšana atbilst nopietnības slieksnim, `preCall` atgriež `{ block: true, message: "Request rejected: suspicious content detected" }`. Režīmos `warn`/`log` aizsargmargas reģistrējas, bet atļauj zvanu. Koplietotais palīgs `evaluatePromptInjection()` tiek eksportēts arī zvanītājiem, kuriem ir jānovērtē uzvednes, neizejot cauri reģistram.
 
-**Saistīta skenēšana (v3.8.20):** detektors pārbauda tikai** pirmie 16 KB** no pievienotā uzvednes teksta — `MAX_INJECTION_SCAN_BYTES = 16 * 1024` (16 384 baiti) `src/shared/utils/inputSanitizer.ts`. Gan `detectInjection()`, gan `evaluatePromptInjection()` `slice(0, MAX_INJECTION_SCAN_BYTES)` pirms modeļa cilpas palaišanas. Injekcijas direktīvas atrodas netālu no ievades augšdaļas, tāpēc vairāku simtu KB lietderīgās slodzes ierobežo regulāro izteiksmi CPU/GC nemazinot noteikšanu (sal. #3932, #4041).
+**Skenēšana saistīta (v3.8.20):** detektors pārbauda tikai** pirmie 16 KB** no pievienotā uzvednes teksta — `MAX_INJECTION_SCAN_BYTES = 16 * 1024` (16 384 baiti) `src/shared/utils/inputSanitizer.ts`. Gan `detectInjection()`, gan `evaluatePromptInjection()` `slice(0, MAX_INJECTION_SCAN_BYTES)` pirms modeļa cilpas palaišanas. Injekcijas direktīvas atrodas netālu no ievades augšdaļas, tāpēc vairāku simtu KB lietderīgās slodzes ierobežo regulāro izteiksmi CPU/GC nemazinot noteikšanu (sal. #3932, #4041).
 
 ### Credential Masker (`credentialMasker.ts`)
 
 Darbojas tālāk** gan** posmi, pēdējais noklusējuma ķēdē (prioritāte `95`). Rediģē labi zināmos API atslēgu/slepeno marķieru modeļus no izejošās lietderīgās slodzes (ziņojuma saturs, rīka izsaukuma argumenti, rīka rezultāti)** un** nodrošinātāja atbildi, tāpēc uzvednē ielīmētie akreditācijas dati (vai rīka rezultātos atbalsoti) netiek nopludināti augšupējam pakalpojumu sniedzējam vai atpakaļ klientam.
 
-- **Tikai pieteikšanās** , tāda pati vienošanās kā PII rediģēšana (Cietais noteikums #20- blakus): atspējots, ja vien `settings.credentialRedactionEnabled === true`** vai** `CREDENTIAL_REDACTION_ENABLED=true`. Ja aizsargmargas ir izslēgtas, tās nekad — un nepārraksta.
+- **Tikai pieteikšanās** , tāda pati vienošanās kā PII rediģēšana (Cietais noteikums #20- blakus): atspējots, ja vien `settings.credentialRedactionEnabled === true`** vai** `CREDENTIAL_REDACTION_ENABLED=true`. Ja tas ir izslēgts, aizsargmargas ir bezdarbīgas — tās nekad nebloķē un nepārraksta.
 - `redactCredentials()` iziet pilnu payload/response koku (`walkValue()`, prototype-pollution-safe, cycle-safe, izmantojot `WeakSet`) un aizstāj atbilstības ar `[REDACTED:<type>]` vietturi, klonējot tikai tos zarus, kas faktiski mainījušies.
 - `CREDENTIAL_PATTERNS` aptver LLM nodrošinātāja atslēgas (OpenAI, OpenAI-proj, Anthropic, Google, Hugging Face, Replicate ), VCS/SaaS marķierus (GitHub, Slack, Linear, Notion, npm, Pastnieks, Discord), maksājumu atslēgas (Square, Key,AWS, zwilio key, Strkpe). SendGrid, Mailgun), privātās atslēgas / JWTs, akreditācijas datu savienojumu virknes (`mongodb://user:pass@...` utt.) un vispārīgu `Authorization`/`x-api-key`/`api-key`/`apikey` galvenes vērtību modeli. Galvenes formas taustiņi (`authorization`, `x-api-key`, `api-key`, `apikey`) tiek rediģēti strukturāli (tikai vērtība, saglabāts shēmas prefikss, piemēram `Bearer `/`Basic ` ), nevis izmantojot vispārīgo teksta regulāro izteiksmi.
+- A value behind a label is masked even when it has no provider prefix: `DB_PASSWORD=…`, `AWS_SECRET_ACCESS_KEY=…`, `client_secret: …`, `?api_key=…` (labels: `password`, `passwd`, `secret`, `secret_key`, `secret_access_key`, `api_key`, `access_token`, `refresh_token`, `auth_token`, with any prefix such as `DB_`). The label and separator stay and the value becomes `[REDACTED:secret]`. The value needs 12 or more characters, so prose such as `password: required` stays readable; a value that starts with `$` or `%` (a variable reference) is left alone.
 - Aizsargmargas nekad nebloķējas; tas tikai pārraksta (`modifiedPayload` / `modifiedResponse`) un anotē (`meta.credentialsRedacted`, `meta.count`).
 
 Regresa aizsargs: `tests/unit/credential-masker-guardrail.test.ts`.
+
+### Aģents sargs (`agentGuard/`)
+
+Aģentu aizsargs klasificē klientu aiz pieprasījuma `claude` vai `anthropic` nodrošinātājam no tā galvenēm. `AGENT_GUARD_MODE` ņem trīs vērtības: `off` (noklusējums), `monitor` un `block`. Izmantojot `off`, neviena galvene netiek lasīta un nekas netiek reģistrēts.
+
+Oficiālie aģenti tiek atpazīti pēc šīm virsrakstiem (salīdzinājumā ar reģistriem nejutīgi):
+
+- Claude kods: `User-Agent` kas sākas ar `claude-cli/` vai `claude-code/`, vai `x-app: cli` kopā ar `anthropic-beta` galveni vai `User-Agent`, kas satur `claude`.
+- Anthropic SDKs: `User-Agent` kas sākas ar `Anthropic/`, `AsyncAnthropic/`, `anthropic-typescript/` vai `anthropic-python/`.
+
+Reģistrētāja noklusējuma līmenis ražošanā (`info`) parāda abu veidu līnijas. Izmantojot `APP_LOG_LEVEL=warn` paliek tikai zināmās trešo pušu līnijas.
+
+Baļķu lauki: `agent`, `thirdParty`, `provider`, `model`, `apiKeyId`, `userAgent`, `xApp`, `anthropicBeta`, `xTitle`, `referer`, `stainless`. Galvenes vērtībām un modeļa virknei ir 200 rakstzīmju ierobežojums. Referents tiek reģistrēts bez vaicājuma virknes, fragmenta un lietotāja informācijas. Taustiņš API, `Authorization`, `x-api-key` un sīkfaili nekad netiek nolasīti.
+
+Faili: `src/lib/guardrails/agentGuard/classifier.ts`, `src/lib/guardrails/agentGuard/policy.ts`, `src/lib/guardrails/agentGuard/guardrail.ts`, `src/lib/guardrails/agentGuard/settings.ts`, `src/lib/guardrails/agentGuard/logLine.ts`, `src/lib/guardrails/agentGuard/enforcement.ts`, `src/sse/handlers/chat/agentGuardGate.ts`.
+
+**Klasifikācijas ierobežojumi (abi režīmi):**
+
+- Aģents, kas izveidots uz oficiāla SDK, kas nesūta `X-Title`, `HTTP-Referer` vai savu `User-Agent` izskatās kā SDK. `x-stainless-*` galvenes vien nepadara klientu par oficiālu.
+- Trešo pušu aģentiem atbilst visu vārdu marķieri `User-Agent`, `X-Title` un `HTTP-Referer` (vai `Referer`). Sarakstā neiekļautie klienti tiek rādīti kā `unknown`.
+- Uz pārlūkprogrammu balstītu klientu pieprasījumiem ir pašas pārlūkprogrammas `User-Agent`, un tie tiek rādīti kā neidentificēti, ja vien `X-Title` vai novirzītājs nesatur zināmu trešās puses pilnvaru.
+- Viena žurnāla rinda katram novērotajam pieprasījumam: sagaidiet apjomu aizņemtajos gadījumos.
+
+#### Monitors
+
+Izmantojot `AGENT_GUARD_MODE=monitor`, pieprasījumi, kuru modeļa virknes nosaukumi ir `claude` vai `anthropic` nodrošinātājs, tiek klasificēti pēc to klientu galvenēm. Ja klients nav oficiālais aģents, tiek ierakstīta viena žurnāla rinda ar `tag: "AGENT_GUARD"`. Tas ir `warn` zināmam trešās puses aģentam un `info` neidentificētam klientam. Prioritāte `1`: aizsargmarga nolasa tikai galvenes un nekad nemaina lietderīgo slodzi, tāpēc tā darbojas pirms multivides tilta. `monitor` nekad nebloķē.
+
+**`monitor` ierobežojumi:**
+
+- Katrs signāls ir klienta kontrolēta galvene. Tā ir novērošana, nevis piekļuves kontrole.
+- Pakalpojumu sniedzējs tiek nolasīts no modeļa virknes pirms modeļa atrisināšanas: `provider/model`, nodrošinātāja aizstājvārds, piemēram `cc/…`, un kvotas koplietošanas id (`qtSd/<group>/<provider>/<model>`). Netiek ievēroti tukšā modeļa ID, modeļu aizstājvārdi, kombinācijas un vēlāka maršrutēšanas normalizācija. Šīs prasības netiek ievērotas.
+- Zvanītājs var izlaist to pēc pieprasījuma, izmantojot reģistra atspējošanas kanālus (skatiet [sadaļu Guardrails atspējošana pēc pieprasījuma](#disabling-guardrails-per-request) ). Izlaistie pieprasījumi netiek ievēroti.
+- Tas darbojas tikai tur, kur darbojas `runPreCallHooks` (skatiet [sadaļu Aptvērums un ierobežojumi](#coverage-and-limits) ).
+
+#### Bloķēt
+
+Izmantojot `AGENT_GUARD_MODE=block`, pirmszvana aizsargmargas neko nedara. Tā vietā lēmumu pieņem tērzēšanas apstrādātājs:
+
+1. Lēmums tiek pieņemts, kad mērķis tiks nosūtīts, pakalpojumu sniedzējam, kuram pieprasījums ir atrisināts. Tiek aptverti pakalpojumu sniedzēja aizstājvārdi, tukši modeļu ID, kvotu koplietošanas ID un visi kombinētie mērķi.
+2. Tas nedarbojas aizsargmargu reģistrā, tāpēc uz to neattiecas atspējošanas kanāli pēc pieprasījuma.
+3. Zināms trešās puses aģents tiek atteikts. Neidentificēts klients tiek reģistrēts tāpat kā `monitor` un atteikts tikai ar `AGENT_GUARD_STRICT=true`. Claude kods un oficiālais Anthropic SDKs nekad netiek atteikts.
+4. Atteikums ir HTTP 403 ar `error.type` `permission_error` un `error.code` `client_agent_not_allowed`. Pamattekstā ir OpenAI stila kļūda. Antropiskā formāta pieprasījumos tas nodrošina arī `type: "error"` augstākajā līmenī. Nav `Retry-After` galvenes, un atteikums tiek atgriezts pirms straumes sākuma.
+5. Atteikums nav pakalpojumu sniedzēja kļūme. Tas neskar pakalpojumu sniedzēja ķēdes pārtraucēju, savienojuma atdzišanu vai modeļa bloķēšanu.
+6. Kombinācijā noraidītais mērķis tiek izlaists un atlikušie mērķi skrien. Pieprasījums neizdodas politikas kļūdas dēļ, kad tika noraidīts vismaz viens mērķis un neviens mērķis netika garām sargam. Kombinācija saglabā savu kļūdu, ja augstākā līmeņa ierakstā tiek nosaukts cits zināms nodrošinātājs, izmantojot prefiksu vai darbības nodrošinātāja ID. Atteikts prioritātes mērķis ar `fallbackOnlyOnQuotaExhaustion` tiek izlaists tāpat un neaptur kombināciju. Ēnu mērķis tiek pārbaudīts un reģistrēts, taču tas nekad netiek uzskatīts par mērķi, kas ir ticis garām aizsargam.
+7. `fusion` kombinācija neizdodas pirms komisijas darbības sākuma, kad tiks atteikts tiesnesis, ko izmantos kodolsintēzes dienests. Šis tiesnesis nāk no kombinācijas konfigurācijas vai globālajiem kombinācijas noklusējuma iestatījumiem. Tāda pati pārbaude tiek veikta, kad, izmantojot drošības tīkla novirzīšanu, tiek sasniegta saplūšanas kombinācija.
+8. Viena žurnāla rinda katram pieprasījumam un nodrošinātājam ar `tag: "AGENT_GUARD"`, `warn` atteikumam un tiem pašiem laukiem kā `monitor`.
+9. Iekšējas kļūdas gadījumā aizsargs netiek atvērts. Pieprasījums tiek izpildīts, un tiek reģistrēta viena `warn` līnija `agent guard failed open`.
+
+**`block` ierobežojumi:**
+
+- Katrs signāls ir klienta kontrolēta galvene. Klients, kas nosūta `User-Agent: claude-cli/…` tiek uzskatīts par Claude kodu. `block` attur nemodificētus trešo pušu aģentus. Tā nav piekļuves kontrole.
+- Starpniekserveris, kas noņem identificējošās galvenes, pārvērš jebkuru klientu par neidentificētu klientu. Tāds klients tiek apkalpots bez `AGENT_GUARD_STRICT` un atteikts ar to. Palaidiet aizsargu instancē, kas ir vērsta pret klientiem. Otrajā OmniRoute instancē, kas atrodas aiz pirmās, tiek parādītas pirmās galvenes.
+- `AGENT_GUARD_STRICT` atsakās no visiem to pakalpojumu sniedzēju klientiem, kas nav Claude kods vai oficiāls SDK. Tas ietver pārlūkprogrammas klientus un informācijas paneļa rotaļu laukumu. Informācijas paneļa kombinētā tiešraides pārbaude ir atbrīvota, arī izmantojot drošības tīkla novirzīšanu.
+- Dažas funkcijas veido savu tērzēšanas pieprasījumu, nevis nodod tālāk klienta pieprasījumu. Četri no viņiem to nosūta atpakaļ, izmantojot OmniRoute `/v1/...` maršrutus:
+  - pakešu darbi (`src/lib/batches/dispatch.ts`)
+  - MCP secinājumu rīki (`open-sse/mcp-server/tools/inferenceTools.ts`)
+  - A2A viedā maršrutēšana (`src/lib/a2a/skills/smartRouting.ts`)
+  - redzes tilts, kad tas apraksta attēlu caur OmniRoute (`src/lib/guardrails/visionBridgeHelpers.ts`)
+- Telegram tērzēšanas starpniekserveris (`src/lib/telegram/chatProxy.ts`) veido savu pieprasījumu procesā un tieši izsauc tērzēšanas apdarinātāju.
+- Šiem iekšējiem pieprasījumiem ir paša OmniRoute galvenes, nevis klienta, kurš tos sācis, galvenes. Apsargs viņus klasificē kā neidentificētus klientus.
+- Bez `AGENT_GUARD_STRICT` šie iekšējie pieprasījumi tiek apkalpoti apsargātajiem pakalpojumu sniedzējiem neatkarīgi no tā, kurš bija sākotnējais klients. Trešās puses aģents, kas caur viņiem sasniedz Claude netiek atteikts.
+- Izmantojot `AGENT_GUARD_STRICT`, šie iekšējie pieprasījumi tiek noraidīti apsargātajiem pakalpojumu sniedzējiem, kas tos ir uzsākuši, ieskaitot Claude kodu.
+- Tiek ierobežoti tikai tie pieprasījumi, kas tiek nosūtīti caur tērzēšanas apdarinātāju. Modeļa validācija (`src/lib/modelValidation/runner.ts`) tieši izsauc pieprasījuma kodolu, un tā nav ierobežota.
+- Tiek segti tikai `claude` un `anthropic` pakalpojumu sniedzēji. Claude modeļiem, kurus apkalpo cits pakalpojumu sniedzējs, tas neattiecas, un tas neattiecas arī uz `claude-web` nodrošinātāju.
+- Dažas kombinācijas atlikušos mērķus nosauc bez nodrošinātāja prefiksa kā tukša modeļa ID vai ligzdotas kombinācijas. Ja šie mērķi nav pieejami nesaistīta iemesla dēļ (atvērts slēdzis, dzesēšana, bloķēšana), pieprasījums neizdodas, jo rodas politikas kļūda.
+- Izlaists kombinētais mērķis notīra šī mērķa pēdējo zināmo labo tapu, kā to dara jebkurš izlaists mērķis.
+- Savienojuma tiesnesim, kas nosaukts ar apsargātu pakalpojumu sniedzēja prefiksu, tiek atteikts pirms kolēģijas darbības sākuma. Tas attiecas uz `anthropic/…`, `claude/…`, aizstājvārdu, piemēram `cc/…`, konteksta sufiksu, piemēram, `[1m]`, un šo pakalpojumu sniedzēju kvotu koplietošanas nosaukumus.
+- Kodolsintēzes tiesnesis, kas rakstīts kā tukšs modeļa ID vai kā modeļa aizstājvārds, kas tiek piešķirts apsargātam pakalpojumu sniedzējam, tiek atteikts tikai tad, kad tas ir nosūtīts. Līdz tam laikam panelis jau ir darbojies. Nosaucot tiesnesi ar tā sniedzēja prefiksu, no tā tiek izvairīties. Neviena tiesneša pareizrakstība nesasniedz apsargātu pakalpojumu sniedzēju bez atteikuma.
+- Iepriekšējā pārbaude noraida konfigurētu Claude tiesnesi pat tad, ja kodolsintēzes dienests šo tiesnesi izpildes laikā atlaiž. Dienests atlaiž tiesnesi, ko operators slēpa, un tiesnesi, kas nevar pieņemt pieprasījuma medijus. Otrā lieta attiecas uz neapstiprinātu redzes atbalstu un citiem medijiem, kurus tiesnesis nepieņem. Abi kombinētie ceļi darbojas šādi.
+- Drošības tīkla novirzīšanā kombinētais pakalpojums saņem tukšus iestatījumus. Tiesnesis, kas iestatīts tikai globālajos kombinētos noklusējuma iestatījumos, nekad netiek izmantots.
+- Kamēr `block` ir ieslēgts, klients, kuru apsargs atteiktu apsargātā pakalpojumu sniedzēja gadījumā, neizmanto blakusvāģa ātro ceļu nevienam modelim. Saskaņā ar `AGENT_GUARD_STRICT` tas ir katrs neidentificēts klients. Pēc releja marķiera pārbaudes `POST /v1/relay/chat/completions/bifrost` atbild uz šiem pieprasījumiem ar 503 un `X-Bifrost-Fallback` galveni.
+- `POST /v1/messages/count_tokens` sniedz lokālo aprēķinu klientam, kuram apsargs atteiktos no pakalpojumu sniedzēja, kuru modelis izvēlas.
+- Atbrīvojuma par katru atslēgu nav.
 
 ## Bāzes līgums (`base.ts`)
 
@@ -357,63 +419,31 @@ vērtību, kas plūst pa ķēdi uz turpmākajiem guardrail.
 
 ## Reģistrs (`registry.ts`)
 
-Singltons `guardrailRegistry` piedāvā:
+Vienvietīgais `guardrailRegistry` atklāj:
 
-- `register(guardrail)` — pievieno guardrail (vai aizstāj to pēc normalizētā nosaukuma) un
-  pārkārto augošā `priority` secībā.
-- `clear()` / `list()` — administratīvās palīgfunkcijas.
-- `runPreCallHooks(payload, context)` — iziet cauri aktīvajiem guardrail, virza
-  payload caur `modifiedPayload` un apstājas pie pirmā `block: true`.
-- `runPostCallHooks(response, context)` — tāda pati plūsma atbildes pusē.
-- `resetGuardrailsForTests({ registerDefaults })` — notīra stāvokli un pēc izvēles
-  atkārtoti reģistrē noklusējuma guardrail tīrai testu izolācijai.
+- `register(guardrail)` — pievieno (vai aizstāj ar normalizētu nosaukumu) aizsargmargu un pārkārto, izmantojot augošu `priority`.
+- `clear()` / `list()` — administratīvie palīgi.
+- `runPreCallHooks(payload, context)` — atkārto aktīvās aizsargmargas, izvada lietderīgo kravu caur `modifiedPayload` un apstājas pirmajā `block: true`.
+- `runPostCallHooks(response, context)` — tā pati plūsma atbildes pusē.
+- `resetGuardrailsForTests({ registerDefaults })` — notīra stāvokli un pēc izvēles atkārtoti reģistrē noklusējuma iestatījumus tīrai testa izolācijai.
 
-Abi izpildītāji atgriež `{ blocked, payload|response, results, guardrail?, message? }`,
-kur `results` ir `GuardrailExecutionResult` ierakstu masīvs, kas katram guardrail
-ietver laukus `blocked`, `skipped`, `modified`, `error` un `meta`,
-kas noder izsekošanai.
+Abi skrējēji atgriež `{ blocked, payload|response, results, guardrail?, message? }` kur `results` ir `GuardrailExecutionResult` ierakstu masīvs, kas ietver katra aizsargmarga `blocked`, `skipped`, `modified`, `error` un `meta` laukus, kas ir noderīgi izsekošanai.
 
-### Guardrail atspējošana pieprasījuma līmenī
+### Aizsargu atspējošana pēc pieprasījuma
 
-`resolveDisabledGuardrails({ apiKeyInfo, body, headers })` apkopo guardrail
-nosaukumu sarakstu bez dublikātiem, kas jāizlaiž pašreizējam
-pieprasījumam. Ir pieci kanāli, kas tiek lasīti šādā secībā un apvienoti vienā
-sarakstā (deduplicējot priekšroka ir pirmajam gadījumam):
+`resolveDisabledGuardrails({ apiKeyInfo, body, headers })` apkopo dublēto aizsargmargu nosaukumu sarakstu, kas pašreizējā pieprasījuma gadījumā ir jāizlaiž. Ir pieci kanāli, kas tiek lasīti šādā secībā un apvienoti vienā sarakstā (atceļot dublikātu, uzvar pirmais gadījums):
 
 1. `apiKeyInfo.disabledGuardrails`
-2. Pieprasījuma pamatteksta `disabledGuardrails` (augšējā līmenī)
-3. Pieprasījuma pamatteksta `metadata.disabledGuardrails` (tikai ja `metadata` ir objekts)
-4. Galvene `x-omniroute-disabled-guardrails`
+2. Pieprasīt body `disabledGuardrails` (augšējais līmenis)
+3. Pieprasīt pamattekstu `metadata.disabledGuardrails` (tikai tad, ja `metadata` ir objekts)
+4. Virsraksts `x-omniroute-disabled-guardrails`
 5. Mantotā galvene `x-disabled-guardrails`
 
-Tiek apvienoti visi pieci kanāli, ieskaitot abas galvenes: sūtot gan
-`x-omniroute-disabled-guardrails`, gan `x-disabled-guardrails`, tiek izlaista to
-sarakstu apvienojuma kopa, un tukša mūsdienu galvene vairs neslēpj mantoto
-([#16412](https://github.com/diegosouzapw/OmniRoute/issues/16412), salabots
-[#16805](https://github.com/diegosouzapw/OmniRoute/pull/16805)).
+Visi pieci kanāli ir sapludināti, ieskaitot abas galvenes: nosūtot gan `x-omniroute-disabled-guardrails`, gan `x-disabled-guardrails` tiek izlaists to sarakstu apvienojums, un tukša mūsdienu galvene vairs neslēpj mantoto ( [#16412](https://github.com/cheaper-inference/OmniRoute/issues/16412), fiksēts [#16805](https://github.com/cheaper-inference/OmniRoute/pull/16805) ).
 
-Vērtības var būt virkņu masīvi vai ar komatiem atdalīta virkne; nosaukumiem tiek
-noņemtas liekās atstarpes un tie tiek normalizēti mazajiem burtiem kebab-case
-formātā (`pii_masker` → `pii-masker`), bet tukšie ieraksti tiek izmesti.
-Rezultāts caur `context.disabledGuardrails` tiek nodots reģistram,
-kas izlaiž atbilstošos guardrails (`skipped: true` laukā `results`).
+Vērtības var būt virkņu masīvi vai ar komatu atdalīta virkne; nosaukumi tiek apgriezti un normalizēti ar mazajiem kebaba burtiem (`pii_masker` → `pii-masker`), un tukšie ieraksti tiek atmesti. Rezultāts tiek nosūtīts caur `context.disabledGuardrails` uz reģistru, kas izlaiž atbilstošās aizsargmargas (`skipped: true` in `results`).
 
-Atspējošanas saraksts ietekmē tikai **reģistru**. Prompt-injection `block` režīms ir
-obligāta robeža: injekciju aizsardzības starpprogrammatūra
-(`src/middleware/promptInjectionGuard.ts`) izsauc `evaluatePromptInjection()`
-bez jebkāda izsaucēja kontrolējamā atspējošanas saraksta (tās agrāk veiktais
-neizmantotais `resolveDisabledGuardrails({ body })` izsaukums tika noņemts
-[#16934](https://github.com/diegosouzapw/OmniRoute/pull/16934)), tāpēc pieprasījums,
-kas atspējo `prompt-injection`, `block` režīmā joprojām tiek noraidīts. Tas ir
-apzināts arhitektūras lēmums. Atspējošanas kanāli ir izsaucēja kontrolējami
-(pieprasījuma pamatteksts, metadati, galvenes), un izsaucējs nedrīkst
-spēt izslēgt drošības kontroli, ko iestatījis operators
-([#16413](https://github.com/diegosouzapw/OmniRoute/issues/16413)). Galveņu
-apvienojums no [#16412](https://github.com/diegosouzapw/OmniRoute/issues/16412)
-maina tikai to, kuri reģistra guardrail tiek izlaisti; tas neļauj klientam
-apiet starpprogrammatūru. Obligātās guardrail politikas atslēgu un
-grupu līmenī tiek izsekotas v4 RFC [#16417](https://github.com/diegosouzapw/OmniRoute/issues/16417).
-Skatiet [Pārklājums un ierobežojumi](#coverage-and-limits).
+Atspējošanas saraksts ietekmē tikai** reģistrs** . Ātrās injekcijas `block` režīms ir obligāta robeža: injekcijas aizsarga starpprogrammatūra (`src/middleware/promptInjectionGuard.ts`) izsauc `evaluatePromptInjection()` bez zvanītāja kontrolēta atspējošanas saraksta (mirušais `resolveDisabledGuardrails({ body })` izsaukums, ko tas izmantoja, tika noņemts [#16934](https://github.com/cheaper-inference/OmniRoute/pull/16934) ), tāpēc pieprasījums, kas atspējo `prompt-injection` joprojām tiek noraidīts `block` režīmā. Tas ir pēc dizaina. Atspējošanas kanālus kontrolē zvanītājs (pieprasījuma pamatteksts, metadati, galvenes), un zvanītājs nedrīkst izslēgt operatora iestatīto drošības kontroli ( [#16413](https://github.com/cheaper-inference/OmniRoute/issues/16413) ). Galvenes savienība no [#16412](https://github.com/cheaper-inference/OmniRoute/issues/16412) maina tikai to, kuras reģistra aizsargmargas tiek izlaistas; tas neļauj klientam apiet starpprogrammatūru. Obligātās katras atslēgas un katras grupas aizsargmargu politikas tiek izsekotas v4 RFC [#16417](https://github.com/cheaper-inference/OmniRoute/issues/16417). Skatiet [Aptvērums un ierobežojumi](#coverage-and-limits).
 
 ## Izpildes rīkojums
 
@@ -439,7 +469,7 @@ Aizsargmargu reģistrs ir pievienots tikai tērzēšanas cauruļvadam. Šīs rob
 | Āķis / vadība                                             | Darbojas tālāk                                                                                                                                                                                                                                                                                                                                                                                                                                         |
 | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `runPreCallHooks`                                         | Pieprasījumi, ko apstrādā `handleChat` (`src/sse/handlers/chat.ts`): `/v1/chat/completions`, `/v1/completions`, `/v1/messages`, `/v1/responses` (un `/v1/responses/*`), `/v1/relay/chat/completions`, `/v1/providers/{provider}/chat/completions`, `/v1/api/chat`, `/v1/antigravity`, `/v1beta/models/*` un Telegram tērzēšanas starpniekserveris. Arī informācijas paneļa testa galapunkts `/api/guardrails/test`. Pirmszvana bloks atgriež HTTP 400. |
-| `runPostCallHooks`                                        | **Nestraumēšana** tikai tērzēšanas atbildes (`open-sse/handlers/chatCore/nonStreamingResponse.ts`). Straumētās atbildes to nekad nesasniedz.                                                                                                                                                                                                                                                                                                           |
+| `runPostCallHooks`                                        | **Nav straumēšanas** tikai tērzēšanas atbildes (`open-sse/handlers/chatCore/nonStreamingResponse.ts`). Straumētās atbildes to nekad nesasniedz.                                                                                                                                                                                                                                                                                                        |
 | Straumēšana PII                                           | `createPiiSseTransform` (`src/lib/streamingPiiTransform.ts`), tiek ievadīts `streamingPipeline.ts`, kad `PII_RESPONSE_SANITIZATION` ir ieslēgts. Tā nav aizsargmarga, tāpēc atspējošanas kanāli to neietekmē.                                                                                                                                                                                                                                          |
 | Atgriezeniska PII velve                                   | Pieprasījumus apstrādā tikai `handleChat`, kad ir ieslēgti `PII_REDACTION_ENABLED` un `PII_REVERSIBLE_VAULT_ENABLED`. Žetoni tiek izkalti ar `pii-masker` iepriekšēju zvanu un atjaunoti pie `handleChat` izejas (`src/lib/pii/requestTokenVaultScope.ts`). `pii-masker` atspējošana pieprasījumam nozīmē, ka nekas netiek kalts.                                                                                                                      |
 | Iesmidzināšanas aizsardzības starpprogrammatūra (mantota) | Katrs uzvednes `/v1` maršruts, iekļauta tērzēšanas ģimene (skatiet [maršruta pārklājumu](#injection-guard-route-coverage--red-team-phase-8--block-d) ). Tikai tūlītēja injekcija.                                                                                                                                                                                                                                                                      |
@@ -448,29 +478,31 @@ Aizsargmargu reģistrs ir pievienots tikai tērzēšanas cauruļvadam. Šīs rob
 
 - **Multivide, iegulšana un datu ceļi** (`/v1/images/*`, `/v1/embeddings`, `/v1/audio/*`, `/v1/videos/generations`, `/v1/music/generations`, `/v1/rerank`, `/v1/search`, `/v1/moderations`) nekad nesasniedz reģistru. Tur nedarbojas PII maskēšana, akreditācijas datu maskēšana vai modalitātes tilts. Viņu vienīgā pārbaude ir mantotā injekcijas aizsarga starpprogrammatūra.
 - **Straumētas atbildes** nesaņemiet pēczvana aizsargmargas: bez `pii-masker` vai `credential-masker` pēczvana un bez zvana bloka. Tiek lietota tikai straumēšanas PII transformācija (ja ir ieslēgta `PII_RESPONSE_SANITIZATION` ). Straumētajā atbildē atbalsotie akreditācijas dati netiek rediģēti.
-- **Atspējot kanālus salīdzinājumā ar starpprogrammatūru (pēc dizaina):** starpprogrammatūra novērtē tūlītēju injekciju ar savu zvanu uz `evaluatePromptInjection()`, neizlaižot nevienu zvanītāja kontrolētu atspējošanas sarakstu. `block` režīms ir obligāta robeža, kuru nevar apiet zvanītāja kontrolētās atspējošanas, tostarp tērzēšanas ģimenes maršrutos ( [#16413](https://github.com/diegosouzapw/OmniRoute/issues/16413) ). Atspējojot `prompt-injection` tiek izlaists tikai reģistra aizsargmargas.
+- **Atspējot kanālus salīdzinājumā ar starpprogrammatūru (pēc dizaina):** starpprogrammatūra novērtē tūlītēju injekciju ar savu zvanu uz `evaluatePromptInjection()`, neizlaižot nevienu zvanītāja kontrolētu atspējošanas sarakstu. `block` režīms ir obligāta robeža, kuru nevar apiet zvanītāja kontrolētās atspējošanas, tostarp tērzēšanas ģimenes maršrutos ( [#16413](https://github.com/cheaper-inference/OmniRoute/issues/16413) ). Atspējojot `prompt-injection` tiek izlaists tikai reģistra aizsargmargas.
 
 ### Kas redz atbildi pirms pēczvana
 
 Nestraumēšanas ceļā secība ir šāda: atmiņas iegūšana → iebūvēta rīka izpilde → pēczvana aizsargmargas → pēczvana bloks izeja → semantiskās kešatmiņas krātuve.
 
-- **Atmiņas izvilkšana** un** instrumenta izpilde** skatiet atbildi, pirms pēczvana aizsargmargas var to pārrakstīt vai bloķēt. Kopš [#16401](https://github.com/diegosouzapw/OmniRoute/pull/16401) atmiņas izvilkšana palaiž izvilkto tekstu caur `sanitizePII` kad `PII_RESPONSE_SANITIZATION` ir ieslēgts (gan straumēšana, gan nestraumēšana), taču atmiņai un rīkiem joprojām tiek piedāvāta atbilde, ka pēc izsaukuma tiek bloķēti vēlāk.
+- **Atmiņas izvilkšana** un** instrumenta izpilde** skatiet atbildi, pirms pēczvana aizsargmargas var to pārrakstīt vai bloķēt. Kopš [#16401](https://github.com/cheaper-inference/OmniRoute/pull/16401) atmiņas izvilkšana palaiž izvilkto tekstu caur `sanitizePII` kad `PII_RESPONSE_SANITIZATION` ir ieslēgts (gan straumēšana, gan nestraumēšana), taču atmiņai un rīkiem joprojām tiek piedāvāta atbilde, ka pēc izsaukuma tiek bloķēti vēlāk.
 - **Semantiskā kešatmiņa** saglabā atbildi pēc pēczvana, tāpēc tā saglabā pārrakstīto atbildi, un bloķēta atbilde nekad netiek saglabāta kešatmiņā. Kešatmiņas ieraksti tiek ievadīti katrai API atslēgai.
 
 ## Konfigurācija
 
 Vides mainīgie, ko nolasa iebūvētās aizsargmargas:
 
-| Mainīgs                               | Izmantoja                      | Efekts                                                                                                    |
-| ------------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| `INPUT_SANITIZER_ENABLED`             | `prompt-injection`             | Iestatiet `false`, lai pilnībā atspējotu noteikšanu.                                                      |
-| `INPUT_SANITIZER_MODE`                | `prompt-injection`             | Injekcijas politika: `warn`, `block` vai `log`. Mantotā vērtība `redact` nepārraksta injekcijas tekstu.   |
-| `INJECTION_GUARD_MODE`                | `prompt-injection`             | Režīms injekcijas aizsargam; arī DB iezīme karogs, kas** ignorē** env vars (DB > ENV).                    |
-| `INPUT_SANITIZER_BLOCK_THRESHOLD`     | `prompt-injection`             | Minimālais nopietnības līmenis, ko `MODE=block` noraida: `high` (noklusējums), `medium` vai `low`.        |
-| `INJECTION_GUARD_BLOCK_THRESHOLD`     | `prompt-injection`             | Mantotais aizstājvārds `INPUT_SANITIZER_BLOCK_THRESHOLD`.                                                 |
-| `PII_REDACTION_ENABLED`               | `pii-masker`                   | Kad `true`, pieprasījuma PII tiek rediģēts (neatkarīgi no injekcijas režīma).                             |
-| `PII_REVERSIBLE_VAULT_ENABLED`        | `pii-masker`, `handleChat`     | Izmantojot `PII_REDACTION_ENABLED`, izveidojiet atgriezeniskos marķierus un atjaunojiet tos 2xx atbildēs. |
-| `PII_RESPONSE_SANITIZATION` / `_MODE` | `pii-masker` (lejpus straumei) | Kontrolē atbildes puses maskētāja darbību.                                                                |
+| Mainīgs                               | Izmantoja                      | Efekts                                                                                                                           |
+| ------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
+| `INPUT_SANITIZER_ENABLED`             | `prompt-injection`             | Iestatiet `false`, lai pilnībā atspējotu noteikšanu.                                                                             |
+| `INPUT_SANITIZER_MODE`                | `prompt-injection`             | Injekcijas politika: `warn`, `block` vai `log`. Mantotā vērtība `redact` nepārraksta injekcijas tekstu.                          |
+| `INJECTION_GUARD_MODE`                | `prompt-injection`             | Režīms injekcijas aizsargam; arī DB iezīme karogs, kas** ignorē** env vars (DB > ENV).                                           |
+| `INPUT_SANITIZER_BLOCK_THRESHOLD`     | `prompt-injection`             | Minimālais nopietnības līmenis, ko `MODE=block` noraida: `high` (noklusējums), `medium` vai `low`.                               |
+| `INJECTION_GUARD_BLOCK_THRESHOLD`     | `prompt-injection`             | Mantotais aizstājvārds `INPUT_SANITIZER_BLOCK_THRESHOLD`.                                                                        |
+| `PII_REDACTION_ENABLED`               | `pii-masker`                   | Kad `true`, pieprasījuma PII tiek rediģēts (neatkarīgi no injekcijas režīma).                                                    |
+| `PII_REVERSIBLE_VAULT_ENABLED`        | `pii-masker`, `handleChat`     | Izmantojot `PII_REDACTION_ENABLED`, izveidojiet atgriezeniskos marķierus un atjaunojiet tos 2xx atbildēs.                        |
+| `PII_RESPONSE_SANITIZATION` / `_MODE` | `pii-masker` (lejpus straumei) | Kontrolē atbildes puses maskētāja darbību.                                                                                       |
+| `AGENT_GUARD_MODE`                    | `agent-guard`                  | `off` (noklusējums), `monitor` vai `block`. Arī DB funkcijas karodziņš (DB > ENV).                                               |
+| `AGENT_GUARD_STRICT`                  | `agent-guard`                  | `false` (noklusējums) vai `true`. Izmantojot `block`, atsakās arī neidentificēti klienti. Arī DB funkcijas karodziņš (DB > ENV). |
 
 Modality Bridge aizsargmargas nolasa izpildlaika konfigurāciju no DB atbalstītā iestatījumu veikala (`getSettings()`), nevis env vars. Vision primārās atslēgas ir `modalityBridgeVisionEnabled`, `modalityBridgeVisionMode`, `modalityBridgeVisionModel`, `modalityBridgeVisionTaskAware`, `modalityBridgeVisionPrompt`, `modalityBridgeVisionTimeout`, `modalityBridgeVisionMaxImages`, `modalityBridgeVisionMaxChars`, `modalityBridgeCacheEnabled`, `modalityBridgeCacheTtlMinutes` un `modalityBridgeCacheMaxEntries`. Mantotās `visionBridge*` atslēgas tiek pieņemtas tikai kā dokumentēta viena cikla lasīšanas atkāpšanās; informācijas paneļa rakstīšanai tiek izmantotas primārās atslēgas. Noklusējumi un atkāpšanās atrisinātājs darbojas `src/shared/constants/modalityBridgeDefaults.ts`, bet mantotās konstantes tiek saglabātas `src/shared/constants/visionBridgeDefaults.ts`.
 
@@ -532,39 +564,23 @@ vai tīkla piekļuves.
 - `docs/architecture/RESILIENCE_GUIDE.md` — ortogonālais slānis (circuit breaker, atdzišanas periodi)
 - `docs/reference/ENVIRONMENT.md` — pilnā vides mainīgo atsauce
 
-## Injection-guard maršrutu pārklājums un red-team (8. fāze · D bloks)
+## Injekcijas apsardzes maršruta pārklājums un sarkanā komanda (8. fāze · D bloks)
 
-Injection-guard (`createInjectionGuard` / `withInjectionGuard`) aptver visus maršrutus,
-kas pieņem lietotāju vaicājumus. Tas ievēro `INJECTION_GUARD_MODE` (noklusējums `warn` = tikai reģistrē;
-`block` = atgriež HTTP 400 `SECURITY_001`).
+Iesmidzināšanas aizsargs (`createInjectionGuard` / `withInjectionGuard`) aptver visus maršrutus, kas pieņem lietotāja norādījumus. Tas respektē `INJECTION_GUARD_MODE` (tikai noklusējuma `warn` = log; `block` = atgriež HTTP 400 `SECURITY_001`).
 
-| Tips             | Maršruti                                                                                                                                             | Noklusējuma režīms |
-| ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
-| Teksts (esošais) | `/v1/chat/completions`, `/v1/completions`, `/v1/relay/chat/completions`                                                                              | warn               |
-| Ģeneratīvs       | `/v1/messages`, `/v1/responses`, `/v1/images/generations`, `/v1/images/edits`, `/v1/videos/generations`, `/v1/music/generations`, `/v1/audio/speech` | warn               |
-| Dati             | `/v1/embeddings`, `/v1/rerank`, `/v1/search`, `/v1/moderations`                                                                                      | warn               |
+| Tips           | Maršruti                                                                                                                                             | Noklusējuma režīms |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------ |
+| Teksts (esošs) | `/v1/chat/completions`, `/v1/completions`, `/v1/relay/chat/completions`                                                                              | brīdināt           |
+| Ģeneratīvs     | `/v1/messages`, `/v1/responses`, `/v1/images/generations`, `/v1/images/edits`, `/v1/videos/generations`, `/v1/music/generations`, `/v1/audio/speech` | brīdināt           |
+| Dati           | `/v1/embeddings`, `/v1/rerank`, `/v1/search`, `/v1/moderations`                                                                                      | brīdināt           |
 
-Teksta izvilkšana (`extractMessageContents`) aptver `messages`/`input`/`prompt`/`query`+`documents`/`instructions`/`system`.
+Teksta izvilkšana (`extractMessageContents`) aptver `messages`/`input`/`prompt`/`query` + `documents`/`instructions`/`system`.
 
-**Red-team (iknakts, `nightly-llm-security.yml`):** promptfoo pārbauda, ka katrs maršruts bloķē
-OWASP-LLM korpusu režīmā `INJECTION_GUARD_MODE=block`; garak izpilda zondes (bez slepenās atslēgas izlaiž).
-`moderations` ir iekļauts konsekvencei. Bloķēšanas režīms ir obligāta robeža: `evaluatePromptInjection()`
-ignorē starpprogrammatūras nodoto atspiegošanas sarakstu katram pieprasījumam, tāpēc `disabledGuardrails`
-maršrutu no tā **neatbrīvo** ([#16413](https://github.com/diegosouzapw/OmniRoute/issues/16413)).
+**Sarkanā komanda (katru nakti, `nightly-llm-security.yml`):** promptfoo apstiprina, ka katrs maršruts bloķē OWASP-LLM korpusu `INJECTION_GUARD_MODE=block`; garaks vada zondes (izlaiž bez noslēpuma). `moderations` ir iekļauts konsekvences nodrošināšanai. Bloķēšanas režīms ir obligāta robeža: `evaluatePromptInjection()` ignorē atspējošanas sarakstu pēc pieprasījuma, starpprogrammatūra to nodod, tāpēc `disabledGuardrails` to dara** nē** atbrīvot maršrutu no tā ( [#16413](https://github.com/cheaper-inference/OmniRoute/issues/16413) ).
 
-Iknakts darbplūsmai (`.github/workflows/nightly-llm-security.yml`, cron + manuāla
-palaišana) ir divi darbi:
+Nakts darbplūsmai (`.github/workflows/nightly-llm-security.yml`, cron + manuāla nosūtīšana) ir divi uzdevumi:
 
-- **`promptfoo-guard` (bloķējošs)** — izpilda `promptfoo eval -c promptfooconfig.yaml`
-  ar `INJECTION_GUARD_MODE=block`. Katrs antagonistiskais gadījums (piem., "ignore all
-  previous instructions…", DAN stila jailbreak uzbrukumi) pārbauda, ka atbilde satur
-  `error.code === "SECURITY_001"`, t.i., ka aizsargs faktiski noraidīja pieprasījumu.
-- **`garak` (konsultatīvs)** — izpilda garak `--probes promptinject,dan,leakreplay`
-  pret lokālu OmniRoute instanci (`http://localhost:20128/v1`). Tas ir atkarīgs no
-  pakalpojumu sniedzēja slepenās atslēgas (`PROMPTFOO_PROVIDER_KEY`); graciozi izlaižas
-  un tam ir piedēklis `|| true`, tāpēc tas ziņo, neizjaucot CI.
+- **`promptfoo-guard` (bloķēšana)** — palaiž `promptfoo eval -c promptfooconfig.yaml` ar `INJECTION_GUARD_MODE=block`. Katrs sacīkstes gadījums (piemēram, "ignorēt visus iepriekšējos norādījumus...", DAN stila jailbreaks) apstiprina, ka atbilde satur `error.code === "SECURITY_001"`, ti, apsargs faktiski noraidīja pieprasījumu.
+- **`garak` (ieteicams)** — palaiž garak `--probes promptinject,dan,leakreplay` pret vietējo OmniRoute instanci (`http://localhost:20128/v1`). Aizsargāts ar pakalpojumu sniedzēja noslēpumu (`PROMPTFOO_PROVIDER_KEY`); graciozi izlaiž un tiek apzīmēts ar sufiksu `|| true`, tāpēc tas ziņo bez neveiksmes CI.
 
-Aizsarga palīgfunkcijas (`createInjectionGuard` / `withInjectionGuard`) pārklājums
-aptver katru `/v1` maršrutu, kas nes vaicājumu; vaicājuma tekstu no
-`messages`/`input`/`prompt`/`query`+`documents`/`instructions`/`system` iegūst
-`extractMessageContents()` failā `src/shared/utils/inputSanitizer.ts`.
+Aizsarga palīga pārklājums (`createInjectionGuard` / `withInjectionGuard`) aptver katru uzvednes gultņu `/v1` maršrutu; uzvednes teksts tiek izvilkts no `messages`/`input`/`prompt`/`query` + `documents`/`instructions`/`system` ar `extractMessageContents()` `src/shared/utils/inputSanitizer.ts`.
